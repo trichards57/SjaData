@@ -4,15 +4,21 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
+using SjaData.Server.Api;
+using SjaData.Server.Data;
 using SjaData.Server.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<JsonOptions>(j =>
+{
+    j.SerializerOptions.TypeInfoResolver = JsonContext.Default;
+});
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
@@ -30,14 +36,9 @@ var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
+
+app.MapPatientApi();
 
 app.MapFallbackToFile("/index.html");
 
