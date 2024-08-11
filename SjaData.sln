@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Server", "SjaData.S
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "sjadata.client", "sjadata.client\sjadata.client.esproj", "{28DC4A96-8E8C-4B2E-AD22-422B5D83C0EA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AAFF02A2-47DE-4135-972B-3EFDE4F8C347}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
