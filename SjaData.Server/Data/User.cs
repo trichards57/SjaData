@@ -5,7 +5,7 @@
 
 using Microsoft.AspNetCore.Identity;
 
-namespace SjaData.Server.Model;
+namespace SjaData.Server.Data;
 
 public class User : IdentityUser
 {

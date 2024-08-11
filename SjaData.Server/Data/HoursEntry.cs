@@ -6,7 +6,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SjaData.Server.Model;
+namespace SjaData.Server.Data;
 
 /// <summary>
 /// Represents a single entry of hours worked.
@@ -39,4 +39,16 @@ public class HoursEntry
     /// Gets or sets the number of hours worked.
     /// </summary>
     public TimeSpan Hours { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the person who worked the hours.
+    /// </summary>
+    public int PersonId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the person who worked the hours.
+    /// </summary>
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
 }

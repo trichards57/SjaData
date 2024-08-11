@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SjaData.Server.Model;
+using SjaData.Server.Data;
 
 #nullable disable
 
@@ -155,7 +155,7 @@ namespace SjaData.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SjaData.Server.Model.HoursEntry", b =>
+            modelBuilder.Entity("SjaData.Server.Data.HoursEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,6 +169,14 @@ namespace SjaData.Server.Migrations
                     b.Property<TimeSpan>("Hours")
                         .HasColumnType("time");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Region")
                         .HasColumnType("int");
 
@@ -180,7 +188,7 @@ namespace SjaData.Server.Migrations
                     b.ToTable("Hours");
                 });
 
-            modelBuilder.Entity("SjaData.Server.Model.Patient", b =>
+            modelBuilder.Entity("SjaData.Server.Data.Patient", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -193,8 +201,14 @@ namespace SjaData.Server.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("EventType")
                         .HasColumnType("int");
@@ -223,7 +237,7 @@ namespace SjaData.Server.Migrations
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("SjaData.Server.Model.User", b =>
+            modelBuilder.Entity("SjaData.Server.Data.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -299,7 +313,7 @@ namespace SjaData.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("SjaData.Server.Model.User", null)
+                    b.HasOne("SjaData.Server.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -308,7 +322,7 @@ namespace SjaData.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("SjaData.Server.Model.User", null)
+                    b.HasOne("SjaData.Server.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -323,7 +337,7 @@ namespace SjaData.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SjaData.Server.Model.User", null)
+                    b.HasOne("SjaData.Server.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -332,7 +346,7 @@ namespace SjaData.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("SjaData.Server.Model.User", null)
+                    b.HasOne("SjaData.Server.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

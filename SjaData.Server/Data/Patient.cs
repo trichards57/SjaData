@@ -5,7 +5,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaData.Server.Model;
+namespace SjaData.Server.Data;
 
 /// <summary>
 /// Represents a patient.
@@ -61,4 +61,14 @@ public class Patient
     /// Gets or sets the outcome of the patient.
     /// </summary>
     public Outcome Outcome { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date the entry was created.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date the entry was deleted.
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
 }

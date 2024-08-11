@@ -6,7 +6,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace SjaData.Server.Model;
+namespace SjaData.Server.Data;
 
 /// <summary>
 /// Main data context for the application.
