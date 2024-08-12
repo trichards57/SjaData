@@ -14,7 +14,7 @@ public static class PatientApiExtensions
 {
     public static WebApplication MapPatientApi(this WebApplication app)
     {
-        var group = app.MapGroup("/api/patients").WithTags("Patients");
+        var group = app.MapGroup("/api/patients");
 
         group.MapPost(string.Empty, async ([FromBody] NewPatient patient, [FromServices] IPatientService patientService, HttpContext context) =>
         {

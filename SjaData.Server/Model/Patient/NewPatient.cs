@@ -5,7 +5,6 @@
 
 using SjaData.Server.Data;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model.Patient;
 
@@ -30,7 +29,7 @@ public readonly record struct NewPatient
     /// <summary>
     /// Gets the call sign of the crew that attended the patient.
     /// </summary>
-    [MaxLength(10)]
+    [StringLength(10)]
     [Required(AllowEmptyStrings = false)]
     public required string CallSign { get; init; }
 
@@ -52,18 +51,17 @@ public readonly record struct NewPatient
     /// <summary>
     /// Gets the presenting complaint of the patient.
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? PresentingComplaint { get; init; }
 
     /// <summary>
     /// Gets the final clinical impression of the patient.
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string? FinalClinicalImpression { get; init; }
 
     /// <summary>
     /// Gets the outcome of the patient.
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public Outcome Outcome { get; init; }
 }

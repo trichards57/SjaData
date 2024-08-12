@@ -26,7 +26,7 @@ public class Patient
     /// <summary>
     /// Gets or sets the call sign of the crew that attended the patient.
     /// </summary>
-    [MaxLength(10)]
+    [StringLength(10)]
     [Required(AllowEmptyStrings = false)]
     public string CallSign { get; set; } = string.Empty;
 
@@ -48,13 +48,13 @@ public class Patient
     /// <summary>
     /// Gets or sets the presenting complaint of the patient.
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string PresentingComplaint { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the final clinical impression of the patient.
     /// </summary>
-    [MaxLength(100)]
+    [StringLength(100)]
     public string FinalClinicalImpression { get; set; } = string.Empty;
 
     /// <summary>

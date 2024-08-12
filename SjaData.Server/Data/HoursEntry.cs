@@ -49,6 +49,6 @@ public class HoursEntry
     /// Gets or sets the name of the person who worked the hours.
     /// </summary>
     [Required(AllowEmptyStrings = false)]
-    [MaxLength(100)]
+    [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 }
