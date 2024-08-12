@@ -10,6 +10,8 @@ using Microsoft.Identity.Web;
 using SjaData.Server.Api;
 using SjaData.Server.Data;
 using SjaData.Server.Model;
+using SjaData.Server.Services;
+using SjaData.Server.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,9 @@ builder.Services.AddIdentityCore<User>()
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration);
 
+builder.Services.AddTransient<IHoursService, HoursService>();
+builder.Services.AddTransient<IPatientService, PatientService>();
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
@@ -39,6 +44,7 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.MapPatientApi();
+app.MapHoursApi();
 
 app.MapFallbackToFile("/index.html");
 

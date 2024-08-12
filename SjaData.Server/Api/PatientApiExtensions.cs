@@ -40,10 +40,20 @@ public static class PatientApiExtensions
 
         group.MapGet("count", async (PatientQuery query, [FromServices] IPatientService patientService, HttpContext context) =>
         {
+            if (context.Request.GetTypedHeaders().IfModifiedSince.HasValue)
+            {
+                var age = await patientService.GetLastModifiedAsync() - context.Request.GetTypedHeaders().IfModifiedSince;
+
+                if (age < TimeSpan.FromSeconds(1))
+                {
+                    return Results.StatusCode(StatusCodes.Status304NotModified);
+                }
+            }
+
             var count = await patientService.CountAsync(query);
 
             context.Response.GetTypedHeaders().LastModified = count.LastUpdate;
-            context.Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue { Private = true };
+            context.Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue { Private = true, NoCache = true };
 
             return Results.Ok(count);
         });

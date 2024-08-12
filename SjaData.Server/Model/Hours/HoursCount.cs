@@ -2,6 +2,6 @@
 
 public readonly record struct HoursCount
 {
-    public int Count { get; init; }
+    public TimeSpan Count { get; init; }
     public DateTimeOffset LastUpdate { get; init; }
 }

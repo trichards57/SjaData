@@ -51,4 +51,14 @@ public class HoursEntry
     [Required(AllowEmptyStrings = false)]
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the date the entry was created.
+    /// </summary>
+    public DateTimeOffset UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date the entry was deleted.
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
 }
