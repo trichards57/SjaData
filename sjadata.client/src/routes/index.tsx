@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
     component: Index,
@@ -10,8 +10,8 @@ function Index() {
             <h1>SJA In Numbers</h1>
             <h2>Home</h2>
             <div className="link-boxes">
-                <a className="link-box">Hours</a>
-                <a className="link-box">Patients</a>
+                <Link className="link-box" to="/hours">Hours</Link>
+                <Link className="link-box" to="/patients">Patients</Link>
             </div>
         </>
     )
