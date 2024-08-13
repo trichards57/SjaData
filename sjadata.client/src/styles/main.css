@@ -1,0 +1,61 @@
+:root {
+    --sja-black: black;
+    --sja-black-text: white;
+    --sja-yellow: yellow;
+    --sja-yellow-text: black;
+    --sja-green: green;
+    --sja-green-text: white;
+    --sja-dark-green: darkgreen;
+    --sja-dark-green-text: black;
+    --sja-header-font: "Whitney SemiBold", Arial, sans-serif;
+    --root-padding: 5px;
+}
+
+html 
+{
+    padding: 10px;
+}
+
+h1 
+{
+    background-color: var(--sja-black);
+    color: var(--sja-black-text);
+    font-family: var(--sja-header-font);
+    font-weight: 600;
+    width: auto;
+    padding: var(--root-padding) calc(var(--root-padding) * 2);
+    display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: fit-content;
+}
+
+h2 {
+    background-color: var(--sja-yellow);
+    color: var(--sja-yellow-text);
+    font-family: var(--sja-header-font);
+    font-weight: 600;
+    margin-top: 0;
+    padding: var(--root-padding) calc(var(--root-padding) * 2);
+    display: block;
+    max-width: fit-content;
+}
+
+.link-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.link-box {
+    background-color: var(--sja-green);
+    color: var(--sja-green-text);
+    width: 250px;
+    height: 200px;
+    font-family: var(--sja-header-font);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
