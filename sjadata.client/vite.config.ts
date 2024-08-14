@@ -44,7 +44,7 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/weatherforecast': {
+            '^/img': {
                 target,
                 secure: false
             }

@@ -1,19 +1,24 @@
 :root {
     --sja-black: black;
     --sja-black-text: white;
-    --sja-yellow: yellow;
+    --sja-yellow: #E1E000;
     --sja-yellow-text: black;
-    --sja-green: green;
+    --sja-green: #009F4D;
     --sja-green-text: white;
-    --sja-dark-green: darkgreen;
-    --sja-dark-green-text: black;
-    --sja-header-font: "Whitney SemiBold", Arial, sans-serif;
+    --sja-dark-green: #007A53;
+    --sja-dark-green-text: white;
+    --sja-header-font: "Whitney SemiBold", arial, sans-serif;
     --root-padding: 5px;
 }
 
 html 
 {
-    padding: 10px;
+    background-image: url("/img/sja-back.svg");
+    background-position: top right;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    min-height: 100vh;
 }
 
 h1 
