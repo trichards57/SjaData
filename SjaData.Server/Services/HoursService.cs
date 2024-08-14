@@ -37,7 +37,15 @@ public class HoursService(DataContext dataContext) : IHoursService
         await dataContext.SaveChangesAsync();
     }
 
-    public async Task<DateTimeOffset> GetLastModifiedAsync() => await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        if (await dataContext.Hours.AnyAsync())
+        {
+            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
+        }
+
+        return DateTimeOffset.MinValue;
+    }
 
     public async Task<HoursCount> CountAsync(HoursQuery query)
     {
@@ -63,10 +71,10 @@ public class HoursService(DataContext dataContext) : IHoursService
             };
         }
 
-        var hoursCount = TimeSpan.FromHours(await items.Where(i => !i.DeletedAt.HasValue).SumAsync(h => h.Hours.TotalHours));
+        var hoursCount = (await items.Where(i => i.DeletedAt != null).Select(h => h.Hours).ToListAsync()).Sum(s => s.TotalHours);
         var lastUpdate = await GetLastModifiedAsync();
 
-        return new HoursCount { Count = hoursCount, LastUpdate = lastUpdate };
+        return new HoursCount { Count = TimeSpan.FromHours(hoursCount), LastUpdate = lastUpdate };
     }
 
     public async Task DeleteAsync(int id)

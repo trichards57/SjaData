@@ -9,13 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using SjaData.Server.Api;
 using SjaData.Server.Data;
+using SjaData.Server.Data.Compiled;
 using SjaData.Server.Model;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.Configure<JsonOptions>(j =>
 {
@@ -24,6 +23,7 @@ builder.Services.Configure<JsonOptions>(j =>
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
+    o.UseModel(DataContextModel.Instance);
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
