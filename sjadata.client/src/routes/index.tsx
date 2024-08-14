@@ -7,7 +7,6 @@ export const Route = createFileRoute('/')({
 function Index() {
     return (
         <>
-            <h1>SJA In Numbers</h1>
             <h2>Home</h2>
             <div className="link-boxes">
                 <Link className="link-box" to="/hours">Hours</Link>
