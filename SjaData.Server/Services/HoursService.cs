@@ -5,14 +5,16 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaData.Server.Data;
+using SjaData.Server.Logging;
 using SjaData.Server.Model.Hours;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
 
-public class HoursService(DataContext dataContext) : IHoursService
+public partial class HoursService(DataContext dataContext, ILogger<HoursService> logger) : IHoursService
 {
     private readonly DataContext dataContext = dataContext;
+    private readonly ILogger<HoursService> logger = logger;
 
     public async Task AddAsync(NewHoursEntry hours)
     {
@@ -51,16 +53,6 @@ public class HoursService(DataContext dataContext) : IHoursService
     {
         var items = dataContext.Hours.AsQueryable();
 
-        if (query.Trust.HasValue && query.Trust != Trust.Undefined)
-        {
-            items = items.Where(h => h.Trust == query.Trust.Value);
-        }
-
-        if (query.Region.HasValue && query.Region != Region.Undefined)
-        {
-            items = items.Where(h => h.Region == query.Region.Value);
-        }
-
         if (query.Date.HasValue)
         {
             items = query.DateType switch
@@ -71,10 +63,15 @@ public class HoursService(DataContext dataContext) : IHoursService
             };
         }
 
-        var hoursCount = (await items.Where(i => i.DeletedAt != null).Select(h => h.Hours).ToListAsync()).Sum(s => s.TotalHours);
+        var hoursCount = (await items.Where(i => i.DeletedAt != null).Select(h => new
+        {
+            Label = h.Region == Region.Undefined ? h.Region.ToString() : h.Trust.ToString(),
+            h.Hours,
+        }).GroupBy(h => h.Label).ToListAsync())
+        .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours.TotalHours)));
         var lastUpdate = await GetLastModifiedAsync();
 
-        return new HoursCount { Count = TimeSpan.FromHours(hoursCount), LastUpdate = lastUpdate };
+        return new HoursCount { Counts = hoursCount, LastUpdate = lastUpdate };
     }
 
     public async Task DeleteAsync(int id)
@@ -86,6 +83,10 @@ public class HoursService(DataContext dataContext) : IHoursService
             existingItem.UpdatedAt = DateTimeOffset.UtcNow;
             existingItem.DeletedAt = existingItem.UpdatedAt;
             await dataContext.SaveChangesAsync();
+            LogItemDeleted(id);
         }
     }
+
+    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]
+    private partial void LogItemDeleted(int id);
 }

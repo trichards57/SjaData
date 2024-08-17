@@ -18,10 +18,13 @@ function Hours() {
           <div>0</div>
         </div>
         <div className="hours-box target">
-          <div>NHSE Target</div>
+          <div>NHSE Target<span className="see">*</span></div>
           <div>0</div>
         </div>
       </div>
+      <p>
+        * Target is shown as people-hours, not crew-hours (and so is double what we bill to NHSE).
+      </p>
     </>
   );
 }

@@ -8,6 +8,7 @@
   --sja-dark-green: #007a53;
   --sja-dark-green-text: white;
   --sja-header-font: "Whitney SemiBold", arial, sans-serif;
+  --sja-body-font: "Whitney Book", arial, sans-serif;
   --root-padding: 5px;
   --box-height: 200px;
   --box-padding: 40px;
@@ -21,6 +22,7 @@ html {
   background-repeat: no-repeat;
   background-attachment: scroll;
   min-height: 100vh;
+  font-family: var(--sja-body-font);
 }
 
 h1 {
@@ -99,4 +101,10 @@ h2 {
 
 .hours-box div {
   display: block;
+}
+
+.see {
+  font-size: 1.5rem;
+  vertical-align: super;
+  line-height: 1;
 }

@@ -15,14 +15,8 @@ public readonly record struct HoursQuery
         {
             Date = context.Request.Query.TryGetValue("date", out var date) ? DateOnly.Parse(date) : null,
             DateType = context.Request.Query.TryGetValue("dateType", out var dateType) ? Enum.Parse<DateType>(dateType) : null,
-            Region = context.Request.Query.TryGetValue("region", out var region) ? Enum.Parse<Region>(region) : null,
-            Trust = context.Request.Query.TryGetValue("trust", out var trust) ? Enum.Parse<Trust>(trust) : null,
         });
     }
-
-    public Region? Region { get; init; }
-
-    public Trust? Trust { get; init; }
 
     public DateOnly? Date { get; init; }
 
