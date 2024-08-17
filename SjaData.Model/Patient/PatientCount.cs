@@ -1,4 +1,4 @@
-﻿namespace SjaData.Server.Model.Patient;
+﻿namespace SjaData.Model.Patient;
 
 public readonly record struct PatientCount
 {

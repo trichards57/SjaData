@@ -6,7 +6,7 @@
 using SjaData.Server.Data;
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaData.Server.Model.Patient;
+namespace SjaData.Model.Patient;
 
 /// <summary>
 /// Represents a new patient record.

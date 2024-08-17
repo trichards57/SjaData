@@ -47,6 +47,7 @@
     <ProjectReference Include="..\sjadata.client\sjadata.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\SjaData.Model\SjaData.Model.csproj" />
   </ItemGroup>
 
   <ItemGroup>

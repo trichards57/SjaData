@@ -1,4 +1,4 @@
-﻿using SjaData.Server.Model.Patient;
+﻿using SjaData.Model.Patient;
 
 namespace SjaData.Server.Services.Interfaces;
 

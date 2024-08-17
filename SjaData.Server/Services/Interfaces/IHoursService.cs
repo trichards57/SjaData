@@ -1,4 +1,4 @@
-﻿using SjaData.Server.Model.Hours;
+﻿using SjaData.Model.Hours;
 
 namespace SjaData.Server.Services.Interfaces;
 

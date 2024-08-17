@@ -4,8 +4,9 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using SjaData.Model;
+using SjaData.Model.Patient;
 using SjaData.Server.Data;
-using SjaData.Server.Model.Patient;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
 
@@ -62,8 +63,8 @@ public class PatientService(DataContext dataContext) : IPatientService
         {
             items = query.DateType switch
             {
-                Model.DateType.Day => items.Where(p => p.Date == query.Date.Value),
-                Model.DateType.Month => items.Where(p => p.Date.Month == query.Date.Value.Month && p.Date.Year == query.Date.Value.Year),
+                DateType.Day => items.Where(p => p.Date == query.Date.Value),
+                DateType.Month => items.Where(p => p.Date.Month == query.Date.Value.Month && p.Date.Year == query.Date.Value.Year),
                 _ => items.Where(p => p.Date.Year == query.Date.Value.Year),
             };
         }

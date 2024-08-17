@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaData.Server.Data;
+using Microsoft.AspNetCore.Http;
+using SjaData.Model;
 
-namespace SjaData.Server.Model.Hours;
+namespace SjaData.Model.Hours;
 
 public readonly record struct HoursQuery
 {

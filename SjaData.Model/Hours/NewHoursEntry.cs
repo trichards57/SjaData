@@ -6,7 +6,7 @@
 using SjaData.Server.Data;
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaData.Server.Model.Hours;
+namespace SjaData.Model.Hours;
 
 /// <summary>
 /// Represents a new hours entry.

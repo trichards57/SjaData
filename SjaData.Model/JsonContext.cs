@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SjaData.Model.Hours;
+using SjaData.Model.Patient;
 using SjaData.Server.Data;
-using SjaData.Server.Model.Hours;
-using SjaData.Server.Model.Patient;
 using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model;

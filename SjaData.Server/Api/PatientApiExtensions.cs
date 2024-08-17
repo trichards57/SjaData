@@ -4,7 +4,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Mvc;
-using SjaData.Server.Model.Patient;
+using SjaData.Model.Patient;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SjaData.Server.Model.Hours;
+using SjaData.Model.Hours;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Api;

@@ -1,4 +1,4 @@
-﻿namespace SjaData.Server.Model;
+﻿namespace SjaData.Model;
 
 public enum DateType
 {

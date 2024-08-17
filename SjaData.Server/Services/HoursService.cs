@@ -4,9 +4,10 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using SjaData.Model;
+using SjaData.Model.Hours;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
-using SjaData.Server.Model.Hours;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
@@ -57,17 +58,24 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         {
             items = query.DateType switch
             {
-                Model.DateType.Day => items.Where(h => h.Date == query.Date.Value),
-                Model.DateType.Month => items.Where(h => h.Date.Month == query.Date.Value.Month && h.Date.Year == query.Date.Value.Year),
+                DateType.Day => items.Where(h => h.Date == query.Date.Value),
+                DateType.Month => items.Where(h => h.Date.Month == query.Date.Value.Month && h.Date.Year == query.Date.Value.Year),
                 _ => items.Where(h => h.Date.Year == query.Date.Value.Year),
             };
         }
 
-        var hoursCount = (await items.Where(i => i.DeletedAt != null).Select(h => new
+        var hoursCount = (await items.Where(i => i.DeletedAt == null).Select(h => new
         {
-            Label = h.Region == Region.Undefined ? h.Region.ToString() : h.Trust.ToString(),
+            h.Region,
+            h.Trust,
             h.Hours,
-        }).GroupBy(h => h.Label).ToListAsync())
+        }).ToListAsync())
+        .Select(h => new
+        {
+            Label = h.Region == Region.Undefined ? h.Trust.ToString() : h.Region.ToString(),
+            h.Hours,
+        })
+        .GroupBy(h => h.Label)
         .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours.TotalHours)));
         var lastUpdate = await GetLastModifiedAsync();
 
