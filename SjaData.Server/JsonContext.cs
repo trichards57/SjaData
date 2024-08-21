@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SjaData.Model;
 using SjaData.Model.Hours;
 using SjaData.Model.Patient;
-using SjaData.Server.Data;
 using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model;
 
 [JsonSerializable(typeof(NewHoursEntry))]
 [JsonSerializable(typeof(HoursTarget))]
-[JsonSerializable(typeof(HoursQuery))]
 [JsonSerializable(typeof(HoursCount))]
 [JsonSerializable(typeof(NewPatient))]
-[JsonSerializable(typeof(PatientQuery))]
 [JsonSerializable(typeof(PatientCount))]
 [JsonSerializable(typeof(EventType))]
 [JsonSerializable(typeof(Region))]

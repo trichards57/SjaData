@@ -1,13 +1,15 @@
-﻿using CsvHelper;
+﻿// <copyright file="HoursMap.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace SJAData.Loader.Model;
+
 internal class HoursMap : ClassMap<Hours>
 {
     public HoursMap()
@@ -27,15 +29,21 @@ internal class HoursMap : ClassMap<Hours>
         Map(h => h.Remarks).Name("Remarks");
     }
 
-    private class TimeSpanConverter : DefaultTypeConverter
+    private sealed class TimeSpanConverter : DefaultTypeConverter
     {
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
         {
+            if (text == null)
+            {
+                return TimeSpan.Zero;
+            }
+
             if (text.Equals("24:00"))
+            {
                 return TimeSpan.FromDays(1);
+            }
 
-            return TimeSpan.Parse(text);
+            return TimeSpan.Parse(text, CultureInfo.InvariantCulture);
         }
-
     }
 }

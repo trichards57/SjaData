@@ -1,10 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
-using CsvHelper;
-using SjaData.Model.Hours;
-using SjaData.Server.Data;
-using SjaData.Server.Model;
+﻿using CsvHelper;
 using SJAData.Loader.Model;
-using System.Formats.Tar;
+using SjaData.Model;
+using SjaData.Model.Hours;
+using SjaData.Server.Model;
 using System.Globalization;
 using System.Net.Http.Json;
 
@@ -40,7 +38,7 @@ foreach (var hour in hours.Where(h => !string.IsNullOrWhiteSpace(h.Name)))
         Date = hour.ShiftDate,
         Hours = hour.ShiftLength,
         PersonId = int.Parse(hour.IdNumber),
-        Name = hour.Name
+        Name = hour.Name,
     };
 
     var trust = hour.CrewType switch

@@ -8,6 +8,26 @@ namespace SjaData.Server.Migrations
     public partial class UpdatedDataModel : Migration
     {
         /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "CreatedAt",
+                table: "Patients");
+
+            migrationBuilder.DropColumn(
+                name: "DeletedAt",
+                table: "Patients");
+
+            migrationBuilder.DropColumn(
+                name: "Name",
+                table: "Hours");
+
+            migrationBuilder.DropColumn(
+                name: "PersonId",
+                table: "Hours");
+        }
+
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<DateTimeOffset>(
@@ -37,26 +57,6 @@ namespace SjaData.Server.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "CreatedAt",
-                table: "Patients");
-
-            migrationBuilder.DropColumn(
-                name: "DeletedAt",
-                table: "Patients");
-
-            migrationBuilder.DropColumn(
-                name: "Name",
-                table: "Hours");
-
-            migrationBuilder.DropColumn(
-                name: "PersonId",
-                table: "Hours");
         }
     }
 }

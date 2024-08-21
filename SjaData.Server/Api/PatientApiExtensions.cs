@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using SjaData.Model.Patient;
+using SjaData.Server.Api.Model;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
 
@@ -58,7 +59,7 @@ public static class PatientApiExtensions
             return Results.Ok(count);
         });
 
-        group.MapDelete("{id}", async ([FromRoute]int id, [FromServices] IPatientService patientService) =>
+        group.MapDelete("{id}", async ([FromRoute] int id, [FromServices] IPatientService patientService) =>
         {
             await patientService.DeleteAsync(id);
             return Results.NoContent();
