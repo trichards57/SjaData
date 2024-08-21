@@ -17,54 +17,63 @@ public static class PatientApiExtensions
     {
         var group = app.MapGroup("/api/patients");
 
-        group.MapPost(string.Empty, async ([FromBody] NewPatient patient, [FromServices] IPatientService patientService, HttpContext context) =>
+        group.MapPost(string.Empty, AcceptPatient)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+        group.MapGet("count", CountPatients)
+            .Produces(StatusCodes.Status304NotModified)
+            .Produces<PatientCount>();
+        group.MapDelete("{id}", DeletePatient)
+            .Produces(StatusCodes.Status204NoContent);
+
+        return app;
+    }
+
+    internal static async Task<IResult> AcceptPatient(NewPatient patient, IPatientService patientService, HttpContext context)
+    {
+        try
         {
-            try
+            await patientService.AddAsync(patient);
+            return Results.NoContent();
+        }
+        catch (DuplicateIdException)
+        {
+            return Results.Conflict(new ProblemDetails
             {
-                await patientService.AddAsync(patient);
-                return Results.NoContent();
-            }
-            catch (DuplicateIdException)
-            {
-                return Results.Conflict(new ProblemDetails
-                {
-                    Detail = "A patient with the same ID already exists.",
-                    Status = StatusCodes.Status409Conflict,
-                    Extensions =
+                Detail = "A patient with the same ID already exists.",
+                Status = StatusCodes.Status409Conflict,
+                Extensions =
                     {
                         ["traceId"] = context.TraceIdentifier,
                     },
-                    Title = "Duplicate ID",
-                });
-            }
-        });
+                Title = "Duplicate ID",
+            });
+        }
+    }
 
-        group.MapGet("count", async (PatientQuery query, [FromServices] IPatientService patientService, HttpContext context) =>
+    internal static async Task<IResult> CountPatients(PatientQuery query, IPatientService patientService, HttpContext context)
+    {
+        if (context.Request.GetTypedHeaders().IfModifiedSince.HasValue)
         {
-            if (context.Request.GetTypedHeaders().IfModifiedSince.HasValue)
+            var age = await patientService.GetLastModifiedAsync() - context.Request.GetTypedHeaders().IfModifiedSince;
+
+            if (age < TimeSpan.FromSeconds(1))
             {
-                var age = await patientService.GetLastModifiedAsync() - context.Request.GetTypedHeaders().IfModifiedSince;
-
-                if (age < TimeSpan.FromSeconds(1))
-                {
-                    return Results.StatusCode(StatusCodes.Status304NotModified);
-                }
+                return Results.StatusCode(StatusCodes.Status304NotModified);
             }
+        }
 
-            var count = await patientService.CountAsync(query);
+        var count = await patientService.CountAsync(query);
 
-            context.Response.GetTypedHeaders().LastModified = count.LastUpdate;
-            context.Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue { Private = true, NoCache = true };
+        context.Response.GetTypedHeaders().LastModified = count.LastUpdate;
+        context.Response.GetTypedHeaders().CacheControl = new() { Private = true, NoCache = true };
 
-            return Results.Ok(count);
-        });
+        return Results.Ok(count);
+    }
 
-        group.MapDelete("{id}", async ([FromRoute] int id, [FromServices] IPatientService patientService) =>
-        {
-            await patientService.DeleteAsync(id);
-            return Results.NoContent();
-        });
-
-        return app;
+    internal static async Task<IResult> DeletePatient([FromRoute] int id, [FromServices] IPatientService patientService)
+    {
+        await patientService.DeleteAsync(id);
+        return Results.NoContent();
     }
 }

@@ -19,67 +19,67 @@ import { Route as IndexImport } from './routes/index'
 // Create/Update Routes
 
 const PatientsRoute = PatientsImport.update({
-    path: '/patients',
-    getParentRoute: () => rootRoute,
+  path: '/patients',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const HoursRoute = HoursImport.update({
-    path: '/hours',
-    getParentRoute: () => rootRoute,
+  path: '/hours',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AboutRoute = AboutImport.update({
-    path: '/about',
-    getParentRoute: () => rootRoute,
+  path: '/about',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const IndexRoute = IndexImport.update({
-    path: '/',
-    getParentRoute: () => rootRoute,
+  path: '/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
-    interface FileRoutesByPath {
-        '/': {
-            id: '/'
-            path: '/'
-            fullPath: '/'
-            preLoaderRoute: typeof IndexImport
-            parentRoute: typeof rootRoute
-        }
-        '/about': {
-            id: '/about'
-            path: '/about'
-            fullPath: '/about'
-            preLoaderRoute: typeof AboutImport
-            parentRoute: typeof rootRoute
-        }
-        '/hours': {
-            id: '/hours'
-            path: '/hours'
-            fullPath: '/hours'
-            preLoaderRoute: typeof HoursImport
-            parentRoute: typeof rootRoute
-        }
-        '/patients': {
-            id: '/patients'
-            path: '/patients'
-            fullPath: '/patients'
-            preLoaderRoute: typeof PatientsImport
-            parentRoute: typeof rootRoute
-        }
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    '/hours': {
+      id: '/hours'
+      path: '/hours'
+      fullPath: '/hours'
+      preLoaderRoute: typeof HoursImport
+      parentRoute: typeof rootRoute
+    }
+    '/patients': {
+      id: '/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof PatientsImport
+      parentRoute: typeof rootRoute
+    }
+  }
 }
 
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren({
-    IndexRoute,
-    AboutRoute,
-    HoursRoute,
-    PatientsRoute,
+  IndexRoute,
+  AboutRoute,
+  HoursRoute,
+  PatientsRoute,
 })
 
 /* prettier-ignore-end */
