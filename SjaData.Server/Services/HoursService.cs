@@ -24,7 +24,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         if (existingItem is null)
         {
             existingItem = new HoursEntry();
-            dataContext.Add(existingItem);
+            dataContext.Hours.Add(existingItem);
 
             existingItem.PersonId = hours.PersonId;
             existingItem.Date = hours.Date;

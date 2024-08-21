@@ -23,8 +23,8 @@ builder.Services.Configure<JsonOptions>(j =>
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
-    o.UseModel(DataContextModel.Instance);
-    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    o.UseModel(DataContextModel.Instance)
+     .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddIdentityCore<User>()

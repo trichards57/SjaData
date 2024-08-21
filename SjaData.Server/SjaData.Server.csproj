@@ -7,7 +7,6 @@
     <SpaRoot>..\sjadata.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
-    <PublishAot>True</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>

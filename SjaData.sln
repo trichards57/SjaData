@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Server", "SjaData.Server\SjaData.Server.csproj", "{2F7E86D7-345B-4DF6-9D3B-F747B7A9B25F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SjaData.Server", "SjaData.Server\SjaData.Server.csproj", "{2F7E86D7-345B-4DF6-9D3B-F747B7A9B25F}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "sjadata.client", "sjadata.client\sjadata.client.esproj", "{28DC4A96-8E8C-4B2E-AD22-422B5D83C0EA}"
 EndProject
@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJAData.Loader", "SJAData.Loader\SJAData.Loader.csproj", "{4E1259DC-636A-4D98-904E-0913E49AA6E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Model", "SjaData.Model\SjaData.Model.csproj", "{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +32,14 @@ Global
 		{28DC4A96-8E8C-4B2E-AD22-422B5D83C0EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28DC4A96-8E8C-4B2E-AD22-422B5D83C0EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28DC4A96-8E8C-4B2E-AD22-422B5D83C0EA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4E1259DC-636A-4D98-904E-0913E49AA6E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E1259DC-636A-4D98-904E-0913E49AA6E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E1259DC-636A-4D98-904E-0913E49AA6E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E1259DC-636A-4D98-904E-0913E49AA6E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

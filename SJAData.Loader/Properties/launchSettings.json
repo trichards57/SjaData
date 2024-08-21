@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SJAData.Loader": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\trich\\OneDrive - St John Ambulance\\OverallHours.csv\""
+    }
+  }
+}

@@ -108,3 +108,17 @@ h2 {
   vertical-align: super;
   line-height: 1;
 }
+
+.area-list li {
+  list-style-type: none;
+  padding: var(--root-padding);
+}
+
+.area-list ul {
+  padding: var(--root-padding);
+}
+
+ul.area-list > li {
+  background-color: var(--sja-black);
+  color: var(--sja-black-text);
+}

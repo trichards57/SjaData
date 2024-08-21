@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SjaData.Model.Hours;
+﻿using SjaData.Model.Hours;
 using SjaData.Model.Patient;
 using SjaData.Server.Data;
 using System.Text.Json.Serialization;
@@ -15,7 +14,6 @@ namespace SjaData.Server.Model;
 [JsonSerializable(typeof(EventType))]
 [JsonSerializable(typeof(Region))]
 [JsonSerializable(typeof(Trust))]
-[JsonSerializable(typeof(ProblemDetails))]
 public partial class JsonContext : JsonSerializerContext
 {
 }

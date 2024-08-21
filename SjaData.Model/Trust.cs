@@ -79,4 +79,9 @@ public enum Trust
     /// The Northern Ireland Ambulance Service.
     /// </summary>
     NorthernIrelandAmbulanceService = 13,
+
+    /// <summary>
+    /// The Isle of Wight Ambulance Service.
+    /// </summary>
+    IsleOfWightAmbulanceService = 14,
 }

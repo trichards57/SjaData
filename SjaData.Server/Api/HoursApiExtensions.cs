@@ -16,6 +16,11 @@ public static class HoursApiExtensions
             return Results.NoContent();
         });
 
+        group.MapGet("target", () =>
+        {
+            return new HoursTarget { Target = 4000 };
+        });
+
         group.MapGet("count", async (HoursQuery query, [FromServices] IHoursService hoursService, HttpContext context) =>
         {
             if (context.Request.GetTypedHeaders().IfModifiedSince.HasValue)
