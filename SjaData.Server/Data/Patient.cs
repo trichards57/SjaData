@@ -14,16 +14,10 @@ namespace SjaData.Server.Data;
 public class Patient
 {
     /// <summary>
-    /// Gets or sets the call sign of the crew that attended the patient.
+    /// Gets or sets the unique identifier for the patient record.
     /// </summary>
-    [StringLength(10)]
-    [Required(AllowEmptyStrings = false)]
-    public string CallSign { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the date the entry was created.
-    /// </summary>
-    public DateTimeOffset CreatedAt { get; set; }
+    [Key]
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the date of the patient record.
@@ -31,37 +25,16 @@ public class Patient
     public DateOnly Date { get; set; }
 
     /// <summary>
-    /// Gets or sets the date the entry was deleted.
+    /// Gets or sets the call sign of the crew that attended the patient.
     /// </summary>
-    public DateTimeOffset? DeletedAt { get; set; }
+    [StringLength(10)]
+    [Required(AllowEmptyStrings = false)]
+    public string CallSign { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the type of event that the patient was involved in.
     /// </summary>
     public EventType EventType { get; set; }
-
-    /// <summary>
-    /// Gets or sets the final clinical impression of the patient.
-    /// </summary>
-    [StringLength(100)]
-    public string FinalClinicalImpression { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the unique identifier for the patient record.
-    /// </summary>
-    [Key]
-    public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the outcome of the patient.
-    /// </summary>
-    public Outcome Outcome { get; set; }
-
-    /// <summary>
-    /// Gets or sets the presenting complaint of the patient.
-    /// </summary>
-    [StringLength(100)]
-    public string PresentingComplaint { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the region that the patient was in.
@@ -72,4 +45,31 @@ public class Patient
     /// Gets or sets the NHS Ambulance Trust that the patient was attended by.
     /// </summary>
     public Trust Trust { get; set; }
+
+    /// <summary>
+    /// Gets or sets the presenting complaint of the patient.
+    /// </summary>
+    [StringLength(100)]
+    public string PresentingComplaint { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the final clinical impression of the patient.
+    /// </summary>
+    [StringLength(100)]
+    public string FinalClinicalImpression { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the outcome of the patient.
+    /// </summary>
+    public Outcome Outcome { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date the entry was created.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date the entry was deleted.
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
 }

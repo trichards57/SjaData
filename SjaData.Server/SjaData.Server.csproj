@@ -30,6 +30,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="8.8.0" />
+    <PackageReference Include="Microsoft.Extensions.Telemetry" Version="8.8.0" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.0.1" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.31.0.96804">
       <PrivateAssets>all</PrivateAssets>

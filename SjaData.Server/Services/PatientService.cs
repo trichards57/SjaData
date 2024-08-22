@@ -6,7 +6,6 @@
 using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
 using SjaData.Model.Patient;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
@@ -43,6 +42,8 @@ public class PatientService(DataContext dataContext) : IPatientService
 
         await dataContext.SaveChangesAsync();
     }
+
+    public async Task<DateTimeOffset> GetLastModifiedAsync() => await dataContext.Patients.MaxAsync(p => p.DeletedAt ?? p.CreatedAt);
 
     public async Task<PatientCount> CountAsync(PatientQuery query)
     {
@@ -94,6 +95,4 @@ public class PatientService(DataContext dataContext) : IPatientService
             await dataContext.SaveChangesAsync();
         }
     }
-
-    public async Task<DateTimeOffset> GetLastModifiedAsync() => await dataContext.Patients.MaxAsync(p => p.DeletedAt ?? p.CreatedAt);
 }

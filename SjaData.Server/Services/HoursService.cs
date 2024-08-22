@@ -6,7 +6,6 @@
 using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
 using SjaData.Model.Hours;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
@@ -39,6 +38,16 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         existingItem.Name = hours.Name;
 
         await dataContext.SaveChangesAsync();
+    }
+
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        if (await dataContext.Hours.AnyAsync())
+        {
+            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
+        }
+
+        return DateTimeOffset.MinValue;
     }
 
     public async Task<HoursCount> CountAsync(HoursQuery query)
@@ -84,16 +93,6 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
             await dataContext.SaveChangesAsync();
             LogItemDeleted(id);
         }
-    }
-
-    public async Task<DateTimeOffset> GetLastModifiedAsync()
-    {
-        if (await dataContext.Hours.AnyAsync())
-        {
-            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
-        }
-
-        return DateTimeOffset.MinValue;
     }
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]

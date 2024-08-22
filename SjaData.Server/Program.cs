@@ -6,10 +6,14 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Compliance.Classification;
+using Microsoft.Extensions.Compliance.Redaction;
 using Microsoft.Identity.Web;
+using SjaData.Model.DataTypes;
 using SjaData.Server.Api;
 using SjaData.Server.Data;
 using SjaData.Server.Data.Compiled;
+using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
@@ -35,6 +39,11 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 builder.Services.AddTransient<IHoursService, HoursService>();
 builder.Services.AddTransient<IPatientService, PatientService>();
+
+builder.Services.AddRedaction(c =>
+{
+    c.SetRedactor<StarRedactor>(new DataClassificationSet(DataClassifications.PatientData));
+});
 
 var app = builder.Build();
 

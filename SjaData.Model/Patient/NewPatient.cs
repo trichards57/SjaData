@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaData.Model.DataTypes;
 using System.ComponentModel.DataAnnotations;
 
 namespace SjaData.Model.Patient;
@@ -17,6 +18,7 @@ public readonly record struct NewPatient
     /// </summary>
     [Range(0, int.MaxValue)]
     [Required]
+    [PatientData]
     public required int Id { get; init; }
 
     /// <summary>
@@ -51,12 +53,14 @@ public readonly record struct NewPatient
     /// Gets the presenting complaint of the patient.
     /// </summary>
     [StringLength(100)]
+    [PatientData]
     public string? PresentingComplaint { get; init; }
 
     /// <summary>
     /// Gets the final clinical impression of the patient.
     /// </summary>
     [StringLength(100)]
+    [PatientData]
     public string? FinalClinicalImpression { get; init; }
 
     /// <summary>
