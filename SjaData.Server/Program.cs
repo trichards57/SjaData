@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Compliance.Classification;
-using Microsoft.Extensions.Compliance.Redaction;
 using Microsoft.Identity.Web;
 using SjaData.Model.DataTypes;
 using SjaData.Server.Api;
@@ -17,6 +16,9 @@ using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("SjaData.Server.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,12 +47,22 @@ builder.Services.AddRedaction(c =>
     c.SetRedactor<StarRedactor>(new DataClassificationSet(DataClassifications.PatientData));
 });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Server.xml"));
+    o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Model.xml"));
+});
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapPatientApi();
 app.MapHoursApi();

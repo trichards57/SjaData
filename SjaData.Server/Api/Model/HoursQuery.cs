@@ -19,7 +19,7 @@ public readonly record struct HoursQuery
         return ValueTask.FromResult(new HoursQuery
         {
             Date = context.Request.Query.TryGetValue("date", out var date) ? DateOnly.Parse(date!, CultureInfo.InvariantCulture) : null,
-            DateType = context.Request.Query.TryGetValue("dateType", out var dateType) ? Enum.Parse<DateType>(dateType!) : null,
+            DateType = context.Request.Query.TryGetValue("dateType", out var dateType) ? Enum.Parse<DateType>(dateType!, true) : null,
         });
     }
 }

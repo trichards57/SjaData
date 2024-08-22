@@ -10,11 +10,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AAFF02A2-47DE-4135-972B-3EFDE4F8C347}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJAData.Loader", "SJAData.Loader\SJAData.Loader.csproj", "{4E1259DC-636A-4D98-904E-0913E49AA6E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJAData.Loader", "SJAData.Loader\SJAData.Loader.csproj", "{4E1259DC-636A-4D98-904E-0913E49AA6E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Model", "SjaData.Model\SjaData.Model.csproj", "{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SjaData.Model", "SjaData.Model\SjaData.Model.csproj", "{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Server.Tests", "SjaData.Server.Tests\SjaData.Server.Tests.csproj", "{9EBCB990-48E6-4F0C-9933-7C5065CA7411}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +44,10 @@ Global
 		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE2B0A3D-6CFC-4EBB-AB4D-04555588340C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EBCB990-48E6-4F0C-9933-7C5065CA7411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EBCB990-48E6-4F0C-9933-7C5065CA7411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EBCB990-48E6-4F0C-9933-7C5065CA7411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EBCB990-48E6-4F0C-9933-7C5065CA7411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,26 +15,31 @@ public readonly record struct NewHoursEntry
     /// <summary>
     /// Gets the date of the entry.
     /// </summary>
+    [Required]
     public DateOnly Date { get; init; }
 
     /// <summary>
     /// Gets the region for the entry.
     /// </summary>
+    [Required]
     public Region Region { get; init; }
 
     /// <summary>
     /// Gets the NHS Ambulance Service trust for the entry.
     /// </summary>
+    [Required]
     public Trust Trust { get; init; }
 
     /// <summary>
     /// Gets the number of hours worked.
     /// </summary>
+    [Required]
     public TimeSpan Hours { get; init; }
 
     /// <summary>
     /// Gets the ID of the person who worked the hours.
     /// </summary>
+    [Required]
     public int PersonId { get; init; }
 
     /// <summary>

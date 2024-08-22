@@ -6,6 +6,7 @@
 using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
 using SjaData.Model.Patient;
+using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;

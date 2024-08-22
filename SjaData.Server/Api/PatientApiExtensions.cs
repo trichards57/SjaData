@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using SjaData.Model.DataTypes;
 using SjaData.Model.Patient;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Logging;
@@ -13,11 +14,14 @@ using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Api;
 
+/// <summary>
+/// API extensions that handle patient records.
+/// </summary>
 public static partial class PatientApiExtensions
 {
     public static WebApplication MapPatientApi(this WebApplication app)
     {
-        var group = app.MapGroup("/api/patients");
+        var group = app.MapGroup("/api/patients").WithOpenApi().WithTags("Patients");
 
         group.MapPost(string.Empty, AcceptPatient)
             .Produces(StatusCodes.Status204NoContent)
@@ -31,15 +35,23 @@ public static partial class PatientApiExtensions
         return app;
     }
 
-    internal static async Task<IResult> AcceptPatient(NewPatient patient, IPatientService patientService, HttpContext context)
+    internal static async Task<IResult> AcceptPatient(NewPatient patient, IPatientService patientService, HttpContext context, ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger(nameof(PatientApiExtensions));
+        var userId = context.User.GetNameIdentifierId() ?? "Unknown";
+
         try
         {
             await patientService.AddAsync(patient);
+
+            logger.LogPatientCreated(userId, patient);
+
             return Results.NoContent();
         }
         catch (DuplicateIdException)
         {
+            logger.LogDuplicateIdProvided(patient.Id);
+
             return Results.Conflict(new ProblemDetails
             {
                 Detail = "A patient with the same ID already exists.",
@@ -95,15 +107,18 @@ public static partial class PatientApiExtensions
         return Results.NoContent();
     }
 
-    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient {id} deleted by user {userId}")]
-    private static partial void LogPatientDeleted(this ILogger logger, int id, string userId);
-
-    [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "Patient count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
-    private static partial void LogPatientCountNotModified(this ILogger logger, DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
+    [LoggerMessage(EventCodes.DuplicateIdProvided, LogLevel.Information, "A patient with the same ID {id} already exists.")]
+    private static partial void LogDuplicateIdProvided(this ILogger logger, [PatientData] int id);
 
     [LoggerMessage(EventCodes.ItemFound, LogLevel.Information, "Patient count has been returned. It was last modified on {lastModified}.")]
     private static partial void LogPatientCountFound(this ILogger logger, DateTimeOffset lastModified, [LogProperties] PatientCount count);
 
-    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Patient record {id} has been created.")]
-    private static partial void LogPatientCreated(this ILogger logger, int id, [LogProperties] NewPatient patient);
+    [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "Patient count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
+    private static partial void LogPatientCountNotModified(this ILogger logger, DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
+
+    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Patient record has been created by user {userId}.")]
+    private static partial void LogPatientCreated(this ILogger logger, string userId, [LogProperties] NewPatient patient);
+
+    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient {id} deleted by user {userId}")]
+    private static partial void LogPatientDeleted(this ILogger logger, [PatientData] int id, string userId);
 }
