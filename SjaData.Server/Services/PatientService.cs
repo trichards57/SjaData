@@ -80,10 +80,20 @@ public class PatientService(DataContext dataContext) : IPatientService
             items = items.Where(p => p.Outcome == query.Outcome.Value);
         }
 
-        var count = await items.Where(p => !p.DeletedAt.HasValue).CountAsync();
+        var count = (await items.Where(i => i.DeletedAt == null).Select(h => new
+        {
+            h.Region,
+            h.Trust,
+        }).ToListAsync())
+        .Select(h => new
+        {
+            Label = h.Region == Region.Undefined ? h.Trust.ToString() : h.Region.ToString(),
+        })
+        .GroupBy(h => h.Label)
+        .ToDictionary(h => h.Key, h => h.Count());
         var lastUpdate = await GetLastModifiedAsync();
 
-        return new PatientCount { Count = count, LastUpdate = lastUpdate };
+        return new PatientCount { Counts = count, LastUpdate = lastUpdate };
     }
 
     public async Task DeleteAsync(int id)

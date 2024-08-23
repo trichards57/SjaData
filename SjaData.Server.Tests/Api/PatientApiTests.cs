@@ -1,4 +1,4 @@
-﻿// <copyright file="HoursApiTests.cs" company="Tony Richards">
+﻿// <copyright file="PatientApiTests.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Net.Http.Headers;
 using Moq;
 using SjaData.Model.Hours;
+using SjaData.Model.Patient;
 using SjaData.Server.Api;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Logging;
@@ -21,28 +22,27 @@ using System.Security.Claims;
 
 namespace SjaData.Server.Tests.Api;
 
-public class HoursApiTests
+public class PatientApiTests
 {
-    private readonly Mock<IHoursService> hoursService;
+    private readonly Mock<IPatientService> patientService;
     private readonly LoggerFactory loggerFactory;
     private readonly FakeLoggerProvider loggerProvider;
-    private readonly NewHoursEntry testNewHours;
+    private readonly NewPatient testNewPatient;
     private readonly int testId;
     private HttpContextMock httpContext;
 
-    public HoursApiTests()
+    public PatientApiTests()
     {
-        hoursService = new(MockBehavior.Strict);
+        patientService = new(MockBehavior.Strict);
         httpContext = new();
 
         loggerProvider = new();
         loggerFactory = new LoggerFactory([loggerProvider]);
-        testNewHours = new NewHoursEntry
+        testNewPatient = new NewPatient
         {
+            CallSign = "WR123",
             Date = DateOnly.FromDateTime(DateTime.Today),
-            Hours = TimeSpan.FromHours(1.25),
-            Name = "Test Person",
-            PersonId = 12345,
+            Id = 12345,
             Region = SjaData.Model.Region.NorthEast,
         };
         testId = 42;
@@ -51,9 +51,9 @@ public class HoursApiTests
     [Fact]
     public async Task AddHours_DelegatesToService()
     {
-        hoursService.Setup(s => s.AddAsync(testNewHours)).Returns(Task.CompletedTask);
+        patientService.Setup(s => s.AddAsync(testNewPatient)).Returns(Task.CompletedTask);
 
-        var result = await HoursApiExtensions.AddHours(testNewHours, hoursService.Object, httpContext, loggerFactory);
+        var result = await PatientApiExtensions.AcceptPatient(testNewPatient, patientService.Object, httpContext, loggerFactory);
 
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemCreated);
 
@@ -61,11 +61,11 @@ public class HoursApiTests
     }
 
     [Fact]
-    public async Task DeleteHours_DelegatesToService()
+    public async Task DeletePatient_DelegatesToService()
     {
-        hoursService.Setup(s => s.DeleteAsync(testId)).Returns(Task.CompletedTask);
+        patientService.Setup(s => s.DeleteAsync(testId)).Returns(Task.CompletedTask);
 
-        var result = await HoursApiExtensions.DeleteHours(testId, hoursService.Object, httpContext, loggerFactory);
+        var result = await PatientApiExtensions.DeletePatient(testId, patientService.Object, httpContext, loggerFactory);
 
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemDeleted);
 
@@ -73,84 +73,84 @@ public class HoursApiTests
     }
 
     [Fact]
-    public async Task GetHoursCount_DelegatesToService()
+    public async Task GetPatientCount_DelegatesToService()
     {
-        var query = default(HoursQuery);
-        var expected = new HoursCount
+        var query = default(PatientQuery);
+        var expected = new PatientCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, TimeSpan>
+            Counts = new Dictionary<string, int>
             {
-                { "NorthEast", TimeSpan.FromHours(42) },
-                { "NorthWest", TimeSpan.FromHours(24) },
-                { "SouthEast", TimeSpan.FromHours(36) },
-                { "SouthWest", TimeSpan.FromHours(18) },
+                { "NorthEast", 42 },
+                { "NorthWest", 24 },
+                { "SouthEast", 36 },
+                { "SouthWest", 18 },
             }.AsReadOnly(),
         };
-        hoursService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
+        patientService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
 
-        var result = await HoursApiExtensions.GetHoursCount(query, hoursService.Object, httpContext, loggerFactory);
+        var result = await PatientApiExtensions.GetPatientCount(query, patientService.Object, httpContext, loggerFactory);
 
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemFound);
 
-        result.Should().BeOfType<Ok<HoursCount>>();
+        result.Should().BeOfType<Ok<PatientCount>>();
 
-        var res = (Ok<HoursCount>)result;
+        var res = (Ok<PatientCount>)result;
 
         res.Value.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
-    public async Task GetHoursCount_ReturnsUpdate_IfPassedOldDate()
+    public async Task GetPatientCount_ReturnsUpdate_IfPassedOldDate()
     {
         var lastModified = DateTimeOffset.UtcNow;
 
-        var query = default(HoursQuery);
-        var expected = new HoursCount
+        var query = default(PatientQuery);
+        var expected = new PatientCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, TimeSpan>
+            Counts = new Dictionary<string, int>
             {
-                { "NorthEast", TimeSpan.FromHours(42) },
-                { "NorthWest", TimeSpan.FromHours(24) },
-                { "SouthEast", TimeSpan.FromHours(36) },
-                { "SouthWest", TimeSpan.FromHours(18) },
+                { "NorthEast", 42 },
+                { "NorthWest", 24 },
+                { "SouthEast", 36 },
+                { "SouthWest", 18 },
             }.AsReadOnly(),
         };
-        hoursService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
-        hoursService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
+        patientService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
+        patientService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
 
         httpContext = new HttpContextMock().SetupRequestHeaders(new HeaderDictionary
         {
             { HeaderNames.IfModifiedSince, lastModified.AddSeconds(-2).ToString("R") },
         });
 
-        var result = await HoursApiExtensions.GetHoursCount(query, hoursService.Object, httpContext, loggerFactory);
+        var result = await PatientApiExtensions.GetPatientCount(query, patientService.Object, httpContext, loggerFactory);
 
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemFound);
 
-        result.Should().BeOfType<Ok<HoursCount>>();
+        result.Should().BeOfType<Ok<PatientCount>>();
 
-        var res = (Ok<HoursCount>)result;
+        var res = (Ok<PatientCount>)result;
 
         res.Value.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
-    public async Task GetHoursCount_ReturnsNotModified_IfPassedNewDate()
+    public async Task GetPatientCount_ReturnsNotModified_IfPassedNewDate()
     {
         var lastModified = DateTimeOffset.UtcNow;
 
-        var query = default(HoursQuery);
+        var query = default(PatientQuery);
 
-        hoursService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
+        patientService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
 
         httpContext = new HttpContextMock().SetupRequestHeaders(new HeaderDictionary
         {
             { HeaderNames.IfModifiedSince, lastModified.ToString("R") },
         });
 
-        var result = await HoursApiExtensions.GetHoursCount(query, hoursService.Object, httpContext, loggerFactory);
+        var result = await PatientApiExtensions.GetPatientCount(query, patientService.Object, httpContext, loggerFactory);
 
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemNotModified);
 

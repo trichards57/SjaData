@@ -26,7 +26,7 @@ public static partial class PatientApiExtensions
         group.MapPost(string.Empty, AcceptPatient)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        group.MapGet("count", CountPatients)
+        group.MapGet("count", GetPatientCount)
             .Produces(StatusCodes.Status304NotModified)
             .Produces<PatientCount>();
         group.MapDelete("{id}", DeletePatient)
@@ -65,7 +65,7 @@ public static partial class PatientApiExtensions
         }
     }
 
-    internal static async Task<IResult> CountPatients(PatientQuery query, IPatientService patientService, HttpContext context, ILoggerFactory loggerFactory)
+    internal static async Task<IResult> GetPatientCount(PatientQuery query, IPatientService patientService, HttpContext context, ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger(nameof(PatientApiExtensions));
 
