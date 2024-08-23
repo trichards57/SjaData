@@ -8,17 +8,17 @@ using HttpContextMoq;
 using HttpContextMoq.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Net.Http.Headers;
 using Moq;
-using SjaData.Model.Hours;
 using SjaData.Model.Patient;
 using SjaData.Server.Api;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Logging;
+using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
-using System.Security.Claims;
 
 namespace SjaData.Server.Tests.Api;
 
@@ -58,6 +58,18 @@ public class PatientApiTests
         loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemCreated);
 
         result.Should().BeOfType<NoContent>();
+    }
+
+    [Fact]
+    public async Task AddHours_HandlesDuplicateId()
+    {
+        patientService.Setup(s => s.AddAsync(testNewPatient)).Throws(new DuplicateIdException());
+
+        var result = await PatientApiExtensions.AcceptPatient(testNewPatient, patientService.Object, httpContext, loggerFactory);
+
+        loggerProvider.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.DuplicateIdProvided);
+
+        result.Should().BeOfType<Conflict<ProblemDetails>>();
     }
 
     [Fact]

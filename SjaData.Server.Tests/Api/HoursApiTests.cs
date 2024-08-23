@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
+using Microsoft.Identity.Client;
 using Microsoft.Net.Http.Headers;
 using Moq;
 using SjaData.Model.Hours;
@@ -156,5 +157,14 @@ public class HoursApiTests
 
         result.Should().BeOfType<StatusCodeHttpResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status304NotModified);
+    }
+
+    [Fact]
+    public void GetHoursTarget_ReturnsHoursTarget()
+    {
+        var result = HoursApiExtensions.GetHoursTarget();
+
+        result.Should().BeOfType<Ok<HoursTarget>>()
+            .Which.Value.Should().BeEquivalentTo(new HoursTarget { Target = 4000 });
     }
 }
