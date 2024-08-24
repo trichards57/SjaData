@@ -1,0 +1,124 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Hours Page > renders data correctly 1`] = `
+<DocumentFragment>
+  <section>
+    <h2>
+      Hours
+    </h2>
+    <div
+      class="link-boxes"
+    >
+      <div
+        class="hours-box month"
+      >
+        <div>
+          This Month
+        </div>
+        <div>
+          24
+        </div>
+      </div>
+      <div
+        class="hours-box ytd"
+      >
+        <div>
+          Year to Date
+        </div>
+        <div>
+          296
+        </div>
+      </div>
+      <div
+        class="hours-box target"
+      >
+        <div>
+          NHSE Target
+          <a
+            class="see"
+            href="#target-note"
+          >
+            [*]
+          </a>
+        </div>
+        <div>
+          2000
+        </div>
+      </div>
+    </div>
+    <p>
+      <a
+        id="target-note"
+      >
+        *
+      </a>
+       Target is shown as people-hours, not crew-hours (and so is double what we bill to NHSE).
+    </p>
+  </section>
+  <section>
+    <h3>
+      Filter
+    </h3>
+    <ul
+      class="area-list"
+    >
+      <li>
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-plus "
+          data-icon="plus"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 448 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"
+            fill="currentColor"
+          />
+        </svg>
+        NHSE Contract
+      </li>
+      <ul>
+        <li>
+          North East Ambulance Service
+        </li>
+        <li>
+          North West Ambulance Service
+        </li>
+        <li>
+          West Midlands Ambulance Service
+        </li>
+        <li>
+          East Midlands Ambulance Service
+        </li>
+        <li>
+          East of England Ambulance Service
+        </li>
+        <li>
+          South West Ambulance Service
+        </li>
+        <li>
+          South Central Ambulance Service
+        </li>
+        <li>
+          South East Coast Ambulance Service
+        </li>
+        <li>
+          London Ambulance Service
+        </li>
+        <li>
+          Yorkshire Ambulance Service
+        </li>
+        <li>
+          Isle of Wight Ambulance Service
+        </li>
+      </ul>
+    </ul>
+  </section>
+  <p>
+    Data last updated : 02/01/2022, 00:00:00 
+  </p>
+</DocumentFragment>
+`;

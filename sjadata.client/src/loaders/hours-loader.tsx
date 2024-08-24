@@ -3,14 +3,14 @@ interface HoursCount {
   lastUpdate: string;
 }
 
-interface ParsedHoursCount {
+export interface ParsedHoursCount {
   counts: Record<string, number>;
   lastUpdate: Date;
 }
 
 export default async function hoursLoader(date?: Date) {
   const uri = date
-    ? `/api/hours/count?date=${date.toDateString()}&dateType=Month`
+    ? `/api/hours/count?date=${date.toISOString().split("T")[0]}&dateType=Month`
     : "/api/hours/count";
 
   const res = await fetch(uri);
@@ -31,7 +31,7 @@ export default async function hoursLoader(date?: Date) {
     const hours = parseInt(parts[0], 10);
     const minutes = parseInt(parts[1], 10);
 
-    parsedData.counts[key] = days * 24 + hours + minutes / 60;
+    parsedData.counts[key] = Math.round(days * 24 + hours + minutes / 60);
   }
 
   return parsedData as Readonly<ParsedHoursCount>;
