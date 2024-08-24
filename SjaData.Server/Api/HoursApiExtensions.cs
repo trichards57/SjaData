@@ -51,15 +51,6 @@ public static partial class HoursApiExtensions
             {
                 o.Responses[StatusCodes.Status200OK.ToString()].Description = "The person-hours count matching the given query.";
                 o.Responses[StatusCodes.Status200OK.ToString()].Headers.Add("Last-Modified", new() { Description = "The date and time the count was last modified.", Schema = new() { Type = "string", Format = "date-time" } });
-                o.Responses[StatusCodes.Status200OK.ToString()].Content["application/json"].Example = new OpenApiObject()
-                {
-                    ["counts"] = new OpenApiObject
-                    {
-                        ["NorthEast"] = new OpenApiString("1.2:30:00"),
-                        ["LondonAmbulanceService"] = new OpenApiString("1.2:30:00"),
-                    },
-                    ["lastUpdate"] = new OpenApiString("2021-09-01T12:00:00Z"),
-                };
                 o.Responses[StatusCodes.Status304NotModified.ToString()].Description = "The count has not changed since the given date.";
                 o.Summary = "Gets the person-hours count matching the given query.";
                 o.Parameters.Add(new() { Name = "If-Modified-Since", In = ParameterLocation.Header, Schema = new() { Type = "string", Format = "date-time" }, Required = false, Description = "If the count has not changed since this date, a 304 response will be returned." });

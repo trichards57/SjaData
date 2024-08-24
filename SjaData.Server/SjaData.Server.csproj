@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,7 @@
 		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
 		<SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -41,10 +42,6 @@
 		</ProjectReference>
 		<ProjectReference Include="..\SjaData.Model\SjaData.Model.csproj" />
 		<None Include="wwwroot\img\sja-back.svg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Api\OpenApiFilters\" />
 	</ItemGroup>
 
 </Project>

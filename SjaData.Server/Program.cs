@@ -56,22 +56,35 @@ builder.Services.AddSwaggerGen(o =>
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Model.xml"));
     o.MapType<Region>(() => RegionConverter.Schema);
     o.MapType<Trust>(() => TrustConverter.Schema);
+    o.MapType<TimeSpan>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "date-span",
+        Example = new OpenApiString("1.10:09:08"),
+    });
     o.MapType<AreaDictionary<int>>(() => new OpenApiSchema
     {
         Type = "object",
-        AdditionalProperties = new OpenApiSchema
+        Properties = TrustConverter.GetNames().Concat(RegionConverter.GetNames()).ToDictionary(s => s, s => new OpenApiSchema
         {
+            Nullable = true,
             Type = "integer",
             Format = "int32",
-        },
-        AdditionalPropertiesAllowed = true,
-        Example = new OpenApiObject
-        {
-            ["NE"] = new OpenApiInteger(42),
-            ["LAS"] = new OpenApiInteger(21),
-        },
-        OneOf = [RegionConverter.Schema, TrustConverter.Schema],
+        }),
     });
+    o.MapType<AreaDictionary<TimeSpan>>(() => new OpenApiSchema
+    {
+        Type = "object",
+        Properties = TrustConverter.GetNames().Concat(RegionConverter.GetNames()).ToDictionary(s => s, s => new OpenApiSchema
+        {
+            Nullable = true,
+            Type = "string",
+            Format = "date-span",
+            Example = new OpenApiString("1.10:09:08"),
+        }),
+    });
+    o.AddSchemaFilterInstance(new RegionOrTrustSchemaFilter());
+    o.AddSchemaFilterInstance(new GreaterThanSchemaFilter());
 });
 
 var app = builder.Build();

@@ -30,6 +30,8 @@ public class TrustConverter : JsonConverter<Trust>
             ],
         };
 
+    public static IEnumerable<string> GetNames() => Enum.GetValues<Trust>().Where(s => s != Trust.Undefined).Select(ToString);
+
     public static Trust FromString(string value) => value switch
     {
         "NEAS" => Trust.NorthEastAmbulanceService,

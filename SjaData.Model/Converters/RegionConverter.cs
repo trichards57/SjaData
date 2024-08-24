@@ -24,6 +24,8 @@ public class RegionConverter : JsonConverter<Region>
             ],
         };
 
+    public static IEnumerable<string> GetNames() => Enum.GetValues<Region>().Where(s => s != Region.Undefined).Select(ToString);
+
     public static Region FromString(string value) => value switch
     {
         "NE" => Region.NorthEast,

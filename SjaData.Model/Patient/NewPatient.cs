@@ -4,6 +4,7 @@
 // </copyright>
 
 using SjaData.Model.DataTypes;
+using SjaData.Model.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace SjaData.Model.Patient;
@@ -11,12 +12,13 @@ namespace SjaData.Model.Patient;
 /// <summary>
 /// Represents a new patient record.
 /// </summary>
-public readonly record struct NewPatient
+[RegionOrTrust]
+public readonly record struct NewPatient : IRegionAndTrust
 {
     /// <summary>
     /// Gets the ID of the new patient.
     /// </summary>
-    [Range(0, int.MaxValue)]
+    [GreaterThan(0)]
     [Required]
     [PatientData]
     public required int Id { get; init; }
@@ -37,16 +39,20 @@ public readonly record struct NewPatient
     /// <summary>
     /// Gets the type of event that the patient was involved in.
     /// </summary>
+    [Required]
+    [EnumDataType(typeof(EventType))]
     public EventType EventType { get; init; }
 
     /// <summary>
     /// Gets the region that the patient was in.
     /// </summary>
+    [EnumDataType(typeof(Region))]
     public Region Region { get; init; }
 
     /// <summary>
     /// Gets the NHS Ambulance Trust that the patient was attended by.
     /// </summary>
+    [EnumDataType(typeof(Trust))]
     public Trust Trust { get; init; }
 
     /// <summary>
@@ -66,5 +72,7 @@ public readonly record struct NewPatient
     /// <summary>
     /// Gets the outcome of the patient.
     /// </summary>
+    [Required]
+    [EnumDataType(typeof(Outcome))]
     public Outcome Outcome { get; init; }
 }
