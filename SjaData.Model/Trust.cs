@@ -3,11 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaData.Model.Converters;
+using System.Text.Json.Serialization;
+
 namespace SjaData.Model;
 
 /// <summary>
 /// Represents an ambulance service trust.
 /// </summary>
+[JsonConverter(typeof(TrustConverter))]
 public enum Trust
 {
     /// <summary>

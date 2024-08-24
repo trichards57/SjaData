@@ -7,7 +7,7 @@ namespace SjaData.Model.Hours;
 
 public readonly record struct HoursCount
 {
-    public IReadOnlyDictionary<string, TimeSpan> Counts { get; init; }
+    public AreaDictionary<TimeSpan> Counts { get; init; }
 
     public DateTimeOffset LastUpdate { get; init; }
 }

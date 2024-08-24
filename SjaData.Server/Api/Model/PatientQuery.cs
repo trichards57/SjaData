@@ -4,6 +4,7 @@
 // </copyright>
 
 using SjaData.Model;
+using SjaData.Model.Converters;
 
 namespace SjaData.Server.Api.Model;
 
@@ -29,8 +30,8 @@ public readonly record struct PatientQuery
             DateType = context.Request.Query.TryGetValue("dateType", out var dateType) ? Enum.Parse<DateType>(dateType) : null,
             EventType = context.Request.Query.TryGetValue("eventType", out var eventType) ? Enum.Parse<EventType>(eventType) : null,
             Outcome = context.Request.Query.TryGetValue("outcome", out var outcome) ? Enum.Parse<Outcome>(outcome) : null,
-            Region = context.Request.Query.TryGetValue("region", out var region) ? Enum.Parse<Region>(region) : null,
-            Trust = context.Request.Query.TryGetValue("trust", out var trust) ? Enum.Parse<Trust>(trust) : null,
+            Region = context.Request.Query.TryGetValue("region", out var region) ? RegionConverter.FromString(region) : null,
+            Trust = context.Request.Query.TryGetValue("trust", out var trust) ? TrustConverter.FromString(trust) : null,
         });
     }
 }

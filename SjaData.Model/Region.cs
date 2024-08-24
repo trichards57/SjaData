@@ -3,11 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaData.Model.Converters;
+using System.Text.Json.Serialization;
+
 namespace SjaData.Model;
 
 /// <summary>
 /// Represents the SJA region.
 /// </summary>
+[JsonConverter(typeof(RegionConverter))]
 public enum Region
 {
     /// <summary>

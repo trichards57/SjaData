@@ -7,7 +7,7 @@ namespace SjaData.Model.Patient;
 
 public readonly record struct PatientCount
 {
-    public IReadOnlyDictionary<string, int> Counts { get; init; }
+    public AreaDictionary<int> Counts { get; init; }
 
     public DateTimeOffset LastUpdate { get; init; }
 }

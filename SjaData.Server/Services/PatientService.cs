@@ -91,9 +91,10 @@ public class PatientService(DataContext dataContext) : IPatientService
         })
         .GroupBy(h => h.Label)
         .ToDictionary(h => h.Key, h => h.Count());
+
         var lastUpdate = await GetLastModifiedAsync();
 
-        return new PatientCount { Counts = count, LastUpdate = lastUpdate };
+        return new PatientCount { Counts = new AreaDictionary<int>(count), LastUpdate = lastUpdate };
     }
 
     public async Task DeleteAsync(int id)

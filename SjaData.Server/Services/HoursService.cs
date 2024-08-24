@@ -80,7 +80,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours.TotalHours)));
         var lastUpdate = await GetLastModifiedAsync();
 
-        return new HoursCount { Counts = hoursCount, LastUpdate = lastUpdate };
+        return new HoursCount { Counts = new AreaDictionary<TimeSpan>(hoursCount), LastUpdate = lastUpdate };
     }
 
     public async Task DeleteAsync(int id)
