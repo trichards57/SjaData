@@ -5,6 +5,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
+using SjaData.Model.Converters;
 using SjaData.Model.Hours;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
@@ -92,7 +93,8 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         }).ToListAsync())
         .Select(h => new
         {
-            Label = h.Region == Region.Undefined ? h.Trust.ToString() : h.Region.ToString(),
+            h.Region,
+            Label = h.Region == Region.Undefined ? TrustConverter.ToString(h.Trust) : RegionConverter.ToString(h.Region),
             h.Hours,
         })
         .GroupBy(h => h.Label)

@@ -5,6 +5,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
+using SjaData.Model.Converters;
 using SjaData.Model.Patient;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
@@ -107,7 +108,7 @@ public partial class PatientService(DataContext dataContext, ILogger<PatientServ
         }).ToListAsync())
         .Select(h => new
         {
-            Label = h.Region == Region.Undefined ? h.Trust.ToString() : h.Region.ToString(),
+            Label = h.Region == Region.Undefined ? TrustConverter.ToString(h.Trust) : RegionConverter.ToString(h.Region),
         })
         .GroupBy(h => h.Label)
         .ToDictionary(h => h.Key, h => h.Count());
