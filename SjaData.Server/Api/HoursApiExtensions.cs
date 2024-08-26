@@ -3,13 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using SjaData.Model.Hours;
 using SjaData.Server.Api.Model;
+using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
+using SjaData.Server.Validation;
 
 namespace SjaData.Server.Api;
 
@@ -76,6 +79,21 @@ public static partial class HoursApiExtensions
     {
         var logger = loggerFactory.CreateLogger(nameof(HoursApiExtensions));
         var userId = context.User.GetNameIdentifierId() ?? "Unknown";
+
+        var validator = new NewHoursValidator();
+        var result = await validator.ValidateAsync(hours);
+
+        if (!result.IsValid)
+        {
+            var res = result.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
+
+            var problemDetails = new HttpValidationProblemDetails(res)
+            {
+                Title = "The request is invalid. Please correct the errors and try again.",
+            };
+
+            return Results.BadRequest(problemDetails);
+        }
 
         await hoursService.AddAsync(hours);
 

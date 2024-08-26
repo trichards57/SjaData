@@ -14,6 +14,7 @@ using SjaData.Server.Api.Model;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Exceptions;
 using SjaData.Server.Services.Interfaces;
+using SjaData.Server.Validation;
 
 namespace SjaData.Server.Api;
 
@@ -78,6 +79,14 @@ public static partial class PatientApiExtensions
     {
         var logger = loggerFactory.CreateLogger(nameof(PatientApiExtensions));
         var userId = context.User.GetNameIdentifierId() ?? "Unknown";
+
+        var validator = new NewPatientValidator();
+        var result = await validator.ValidateAsync(patient);
+
+        if (!result.IsValid)
+        {
+            return Results.ValidationProblem(result.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage }), "The request is invalid. Please correct the errors and try again.");
+        }
 
         try
         {

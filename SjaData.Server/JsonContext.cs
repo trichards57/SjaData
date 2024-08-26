@@ -15,6 +15,7 @@ namespace SjaData.Server.Model;
 [JsonSerializable(typeof(Region))]
 [JsonSerializable(typeof(Trust))]
 [JsonSerializable(typeof(ProblemDetails))]
+[JsonSerializable(typeof(HttpValidationProblemDetails))]
 public partial class JsonContext : JsonSerializerContext
 {
 }
