@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Net.Http.Headers;
 using Moq;
+using SjaData.Model;
 using SjaData.Model.Patient;
 using SjaData.Server.Api;
 using SjaData.Server.Api.Model;
@@ -91,13 +92,13 @@ public class PatientApiTests
         var expected = new PatientCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, int>
+            Counts = new AreaDictionary<int>(new Dictionary<string, int>
             {
-                { "NorthEast", 42 },
-                { "NorthWest", 24 },
-                { "SouthEast", 36 },
-                { "SouthWest", 18 },
-            }.AsReadOnly(),
+                { "NE", 42 },
+                { "NW", 24 },
+                { "SE", 36 },
+                { "SW", 18 },
+            }),
         };
         patientService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
 
@@ -121,13 +122,13 @@ public class PatientApiTests
         var expected = new PatientCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, int>
+            Counts = new AreaDictionary<int>(new Dictionary<string, int>
             {
-                { "NorthEast", 42 },
-                { "NorthWest", 24 },
-                { "SouthEast", 36 },
-                { "SouthWest", 18 },
-            }.AsReadOnly(),
+                { "NE", 42 },
+                { "NW", 24 },
+                { "SE", 36 },
+                { "SW", 18 },
+            }),
         };
         patientService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
         patientService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Identity.Client;
 using Microsoft.Net.Http.Headers;
 using Moq;
+using SjaData.Model;
 using SjaData.Model.Hours;
 using SjaData.Server.Api;
 using SjaData.Server.Api.Model;
@@ -80,13 +81,13 @@ public class HoursApiTests
         var expected = new HoursCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, TimeSpan>
+            Counts = new AreaDictionary<TimeSpan>(new Dictionary<string, TimeSpan>
             {
-                { "NorthEast", TimeSpan.FromHours(42) },
-                { "NorthWest", TimeSpan.FromHours(24) },
-                { "SouthEast", TimeSpan.FromHours(36) },
-                { "SouthWest", TimeSpan.FromHours(18) },
-            }.AsReadOnly(),
+                { "NE", TimeSpan.FromHours(42) },
+                { "NW", TimeSpan.FromHours(24) },
+                { "SE", TimeSpan.FromHours(36) },
+                { "SW", TimeSpan.FromHours(18) },
+            }),
         };
         hoursService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
 
@@ -110,13 +111,13 @@ public class HoursApiTests
         var expected = new HoursCount
         {
             LastUpdate = DateTime.Now,
-            Counts = new Dictionary<string, TimeSpan>
+            Counts = new AreaDictionary<TimeSpan>(new Dictionary<string, TimeSpan>
             {
-                { "NorthEast", TimeSpan.FromHours(42) },
-                { "NorthWest", TimeSpan.FromHours(24) },
-                { "SouthEast", TimeSpan.FromHours(36) },
-                { "SouthWest", TimeSpan.FromHours(18) },
-            }.AsReadOnly(),
+                { "NE", TimeSpan.FromHours(42) },
+                { "NW", TimeSpan.FromHours(24) },
+                { "SE", TimeSpan.FromHours(36) },
+                { "SW", TimeSpan.FromHours(18) },
+            }),
         };
         hoursService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
         hoursService.Setup(s => s.CountAsync(query)).ReturnsAsync(expected);
