@@ -3,6 +3,7 @@ import hoursLoader, { ParsedHoursCount } from "../loaders/hours-loader";
 import hoursTargetLoader from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Loading } from "../components/loading";
 
 interface HoursProps {
   month: Readonly<ParsedHoursCount>;
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/hours")({
   component: function Component() {
     return <Hours {...Route.useLoaderData()} />;
   },
+  pendingComponent: Loading,
   loader: async () => ({
     month: await hoursLoader(new Date()),
     ytd: await hoursLoader(),
