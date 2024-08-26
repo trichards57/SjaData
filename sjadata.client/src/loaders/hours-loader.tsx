@@ -31,7 +31,7 @@ export default async function hoursLoader(date?: Date) {
     const hours = parseInt(parts[0], 10);
     const minutes = parseInt(parts[1], 10);
 
-    parsedData.counts[key] = Math.round(days * 24 + hours + minutes / 60);
+    parsedData.counts[key] = days * 24 + hours + minutes / 60;
   }
 
   return parsedData as Readonly<ParsedHoursCount>;
