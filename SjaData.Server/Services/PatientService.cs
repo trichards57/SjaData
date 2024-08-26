@@ -8,44 +8,64 @@ using SjaData.Model;
 using SjaData.Model.Patient;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
-using SjaData.Server.Services.Exceptions;
+using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
 
-public class PatientService(DataContext dataContext) : IPatientService
+/// <summary>
+/// A service for managing patients.
+/// </summary>
+/// <param name="dataContext">The data context containing the patient data.</param>
+/// <param name="logger">The logger to write to.</param>
+public partial class PatientService(DataContext dataContext, ILogger<PatientService> logger) : IPatientService
 {
     private readonly DataContext dataContext = dataContext;
+    private readonly ILogger<PatientService> logger = logger;
 
+    /// <inheritdoc/>
     public async Task AddAsync(NewPatient patient)
     {
-        var newPatient = await dataContext.Patients.FirstOrDefaultAsync(p => p.Id == patient.Id);
+        var existingItem = await dataContext.Patients.FirstOrDefaultAsync(p => p.Id == patient.Id);
+        var newItem = false;
 
-        if (newPatient is null)
+        if (existingItem is null)
         {
-            newPatient = new Patient();
-            dataContext.Patients.Add(newPatient);
-            newPatient.Id = patient.Id;
+            newItem = true;
+            existingItem = new Patient();
+            dataContext.Patients.Add(existingItem);
+            existingItem.Id = patient.Id;
         }
 
-        newPatient.CallSign = patient.CallSign;
-        newPatient.Date = patient.Date;
-        newPatient.EventType = patient.EventType;
-        newPatient.FinalClinicalImpression = patient.FinalClinicalImpression ?? string.Empty;
-        newPatient.Outcome = patient.Outcome;
-        newPatient.PresentingComplaint = patient.PresentingComplaint ?? string.Empty;
-        newPatient.Region = patient.Region;
-        newPatient.Trust = patient.Trust;
-        newPatient.CreatedAt = DateTimeOffset.UtcNow;
-        newPatient.DeletedAt = null;
+        existingItem.CallSign = patient.CallSign;
+        existingItem.Date = patient.Date;
+        existingItem.EventType = patient.EventType;
+        existingItem.FinalClinicalImpression = patient.FinalClinicalImpression ?? string.Empty;
+        existingItem.Outcome = patient.Outcome;
+        existingItem.PresentingComplaint = patient.PresentingComplaint ?? string.Empty;
+        existingItem.Region = patient.Region;
+        existingItem.Trust = patient.Trust;
+        existingItem.CreatedAt = DateTimeOffset.UtcNow;
+        existingItem.DeletedAt = null;
 
-        dataContext.Add(newPatient);
+        dataContext.Add(existingItem);
 
         await dataContext.SaveChangesAsync();
+
+        if (newItem)
+        {
+            LogItemCreated(patient);
+        }
+        else
+        {
+            LogItemModified(existingItem.Id, patient);
+        }
     }
 
+    /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync() => await dataContext.Patients.MaxAsync(p => p.DeletedAt ?? p.CreatedAt);
 
+    /// <inheritdoc/>
     public async Task<PatientCount> CountAsync(PatientQuery query)
     {
         var items = dataContext.Patients.AsQueryable();
@@ -97,6 +117,7 @@ public class PatientService(DataContext dataContext) : IPatientService
         return new PatientCount { Counts = new AreaDictionary<int>(count), LastUpdate = lastUpdate };
     }
 
+    /// <inheritdoc/>
     public async Task DeleteAsync(int id)
     {
         var existingItem = await dataContext.Patients.FirstOrDefaultAsync(h => h.Id == id && !h.DeletedAt.HasValue);
@@ -105,6 +126,16 @@ public class PatientService(DataContext dataContext) : IPatientService
         {
             existingItem.DeletedAt = DateTimeOffset.UtcNow;
             await dataContext.SaveChangesAsync();
+            LogItemDeleted(id);
         }
     }
+
+    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient entry {id} has been deleted.")]
+    private partial void LogItemDeleted(int id);
+
+    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Patient entry has been created.")]
+    private partial void LogItemCreated([LogProperties] NewPatient hours);
+
+    [LoggerMessage(EventCodes.ItemModified, LogLevel.Information, "Patient entry {id} has been updated.")]
+    private partial void LogItemModified(int id, [LogProperties] NewPatient hours);
 }

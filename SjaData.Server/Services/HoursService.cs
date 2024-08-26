@@ -13,17 +13,25 @@ using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
 
+/// <summary>
+/// Service for managing hours entries.
+/// </summary>
+/// <param name="dataContext">The data context containing the hours data.</param>
+/// <param name="logger">The logger to write to.</param>
 public partial class HoursService(DataContext dataContext, ILogger<HoursService> logger) : IHoursService
 {
     private readonly DataContext dataContext = dataContext;
     private readonly ILogger<HoursService> logger = logger;
 
+    /// <inheritdoc/>
     public async Task AddAsync(NewHoursEntry hours)
     {
         var existingItem = await dataContext.Hours.FirstOrDefaultAsync(h => h.PersonId == hours.PersonId && h.Date == hours.Date);
+        var newItem = false;
 
         if (existingItem is null)
         {
+            newItem = true;
             existingItem = new HoursEntry();
             dataContext.Hours.Add(existingItem);
 
@@ -39,8 +47,18 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         existingItem.Name = hours.Name;
 
         await dataContext.SaveChangesAsync();
+
+        if (newItem)
+        {
+            LogItemCreated(hours);
+        }
+        else
+        {
+            LogItemModified(existingItem.Id, hours);
+        }
     }
 
+    /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
         if (await dataContext.Hours.AnyAsync())
@@ -51,6 +69,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         return DateTimeOffset.MinValue;
     }
 
+    /// <inheritdoc/>
     public async Task<HoursCount> CountAsync(HoursQuery query)
     {
         var items = dataContext.Hours.AsQueryable();
@@ -83,6 +102,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         return new HoursCount { Counts = new AreaDictionary<TimeSpan>(hoursCount), LastUpdate = lastUpdate };
     }
 
+    /// <inheritdoc/>
     public async Task DeleteAsync(int id)
     {
         var existingItem = await dataContext.Hours.FirstOrDefaultAsync(h => h.Id == id && !h.DeletedAt.HasValue);
@@ -98,4 +118,10 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]
     private partial void LogItemDeleted(int id);
+
+    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Hour entry has been created.")]
+    private partial void LogItemCreated([LogProperties]NewHoursEntry hours);
+
+    [LoggerMessage(EventCodes.ItemModified, LogLevel.Information, "Hour entry {id} has been updated.")]
+    private partial void LogItemModified(int id, [LogProperties]NewHoursEntry hours);
 }

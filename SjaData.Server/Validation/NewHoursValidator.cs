@@ -1,11 +1,22 @@
-﻿using FluentValidation;
+﻿// <copyright file="NewHoursValidator.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using FluentValidation;
 using SjaData.Model;
 using SjaData.Model.Hours;
 
 namespace SjaData.Server.Validation;
 
+/// <summary>
+/// Validator for new hours entries.
+/// </summary>
 public class NewHoursValidator : AbstractValidator<NewHoursEntry>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NewHoursValidator"/> class.
+    /// </summary>
     public NewHoursValidator()
     {
         RuleFor(x => x.Date).NotEmpty().WithMessage("The date must be provided.");

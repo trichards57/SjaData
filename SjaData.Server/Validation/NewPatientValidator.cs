@@ -1,11 +1,22 @@
-﻿using FluentValidation;
+﻿// <copyright file="NewPatientValidator.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using FluentValidation;
 using SjaData.Model;
 using SjaData.Model.Patient;
 
 namespace SjaData.Server.Validation;
 
+/// <summary>
+/// Validator for new patient entries.
+/// </summary>
 public class NewPatientValidator : AbstractValidator<NewPatient>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NewPatientValidator"/> class.
+    /// </summary>
     public NewPatientValidator()
     {
         RuleFor(x => x.Id).GreaterThan(0).WithMessage("The ID must be provided.");

@@ -10,7 +10,7 @@ namespace SjaData.Model;
 /// <summary>
 /// Represents the outcome of a patient.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<Outcome>))]
 public enum Outcome
 {
     /// <summary>

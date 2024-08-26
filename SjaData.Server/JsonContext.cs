@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// <copyright file="JsonContext.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.Mvc;
 using SjaData.Model;
 using SjaData.Model.Hours;
 using SjaData.Model.Patient;
@@ -6,6 +11,9 @@ using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model;
 
+/// <summary>
+/// Context for JSON serialization.
+/// </summary>
 [JsonSerializable(typeof(NewHoursEntry))]
 [JsonSerializable(typeof(HoursTarget))]
 [JsonSerializable(typeof(HoursCount))]

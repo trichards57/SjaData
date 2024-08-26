@@ -5,6 +5,9 @@
 
 namespace SjaData.Server.Services.Exceptions;
 
+/// <summary>
+/// Exception thrown when a duplicate ID is detected.
+/// </summary>
 public class DuplicateIdException : Exception
 {
 }

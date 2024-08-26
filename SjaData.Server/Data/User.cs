@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace SjaData.Server.Data;
 
+/// <summary>
+/// Represents a user of the system.
+/// </summary>
 public class User : IdentityUser
 {
 }

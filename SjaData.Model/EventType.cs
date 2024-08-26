@@ -10,7 +10,7 @@ namespace SjaData.Model;
 /// <summary>
 /// The type of event.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<EventType>))]
 public enum EventType
 {
     /// <summary>

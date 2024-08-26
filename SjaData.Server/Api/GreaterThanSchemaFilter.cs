@@ -9,15 +9,19 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SjaData.Server.Api;
 
+/// <summary>
+/// Schema filter that applies the GreaterThanAttribute to the schema.
+/// </summary>
 public class GreaterThanSchemaFilter : ISchemaFilter
 {
+    /// <inheritdoc/>
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
         foreach (var prop in context.Type.GetProperties())
         {
             if (prop.GetCustomAttributes(typeof(GreaterThanAttribute), true).FirstOrDefault() is GreaterThanAttribute attr)
             {
-                var name = char.ToLowerInvariant(prop.Name[0]) + prop.Name.Substring(1);
+                var name = char.ToLowerInvariant(prop.Name[0]) + prop.Name[1..];
 
                 schema.Properties[name].Minimum = attr.Minimum;
                 schema.Properties[name].ExclusiveMinimum = true;

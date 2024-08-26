@@ -8,12 +8,28 @@ using System.Globalization;
 
 namespace SjaData.Server.Api.Model;
 
+/// <summary>
+/// Represents a query for hours entries.
+/// </summary>
 public readonly record struct HoursQuery
 {
+    /// <summary>
+    /// Gets the date to filter by.
+    /// </summary>
     public DateOnly? Date { get; init; }
 
+    /// <summary>
+    /// Gets the intepretation of <see cref="Date"/> for querying.
+    /// </summary>
     public DateType? DateType { get; init; }
 
+    /// <summary>
+    /// Binds a <see cref="HoursQuery"/> from the given <see cref="HttpContext"/>.
+    /// </summary>
+    /// <param name="context">The request's <see cref="HttpContext"/>.</param>
+    /// <returns>
+    /// The new <see cref="HoursQuery"/>.
+    /// </returns>
     public static ValueTask<HoursQuery> BindAsync(HttpContext context)
     {
         return ValueTask.FromResult(new HoursQuery
