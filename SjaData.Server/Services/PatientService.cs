@@ -19,25 +19,25 @@ public class PatientService(DataContext dataContext) : IPatientService
 
     public async Task AddAsync(NewPatient patient)
     {
-        if (await dataContext.Patients.AnyAsync(p => p.Id == patient.Id))
+        var newPatient = await dataContext.Patients.FirstOrDefaultAsync(p => p.Id == patient.Id);
+
+        if (newPatient is null)
         {
-            throw new DuplicateIdException();
+            newPatient = new Patient();
+            dataContext.Patients.Add(newPatient);
+            newPatient.Id = patient.Id;
         }
 
-        var newPatient = new Patient
-        {
-            Id = patient.Id,
-            CallSign = patient.CallSign,
-            Date = patient.Date,
-            EventType = patient.EventType,
-            FinalClinicalImpression = patient.FinalClinicalImpression ?? string.Empty,
-            Outcome = patient.Outcome,
-            PresentingComplaint = patient.PresentingComplaint ?? string.Empty,
-            Region = patient.Region,
-            Trust = patient.Trust,
-            CreatedAt = DateTimeOffset.UtcNow,
-            DeletedAt = null,
-        };
+        newPatient.CallSign = patient.CallSign;
+        newPatient.Date = patient.Date;
+        newPatient.EventType = patient.EventType;
+        newPatient.FinalClinicalImpression = patient.FinalClinicalImpression ?? string.Empty;
+        newPatient.Outcome = patient.Outcome;
+        newPatient.PresentingComplaint = patient.PresentingComplaint ?? string.Empty;
+        newPatient.Region = patient.Region;
+        newPatient.Trust = patient.Trust;
+        newPatient.CreatedAt = DateTimeOffset.UtcNow;
+        newPatient.DeletedAt = null;
 
         dataContext.Add(newPatient);
 
