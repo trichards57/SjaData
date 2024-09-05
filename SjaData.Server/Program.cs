@@ -14,6 +14,7 @@ using SjaData.Model;
 using SjaData.Model.Converters;
 using SjaData.Model.DataTypes;
 using SjaData.Server.Api;
+using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
@@ -28,6 +29,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JsonOptions>(j =>
 {
     j.SerializerOptions.TypeInfoResolver = JsonContext.Default;
+});
+
+builder.Services.AddControllers(o =>
+{
+    o.ModelBinderProviders.Add(new CustomBinderProvider());
 });
 
 builder.Services.AddDbContext<DataContext>(o =>
@@ -54,8 +60,9 @@ builder.Services.AddSwaggerGen(o =>
 {
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Server.xml"));
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Model.xml"));
-    o.MapType<Region>(() => RegionConverter.Schema);
-    o.MapType<Trust>(() => TrustConverter.Schema);
+    o.MapType<DateType>(() => DateTypeBinder.Schema);
+    o.MapType<Region>(() => RegionBinder.Schema);
+    o.MapType<Trust>(() => TrustBinder.Schema);
     o.MapType<TimeSpan>(() => new OpenApiSchema
     {
         Type = "string",
@@ -97,8 +104,7 @@ app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPatientApi();
-app.MapHoursApi();
+app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
