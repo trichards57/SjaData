@@ -10,8 +10,8 @@ export interface ParsedHoursCount {
 
 export default async function hoursLoader(date?: Date) {
   const uri = date
-    ? `/api/hours/count?date=${date.toISOString().split("T")[0]}&dateType=Month`
-    : "/api/hours/count";
+    ? `/api/hours/count?date=${date.toISOString().split("T")[0]}&dateType=m&api-version=1.0`
+    : "/api/hours/count?api-version=1.0";
 
   const res = await fetch(uri);
 

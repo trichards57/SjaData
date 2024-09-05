@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using SjaData.Model;
@@ -21,6 +22,7 @@ namespace SjaData.Server.Controllers;
 /// <param name="logger">The logger for this controller.</param>
 [ApiController]
 [Route("/api/hours")]
+[ApiVersion("1.0")]
 public partial class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly IHoursService hoursService = hoursService;

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Compliance.Classification;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -15,11 +16,13 @@ using SjaData.Model.Converters;
 using SjaData.Model.DataTypes;
 using SjaData.Server.Api;
 using SjaData.Server.Controllers.Binders;
+using SjaData.Server.Controllers.Filters;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("SjaData.Server.Tests")]
@@ -56,6 +59,7 @@ builder.Services.AddRedaction(c =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen(o =>
 {
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Server.xml"));
@@ -92,7 +96,10 @@ builder.Services.AddSwaggerGen(o =>
     });
     o.AddSchemaFilterInstance(new RegionOrTrustSchemaFilter());
     o.AddSchemaFilterInstance(new GreaterThanSchemaFilter());
+    o.OperationFilter<SwaggerDefaultValues>();
 });
+
+builder.Services.AddApiVersioning().AddMvc().AddApiExplorer();
 
 var app = builder.Build();
 
@@ -102,7 +109,13 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(o =>
+{
+    foreach (var desc in app.DescribeApiVersions())
+    {
+        o.SwaggerEndpoint($"/swagger/{desc.GroupName}/swagger.json", desc.GroupName);
+    }
+});
 
 app.MapControllers();
 

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using SjaData.Model;
@@ -23,6 +24,7 @@ namespace SjaData.Server.Controllers;
 /// <param name="logger">Logger for this controller.</param>
 [Route("api/patients")]
 [ApiController]
+[ApiVersion("1.0")]
 public partial class PatientController(IPatientService patientService, ILogger<PatientController> logger) : ControllerBase
 {
     private readonly ILogger<PatientController> logger = logger;

@@ -4,8 +4,8 @@ interface TargetHours {
 
 export default async function hoursTargetLoader(date?: Date) {
   const uri = date
-    ? `/api/hours/target?date=${date.toDateString()}&dateType=Month`
-    : "/api/hours/target";
+    ? `/api/hours/target?date=${date.toDateString()}&dateType=m&api-version=1.0`
+    : "/api/hours/target?api-version=1.0";
 
   const res = await fetch(uri);
 
