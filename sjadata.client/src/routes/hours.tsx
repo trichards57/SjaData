@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import hoursLoader, { ParsedHoursCount } from "../loaders/hours-loader";
 import hoursTargetLoader from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCross, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
+import { useState } from "react";
 
 interface HoursProps {
   month: Readonly<ParsedHoursCount>;
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/hours")({
 });
 
 export function Hours({ ytd, month, target }: HoursProps) {
+  const [expandNHSE, setExpandNHSE] = useState(false);
+
   const hoursTotal = Math.round(
     Object.values(ytd.counts).reduce((acc, val) => acc + val, 0)
   );
@@ -63,13 +66,21 @@ export function Hours({ ytd, month, target }: HoursProps) {
       <section>
         <h3>Filter</h3>
         <ul className="area-list">
-          <li>
-            <FontAwesomeIcon icon={faPlus} />
+          <li className="area-section" onClick={() => setExpandNHSE((s) => !s)}>
+            {expandNHSE ? (
+              <FontAwesomeIcon icon={faMinus} />
+            ) : (
+              <FontAwesomeIcon icon={faPlus} />
+            )}{" "}
             NHSE Contract
           </li>
-          <ul>
-            <li>North East Ambulance Service</li>
-            <li>North West Ambulance Service</li>
+          <ul className={"area-section-list" + (expandNHSE ? " expanded" : "")}>
+            <li>
+              <FontAwesomeIcon icon={faCheck} /> North East Ambulance Service
+            </li>
+            <li>
+              <FontAwesomeIcon icon={faXmark} /> North West Ambulance Service
+            </li>
             <li>West Midlands Ambulance Service</li>
             <li>East Midlands Ambulance Service</li>
             <li>East of England Ambulance Service</li>
