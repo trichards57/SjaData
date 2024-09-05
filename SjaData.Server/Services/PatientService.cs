@@ -64,7 +64,15 @@ public partial class PatientService(DataContext dataContext, ILogger<PatientServ
     }
 
     /// <inheritdoc/>
-    public async Task<DateTimeOffset> GetLastModifiedAsync() => await dataContext.Patients.MaxAsync(p => p.DeletedAt ?? p.CreatedAt);
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        if (await dataContext.Patients.AnyAsync())
+        {
+            return await dataContext.Patients.MaxAsync(p => p.DeletedAt ?? p.CreatedAt);
+        }
+
+        return DateTimeOffset.MinValue;
+    }
 
     /// <inheritdoc/>
     public async Task<PatientCount> CountAsync(PatientQuery query)

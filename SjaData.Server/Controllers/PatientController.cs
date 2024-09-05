@@ -11,16 +11,22 @@ using SjaData.Model.Patient;
 using SjaData.Server.Api.Model;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
+using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Controllers;
 
+/// <summary>
+/// Controller for managing patient records.
+/// </summary>
+/// <param name="patientService">Service for managing patient records.</param>
+/// <param name="logger">Logger for this controller.</param>
 [Route("api/patients")]
 [ApiController]
 public partial class PatientController(IPatientService patientService, ILogger<PatientController> logger) : ControllerBase
 {
-    private readonly IPatientService patientService = patientService;
     private readonly ILogger<PatientController> logger = logger;
+    private readonly IPatientService patientService = patientService;
 
     /// <summary>
     /// Accepts a new patient record.
@@ -43,6 +49,24 @@ public partial class PatientController(IPatientService patientService, ILogger<P
     }
 
     /// <summary>
+    /// Deletes the patient entry with the given ID.
+    /// </summary>
+    /// <param name="id">The ID of the entry to remove.</param>
+    /// <remarks>Will succeed even if the entry does not exist.</remarks>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
+    /// <response code="204">The patient entry was deleted.</response>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteHours([FromRoute] int id)
+    {
+        await patientService.DeleteAsync(id);
+
+        LogPatientDeleted(id, User.GetNameIdentifierId() ?? "Unknown");
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Gets the patient count matching the given query.
     /// </summary>
     /// <param name="ifModifiedSince">The last-modified date held by the local cache.</param>
@@ -60,7 +84,7 @@ public partial class PatientController(IPatientService patientService, ILogger<P
     [ProducesResponseType<PatientCount>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHoursCount(
+    public async Task<IActionResult> GetPatientCount(
         [FromHeader(Name = "If-Modified-Since")] DateTimeOffset? ifModifiedSince,
         [FromQuery(Name = "region")] Region? region,
         [FromQuery(Name = "trust")] Trust? trust,
@@ -129,5 +153,4 @@ public partial class PatientController(IPatientService patientService, ILogger<P
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient {id} deleted by user {userId}")]
     private partial void LogPatientDeleted([PatientData] int id, string userId);
-
 }
