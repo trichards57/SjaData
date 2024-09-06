@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import hoursLoader, { ParsedHoursCount } from "../loaders/hours-loader";
 import hoursTargetLoader from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faCross, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useState } from "react";
 
@@ -93,7 +93,7 @@ export function Hours({ ytd, month, target }: HoursProps) {
           </ul>
         </ul>
       </section>
-      <p>Data last updated : {ytd.lastUpdate.toLocaleString()} </p>
+      <p className="last-update">Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"} </p>
     </>
   );
 }

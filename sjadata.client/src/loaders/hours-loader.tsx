@@ -5,7 +5,7 @@ interface HoursCount {
 
 export interface ParsedHoursCount {
   counts: Record<string, number>;
-  lastUpdate: Date;
+  lastUpdate: Date | undefined;
 }
 
 export default async function hoursLoader(date?: Date) {
@@ -21,7 +21,10 @@ export default async function hoursLoader(date?: Date) {
 
   const parsedData: ParsedHoursCount = {
     counts: {},
-    lastUpdate: new Date(data.lastUpdate),
+    lastUpdate:
+      data.lastUpdate === "0001-01-01T00:00:00+00:00"
+        ? undefined
+        : new Date(data.lastUpdate),
   };
 
   for (const [key, value] of Object.entries(data.counts)) {

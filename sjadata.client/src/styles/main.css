@@ -7,6 +7,16 @@
   --sja-green-text: white;
   --sja-dark-green: #007a53;
   --sja-dark-green-text: white;
+  --sja-gray: #97999B;
+  --sja-gray-text: black;
+  --sja-light-yellow: #FBF8C3;
+  --sja-light-yellow-text: black;
+  --sja-light-green: #D1E7D2;
+  --sja-light-green-text: black;
+  --sja-light-dark-green: #BFDFD2;
+  --sja-light-dark-green-text: black;
+  --sja-light-gray: #E7E7E9;
+  --sja-light-gray-text: black;
   --sja-header-font: "Whitney SemiBold", arial, sans-serif;
   --sja-body-font: "Whitney Book", arial, sans-serif;
   --root-padding: 5px;
@@ -148,6 +158,10 @@ ul.area-section-list {
 }
 
 .area-section-list li:hover {
-  background-color: gray;
-  color: black;
+  background-color: var(--sja-light-gray);
+  color: var(--sja-light-gray-text);
+}
+
+.last-update {
+  color: var(--sja-gray);
 }

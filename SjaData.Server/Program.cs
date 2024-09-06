@@ -14,7 +14,6 @@ using Microsoft.OpenApi.Models;
 using SjaData.Model;
 using SjaData.Model.Converters;
 using SjaData.Model.DataTypes;
-using SjaData.Server.Api;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Controllers.Filters;
 using SjaData.Server.Data;
