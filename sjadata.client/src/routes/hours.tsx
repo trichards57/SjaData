@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import hoursLoader, { ParsedHoursCount } from "../loaders/hours-loader";
+import hoursLoader, {
+  AreaLabel,
+  ParsedHoursCount,
+} from "../loaders/hours-loader";
 import hoursTargetLoader from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faMinus,
+  faPlus,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useState } from "react";
 
@@ -24,16 +32,63 @@ export const Route = createFileRoute("/hours")({
   }),
 });
 
+const nhseContractAreas: [AreaLabel, string][] = [
+  ["NEAS", "North East Ambulance Service"],
+  ["NWAS", "North West Ambulance Service"],
+  ["WMAS", "West Midlands Ambulance Service"],
+  ["EMAS", "East Midlands Ambulance Service"],
+  ["EEAST", "East of England Ambulance Service"],
+  ["SWAST", "South West Ambulance Service"],
+  ["SCAS", "South Central Ambulance Service"],
+  ["SECAMB", "South East Coast Ambulance Service"],
+  ["LAS", "London Ambulance Service"],
+  ["YAS", "Yorkshire Ambulance Service"],
+  ["IWAS", "Isle of Wight Ambulance Service"],
+];
+
+function calculateSum(
+  counts: Partial<Record<AreaLabel, number>>,
+  areas: AreaLabel[]
+) {
+  if (areas == null || areas.length === 0) {
+    return Object.values(counts).reduce((acc, val) => acc + val, 0);
+  }
+
+  let total = 0;
+
+  for (const area of areas) {
+    total += counts[area] ?? 0;
+  }
+
+  return total;
+}
+
 export function Hours({ ytd, month, target }: HoursProps) {
+  const ytdKeys = Object.keys(ytd.counts);
+
+  const actualNhseAreas = nhseContractAreas.filter(([area]) =>
+    ytdKeys.includes(area)
+  );
+
   const [expandNHSE, setExpandNHSE] = useState(false);
+  const [selectedAreas, setSelectedAreas] = useState<AreaLabel[]>([]);
 
-  const hoursTotal = Math.round(
-    Object.values(ytd.counts).reduce((acc, val) => acc + val, 0)
-  );
+  const hoursTotal = Math.round(calculateSum(ytd.counts, selectedAreas));
+  const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
 
-  const monthTotal = Math.round(
-    Object.values(month.counts).reduce((acc, val) => acc + val, 0)
-  );
+  function AreaCheck({ area }: { area: AreaLabel }) {
+    if (selectedAreas.includes(area)) {
+      return <FontAwesomeIcon fixedWidth icon={faCheck} />;
+    } else {
+      return <FontAwesomeIcon fixedWidth icon={faXmark} />;
+    }
+  }
+
+  function toggleArea(area: AreaLabel) {
+    setSelectedAreas((areas) =>
+      areas.includes(area) ? areas.filter((a) => a !== area) : [...areas, area]
+    );
+  }
 
   return (
     <>
@@ -75,25 +130,17 @@ export function Hours({ ytd, month, target }: HoursProps) {
             NHSE Contract
           </li>
           <ul className={"area-section-list" + (expandNHSE ? " expanded" : "")}>
-            <li>
-              <FontAwesomeIcon icon={faCheck} /> North East Ambulance Service
-            </li>
-            <li>
-              <FontAwesomeIcon icon={faXmark} /> North West Ambulance Service
-            </li>
-            <li>West Midlands Ambulance Service</li>
-            <li>East Midlands Ambulance Service</li>
-            <li>East of England Ambulance Service</li>
-            <li>South West Ambulance Service</li>
-            <li>South Central Ambulance Service</li>
-            <li>South East Coast Ambulance Service</li>
-            <li>London Ambulance Service</li>
-            <li>Yorkshire Ambulance Service</li>
-            <li>Isle of Wight Ambulance Service</li>
+            {actualNhseAreas.map(([area, description]) => (
+              <li key={area} onClick={() => toggleArea(area)}>
+                <AreaCheck area={area} /> {description}
+              </li>
+            ))}
           </ul>
         </ul>
       </section>
-      <p className="last-update">Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"} </p>
+      <p className="last-update">
+        Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"}{" "}
+      </p>
     </>
   );
 }

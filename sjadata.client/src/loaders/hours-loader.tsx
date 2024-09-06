@@ -1,10 +1,34 @@
 interface HoursCount {
-  counts: Record<string, string>;
+  counts: Partial<Record<AreaLabel, string>>;
   lastUpdate: string;
 }
 
+export type AreaLabel =
+  | "NE"
+  | "NW"
+  | "WM"
+  | "EM"
+  | "EOE"
+  | "LON"
+  | "SE"
+  | "SW"
+  | "NEAS"
+  | "NWAS"
+  | "WMAS"
+  | "EMAS"
+  | "EEAST"
+  | "LAS"
+  | "SECAMB"
+  | "SWAST"
+  | "SCAS"
+  | "YAS"
+  | "WAST"
+  | "SAS"
+  | "NIAS"
+  | "IWAS";
+
 export interface ParsedHoursCount {
-  counts: Record<string, number>;
+  counts: Partial<Record<AreaLabel, number>>;
   lastUpdate: Date | undefined;
 }
 
@@ -27,7 +51,13 @@ export default async function hoursLoader(date?: Date) {
         : new Date(data.lastUpdate),
   };
 
-  for (const [key, value] of Object.entries(data.counts)) {
+  for (const key of Object.keys(data.counts) as AreaLabel[]) {
+    const value = data.counts[key];
+
+    if (!value) {
+      continue;
+    }
+
     const [daysString, time] = value.split(".");
     const parts = time.split(":");
     const days = parseInt(daysString, 10);

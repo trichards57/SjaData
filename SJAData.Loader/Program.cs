@@ -44,7 +44,7 @@ foreach (var hour in hours.Where(h => !string.IsNullOrWhiteSpace(h.Name)))
     var trust = hour.CrewType switch
     {
         "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
-        "NHS E EMAS" => Trust.EastOfEnglandAmbulanceService,
+        "NHS E EMAS" => Trust.EastMidlandsAmbulanceService,
         "NHS E IOW" => Trust.IsleOfWightAmbulanceService,
         "NHS E LAS" => Trust.LondonAmbulanceService,
         "NHS E NEAS" => Trust.NorthEastAmbulanceService,
@@ -67,7 +67,7 @@ foreach (var hour in hours.Where(h => !string.IsNullOrWhiteSpace(h.Name)))
 
     HttpClient client = new();
 
-    await client.PostAsJsonAsync("https://localhost:7125/api/hours", newEntry, JsonContext.Default.NewHoursEntry);
+    await client.PostAsJsonAsync("https://localhost:7125/api/hours?api-version=1.0", newEntry, JsonContext.Default.NewHoursEntry);
 }
 
 return 0;
