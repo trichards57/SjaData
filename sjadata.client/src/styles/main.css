@@ -7,15 +7,15 @@
   --sja-green-text: white;
   --sja-dark-green: #007a53;
   --sja-dark-green-text: white;
-  --sja-gray: #97999B;
+  --sja-gray: #97999b;
   --sja-gray-text: black;
-  --sja-light-yellow: #FBF8C3;
+  --sja-light-yellow: #fbf8c3;
   --sja-light-yellow-text: black;
-  --sja-light-green: #D1E7D2;
+  --sja-light-green: #d1e7d2;
   --sja-light-green-text: black;
-  --sja-light-dark-green: #BFDFD2;
+  --sja-light-dark-green: #bfdfd2;
   --sja-light-dark-green-text: black;
-  --sja-light-gray: #E7E7E9;
+  --sja-light-gray: #e7e7e9;
   --sja-light-gray-text: black;
   --sja-header-font: "Whitney SemiBold", arial, sans-serif;
   --sja-body-font: "Whitney Book", arial, sans-serif;
@@ -26,13 +26,12 @@
 }
 
 html {
-  background-image: url("/img/sja-back.svg");
-  background-position: top right;
-  background-size: auto 100%;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
   min-height: 100vh;
   font-family: var(--sja-body-font);
+  background-image: url("/img/sja-back.svg");
+  background-position: top right;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
 }
 
 h1 {
@@ -164,4 +163,29 @@ ul.area-section-list {
 
 .last-update {
   color: var(--sja-gray);
+}
+
+.footer-image {
+  background-image: url("/img/sja-bottom.svg");
+  background-position: bottom right;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  width: calc(100% + 16px);
+  height: 5mm;
+  margin: -8px;
+  margin-top: auto;
+}
+
+body {
+  min-height: calc(100vh - 16px);
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }

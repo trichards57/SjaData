@@ -16,8 +16,11 @@ const TanStackRouterDevtools =
 export const Route = createRootRoute({
   component: () => (
     <>
-      <h1>SJA In Numbers</h1>
-      <Outlet />
+      <div className="container">
+        <h1>SJA In Numbers</h1>
+        <Outlet />
+      </div>
+      <div className="footer-image" />
       <Suspense>
         <TanStackRouterDevtools />
       </Suspense>
