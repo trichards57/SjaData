@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Models;
 using SjaData.Model.Validation;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SjaData.Server.Api;
+namespace SjaData.Server.Controllers.Filters;
 
 /// <summary>
 /// Schema filter for the <see cref="RegionOrTrustAttribute"/>.

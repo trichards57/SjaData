@@ -9,6 +9,7 @@
 		<SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+		<IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
 	</PropertyGroup>
 
 	<ItemGroup>
