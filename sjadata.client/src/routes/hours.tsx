@@ -5,15 +5,10 @@ import hoursLoader, {
 } from "../loaders/hours-loader";
 import hoursTargetLoader from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheck,
-  faMinus,
-  faPlus,
-  faXmark,
-  faHouse,
-} from "@fortawesome/free-solid-svg-icons";
+import { faMinus, faPlus, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useSelectedAreas from "../components/useSelectedAreas";
 
 interface HoursProps {
   month: Readonly<ParsedHoursCount>;
@@ -71,25 +66,17 @@ export function Hours({ ytd, month, target }: HoursProps) {
     ytdKeys.includes(area)
   );
 
+  const { selectedAreas, AreaCheck, toggleArea } = useSelectedAreas();
   const [expandNHSE, setExpandNHSE] = useState(false);
-  const [selectedAreas, setSelectedAreas] = useState<AreaLabel[]>([]);
+
+  useEffect(() => {
+    if (selectedAreas && selectedAreas.length > 0) {
+      setExpandNHSE(true);
+    }
+  }, [selectedAreas]);
 
   const hoursTotal = Math.round(calculateSum(ytd.counts, selectedAreas));
   const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
-
-  function AreaCheck({ area }: { area: AreaLabel }) {
-    if (selectedAreas.includes(area)) {
-      return <FontAwesomeIcon fixedWidth icon={faCheck} />;
-    } else {
-      return <FontAwesomeIcon fixedWidth icon={faXmark} />;
-    }
-  }
-
-  function toggleArea(area: AreaLabel) {
-    setSelectedAreas((areas) =>
-      areas.includes(area) ? areas.filter((a) => a !== area) : [...areas, area]
-    );
-  }
 
   return (
     <>
