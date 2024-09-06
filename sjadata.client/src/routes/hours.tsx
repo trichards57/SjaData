@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import hoursLoader, {
   AreaLabel,
   ParsedHoursCount,
@@ -10,6 +10,7 @@ import {
   faMinus,
   faPlus,
   faXmark,
+  faHouse,
 } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useState } from "react";
@@ -94,6 +95,11 @@ export function Hours({ ytd, month, target }: HoursProps) {
     <>
       <section>
         <h2>Hours</h2>
+        <h3>
+          <Link to="/">
+            <FontAwesomeIcon icon={faHouse} /> Go Home
+          </Link>
+        </h3>
         <div className="link-boxes">
           <div className="hours-box month">
             <div>This Month</div>

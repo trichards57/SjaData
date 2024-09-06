@@ -58,6 +58,19 @@ h2 {
   max-width: fit-content;
 }
 
+h3 > a {
+  color: var(--sja-black);
+  text-decoration: none;
+}
+
+h3 > a:visited {
+  color: var(--sja-black);
+}
+
+h3 > a:hover {
+  color: var(--sja-gray);
+}
+
 .link-boxes {
   display: flex;
   flex-wrap: wrap;
