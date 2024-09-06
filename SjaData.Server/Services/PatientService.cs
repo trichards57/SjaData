@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
 using SjaData.Model.Converters;
 using SjaData.Model.Patient;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
@@ -75,38 +74,38 @@ public partial class PatientService(DataContext dataContext, ILogger<PatientServ
     }
 
     /// <inheritdoc/>
-    public async Task<PatientCount> CountAsync(PatientQuery query)
+    public async Task<PatientCount> CountAsync(Region? region, Trust? trust, EventType? eventType, Outcome? outcome, DateOnly? date, DateType? dateType)
     {
         var items = dataContext.Patients.AsQueryable();
 
-        if (query.Trust.HasValue && query.Trust != Trust.Undefined)
+        if (trust.HasValue && trust != Trust.Undefined)
         {
-            items = items.Where(p => p.Trust == query.Trust.Value);
+            items = items.Where(p => p.Trust == trust.Value);
         }
 
-        if (query.Region.HasValue && query.Region != Region.Undefined)
+        if (region.HasValue && region != Region.Undefined)
         {
-            items = items.Where(p => p.Region == query.Region.Value);
+            items = items.Where(p => p.Region == region.Value);
         }
 
-        if (query.Date.HasValue)
+        if (date.HasValue)
         {
-            items = query.DateType switch
+            items = dateType switch
             {
-                DateType.Day => items.Where(p => p.Date == query.Date.Value),
-                DateType.Month => items.Where(p => p.Date.Month == query.Date.Value.Month && p.Date.Year == query.Date.Value.Year),
-                _ => items.Where(p => p.Date.Year == query.Date.Value.Year),
+                DateType.Day => items.Where(p => p.Date == date.Value),
+                DateType.Month => items.Where(p => p.Date.Month == date.Value.Month && p.Date.Year == date.Value.Year),
+                _ => items.Where(p => p.Date.Year == date.Value.Year),
             };
         }
 
-        if (query.EventType.HasValue && query.EventType != EventType.Undefined)
+        if (eventType.HasValue && eventType != EventType.Undefined)
         {
-            items = items.Where(p => p.EventType == query.EventType.Value);
+            items = items.Where(p => p.EventType == eventType.Value);
         }
 
-        if (query.Outcome.HasValue && query.Outcome != Outcome.Undefined)
+        if (outcome.HasValue && outcome != Outcome.Undefined)
         {
-            items = items.Where(p => p.Outcome == query.Outcome.Value);
+            items = items.Where(p => p.Outcome == outcome.Value);
         }
 
         var count = (await items.Where(i => i.DeletedAt == null).Select(h => new

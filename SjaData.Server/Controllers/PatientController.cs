@@ -9,10 +9,8 @@ using Microsoft.Identity.Web;
 using SjaData.Model;
 using SjaData.Model.DataTypes;
 using SjaData.Model.Patient;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
-using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Controllers;
@@ -106,7 +104,7 @@ public partial class PatientController(IPatientService patientService, ILogger<P
             dateType = DateType.Month;
         }
 
-        if (region is not null && trust is not null)
+        if (region is not null and not Region.Undefined && trust is not null and not Trust.Undefined)
         {
             ModelState.AddModelError(string.Empty, "Only one of region or trust can be specified.");
             return ValidationProblem();
@@ -126,15 +124,7 @@ public partial class PatientController(IPatientService patientService, ILogger<P
             }
         }
 
-        var count = await patientService.CountAsync(new PatientQuery
-        {
-            Date = date,
-            DateType = dateType,
-            Region = region,
-            Trust = trust,
-            EventType = eventType,
-            Outcome = outcome,
-        });
+        var count = await patientService.CountAsync(region, trust, eventType, outcome, date, dateType);
 
         Response.GetTypedHeaders().LastModified = count.LastUpdate;
         Response.GetTypedHeaders().CacheControl = new() { Private = true, NoCache = true };

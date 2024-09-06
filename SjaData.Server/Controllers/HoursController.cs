@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using SjaData.Model;
 using SjaData.Model.Hours;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
@@ -110,7 +109,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
             }
         }
 
-        var count = await hoursService.CountAsync(new HoursQuery { Date = date, DateType = dateType });
+        var count = await hoursService.CountAsync(date, dateType);
 
         Response.GetTypedHeaders().LastModified = count.LastUpdate;
         Response.GetTypedHeaders().CacheControl = new() { Private = true, NoCache = true };

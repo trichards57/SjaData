@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaData.Model;
 using SjaData.Model.Hours;
-using SjaData.Server.Api.Model;
 
 namespace SjaData.Server.Services.Interfaces;
 
@@ -23,11 +23,12 @@ public interface IHoursService
     /// <summary>
     /// Counts the hours that match the given query.
     /// </summary>
-    /// <param name="query">The query to search for.</param>
+    /// <param name="date">The date to filter by.</param>
+    /// <param name="dateType">The level the date should be filtered with.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
-    Task<HoursCount> CountAsync(HoursQuery query);
+    Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType);
 
     /// <summary>
     /// Deletes the given hours entry.

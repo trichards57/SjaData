@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using SjaData.Model;
 using SjaData.Model.Converters;
 using SjaData.Model.Hours;
-using SjaData.Server.Api.Model;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Services.Interfaces;
@@ -71,17 +70,17 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
     }
 
     /// <inheritdoc/>
-    public async Task<HoursCount> CountAsync(HoursQuery query)
+    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType)
     {
         var items = dataContext.Hours.AsQueryable();
 
-        if (query.Date.HasValue)
+        if (date.HasValue)
         {
-            items = query.DateType switch
+            items = dateType switch
             {
-                DateType.Day => items.Where(h => h.Date == query.Date.Value),
-                DateType.Month => items.Where(h => h.Date.Month == query.Date.Value.Month && h.Date.Year == query.Date.Value.Year),
-                _ => items.Where(h => h.Date.Year == query.Date.Value.Year),
+                DateType.Day => items.Where(h => h.Date == date.Value),
+                DateType.Month => items.Where(h => h.Date.Month == date.Value.Month && h.Date.Year == date.Value.Year),
+                _ => items.Where(h => h.Date.Year == date.Value.Year),
             };
         }
 
