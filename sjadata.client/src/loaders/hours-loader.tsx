@@ -3,15 +3,7 @@ interface HoursCount {
   lastUpdate: string;
 }
 
-export type AreaLabel =
-  | "NE"
-  | "NW"
-  | "WM"
-  | "EM"
-  | "EOE"
-  | "LON"
-  | "SE"
-  | "SW"
+export type Trust =
   | "NEAS"
   | "NWAS"
   | "WMAS"
@@ -26,6 +18,10 @@ export type AreaLabel =
   | "SAS"
   | "NIAS"
   | "IWAS";
+
+export type Region = "NE" | "NW" | "WM" | "EM" | "EOE" | "LON" | "SE" | "SW";
+
+export type AreaLabel = Region | Trust;
 
 export interface ParsedHoursCount {
   counts: Partial<Record<AreaLabel, number>>;
