@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import useSelectedAreas from "../components/useSelectedAreas";
 
 interface HoursProps {
+  lastMonth: Readonly<ParsedHoursCount>;
   month: Readonly<ParsedHoursCount>;
   ytd: Readonly<ParsedHoursCount>;
   target: number;
@@ -22,6 +23,9 @@ export const Route = createFileRoute("/hours")({
   },
   pendingComponent: Loading,
   loader: async () => ({
+    lastMonth: await hoursLoader(
+      new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+    ),
     month: await hoursLoader(new Date()),
     ytd: await hoursLoader(),
     target: await hoursTargetLoader(new Date()),
@@ -59,7 +63,7 @@ function calculateSum(
   return total;
 }
 
-export function Hours({ ytd, month, target }: HoursProps) {
+export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
   const ytdKeys = Object.keys(ytd.counts);
 
   const actualNhseAreas = nhseContractAreas.filter(([area]) =>
@@ -76,6 +80,7 @@ export function Hours({ ytd, month, target }: HoursProps) {
   }, [selectedAreas]);
 
   const hoursTotal = Math.round(calculateSum(ytd.counts, selectedAreas));
+  const lastMonthTotal = Math.round(calculateSum(lastMonth.counts, selectedAreas));
   const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
 
   return (
@@ -89,12 +94,12 @@ export function Hours({ ytd, month, target }: HoursProps) {
         </h3>
         <div className="link-boxes">
           <div className="hours-box month">
+            <div>Last Month</div>
+            <div>{lastMonthTotal}</div>
+          </div>
+          <div className="hours-box month">
             <div>This Month</div>
             <div>{monthTotal}</div>
-          </div>
-          <div className="hours-box ytd">
-            <div>Year to Date</div>
-            <div>{hoursTotal}</div>
           </div>
           <div className="hours-box target">
             <div>
@@ -105,10 +110,14 @@ export function Hours({ ytd, month, target }: HoursProps) {
             </div>
             <div>{target}</div>
           </div>
+          <div className="hours-box ytd">
+            <div>Year to Date</div>
+            <div>{hoursTotal}</div>
+          </div>
         </div>
         <p>
-          <a id="target-note">*</a> Target is shown as people-hours, not
-          crew-hours (and so is double what we bill to NHSE).
+          <a id="target-note">*</a> Hours are all shown as people-hours, not
+          crew-hours (and so are double what we bill to NHSE).
         </p>
       </section>
       <section>
