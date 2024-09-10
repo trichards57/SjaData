@@ -1,12 +1,16 @@
-﻿using CsvHelper;
-using SJAData.Loader.Model;
-using SjaData.Model;
-using SjaData.Model.Hours;
-using SjaData.Server.Model;
-using System.Globalization;
-using System.Net.Http.Json;
+﻿// <copyright file="Program.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
-Console.WriteLine("Hello, World!");
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SJAData.Loader;
+
+var host = Host
+    .CreateDefaultBuilder(args)
+    .ConfigureServices(services => { services.AddTransient<Loader>(); })
+    .Build();
 
 if (args.Length == 0)
 {
@@ -14,60 +18,11 @@ if (args.Length == 0)
     return -1;
 }
 
-var inputFileName = args[0];
-
-if (!File.Exists(inputFileName))
+if (!File.Exists(args[0]))
 {
     Console.WriteLine("The specified file does not exist.");
     return -1;
 }
 
-var hours = new List<Hours>();
-
-using (var reader = new StreamReader(inputFileName))
-using (var csv = new CsvReader(reader, CultureInfo.CurrentUICulture))
-{
-    csv.Context.RegisterClassMap<HoursMap>();
-    hours.AddRange(csv.GetRecords<Hours>());
-}
-
-foreach (var hour in hours.Where(h => !string.IsNullOrWhiteSpace(h.Name)))
-{
-    var newEntry = new NewHoursEntry
-    {
-        Date = hour.ShiftDate,
-        Hours = hour.ShiftLength,
-        PersonId = int.Parse(hour.IdNumber),
-        Name = hour.Name,
-    };
-
-    var trust = hour.CrewType switch
-    {
-        "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
-        "NHS E EMAS" => Trust.EastMidlandsAmbulanceService,
-        "NHS E IOW" => Trust.IsleOfWightAmbulanceService,
-        "NHS E LAS" => Trust.LondonAmbulanceService,
-        "NHS E NEAS" => Trust.NorthEastAmbulanceService,
-        "NHS E NWAS" => Trust.NorthWestAmbulanceService,
-        "NWAS 365" => Trust.NorthWestAmbulanceService,
-        "NHS E SCAS" => Trust.SouthCentralAmbulanceService,
-        "NHS E SECAmb" => Trust.SouthEastCoastAmbulanceService,
-        "NHS E SWAST" => Trust.SouthWesternAmbulanceService,
-        "NHS E YAS" => Trust.YorkshireAmbulanceService,
-        "YAS" => Trust.YorkshireAmbulanceService,
-        _ => Trust.Undefined,
-    };
-
-    if (trust == Trust.Undefined)
-    {
-        continue;
-    }
-
-    newEntry = newEntry with { Trust = trust };
-
-    HttpClient client = new();
-
-    await client.PostAsJsonAsync("https://localhost:7125/api/hours?api-version=1.0", newEntry, JsonContext.Default.NewHoursEntry);
-}
-
-return 0;
+var loader = host.Services.GetRequiredService<Loader>();
+return await loader.ExecuteAsync(args[0]);
