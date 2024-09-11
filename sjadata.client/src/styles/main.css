@@ -23,6 +23,7 @@
   --box-height: 200px;
   --box-padding: 40px;
   --box-spacing: 20px;
+  --min-box-width: 240px;
 }
 
 html {
@@ -72,20 +73,24 @@ h3 > a:hover {
 }
 
 .link-boxes {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--min-box-width), 1fr));
   gap: var(--box-spacing);
+  padding: 0 var(--box-padding);
+}
+
+.link-box, .hours-box {
+  width: 100%;
+  font-family: var(--sja-header-font);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
 }
 
 .link-box {
   background-color: var(--sja-green);
   color: var(--sja-green-text);
-  width: 250px;
   height: var(--box-height);
-  font-family: var(--sja-header-font);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
   justify-content: center;
   font-size: 3rem;
   text-decoration: none;
@@ -93,12 +98,7 @@ h3 > a:hover {
 }
 
 .hours-box {
-  width: 250px;
   height: calc(var(--box-height) - 2 * var(--box-padding));
-  font-family: var(--sja-header-font);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   flex-direction: column;
   font-size: 2rem;

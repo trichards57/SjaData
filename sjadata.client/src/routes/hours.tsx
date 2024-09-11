@@ -80,7 +80,9 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
   }, [selectedAreas]);
 
   const hoursTotal = Math.round(calculateSum(ytd.counts, selectedAreas));
-  const lastMonthTotal = Math.round(calculateSum(lastMonth.counts, selectedAreas));
+  const lastMonthTotal = Math.round(
+    calculateSum(lastMonth.counts, selectedAreas)
+  );
   const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
 
   return (
@@ -92,33 +94,24 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
             <FontAwesomeIcon icon={faHouse} /> Go Home
           </Link>
         </h3>
-        <div className="link-boxes">
-          <div className="hours-box month">
+        <ul className="link-boxes">
+          <li className="hours-box month">
             <div>Last Month</div>
             <div>{lastMonthTotal}</div>
-          </div>
-          <div className="hours-box month">
+          </li>
+          <li className="hours-box month">
             <div>This Month</div>
             <div>{monthTotal}</div>
-          </div>
-          <div className="hours-box target">
-            <div>
-              NHSE Target
-              <a className="see" href="#target-note">
-                [*]
-              </a>
-            </div>
+          </li>
+          <li className="hours-box target">
+            <div>NHSE Target</div>
             <div>{target}</div>
-          </div>
-          <div className="hours-box ytd">
+          </li>
+          <li className="hours-box ytd">
             <div>Year to Date</div>
             <div>{hoursTotal}</div>
-          </div>
-        </div>
-        <p>
-          <a id="target-note">*</a> Hours are all shown as people-hours, not
-          crew-hours (and so are double what we bill to NHSE).
-        </p>
+          </li>
+        </ul>
       </section>
       <section>
         <h3>Filter</h3>
@@ -139,10 +132,16 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
             ))}
           </ul>
         </ul>
+        <footer>
+          <p>
+            Hours are all shown as people-hours, not crew-hours (and so are
+            double what we bill to NHSE).
+          </p>
+          <p className="last-update">
+            Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"}{" "}
+          </p>
+        </footer>
       </section>
-      <p className="last-update">
-        Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"}{" "}
-      </p>
     </>
   );
 }
