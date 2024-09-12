@@ -3,26 +3,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using SJAData.Loader;
+using Spectre.Console;
+using Spectre.Console.Cli;
+using System.Reflection;
 
-var host = Host
-    .CreateDefaultBuilder(args)
-    .ConfigureServices(services => { services.AddTransient<Loader>(); })
-    .Build();
+var version = Assembly.GetExecutingAssembly().GetName().Version;
+var panel = new Panel($"[bold]SJA Data Loader[/]\nVersion:{version:3}") { Expand = true };
+AnsiConsole.Write(panel);
 
-if (args.Length == 0)
+var app = new CommandApp();
+
+app.Configure(c =>
 {
-    Console.WriteLine("Please specify an input file name.");
-    return -1;
-}
+    c.AddCommand<Loader>("load");
+});
 
-if (!File.Exists(args[0]))
-{
-    Console.WriteLine("The specified file does not exist.");
-    return -1;
-}
+var res = await app.RunAsync(args);
 
-var loader = host.Services.GetRequiredService<Loader>();
-return await loader.ExecuteAsync(args[0]);
+return res;
