@@ -82,7 +82,8 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     public async Task<IActionResult> GetHoursCount(
         [FromHeader(Name = "If-Modified-Since")] DateTimeOffset? ifModifiedSince,
         [FromQuery(Name = "date")] DateOnly? date,
-        [FromQuery(Name = "date-type")][ModelBinder(BinderType = typeof(DateTypeBinder))] DateType? dateType)
+        [FromQuery(Name = "date-type")][ModelBinder(BinderType = typeof(DateTypeBinder))] DateType? dateType,
+        [FromQuery(Name = "future")]bool future = false)
     {
         if (date is null && dateType is not null)
         {
@@ -109,7 +110,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
             }
         }
 
-        var count = await hoursService.CountAsync(date, dateType);
+        var count = await hoursService.CountAsync(date, dateType, future);
 
         Response.GetTypedHeaders().LastModified = count.LastUpdate;
         Response.GetTypedHeaders().CacheControl = new() { Private = true, NoCache = true };

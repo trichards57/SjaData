@@ -25,10 +25,11 @@ public interface IHoursService
     /// </summary>
     /// <param name="date">The date to filter by.</param>
     /// <param name="dateType">The level the date should be filtered with.</param>
+    /// <param name="future">If <see langword="true"/> with only return future records, otherwise only returns present and past.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
-    Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType);
+    Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType, bool future);
 
     /// <summary>
     /// Deletes the given hours entry.

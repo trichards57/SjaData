@@ -28,10 +28,14 @@ export interface ParsedHoursCount {
   lastUpdate: Date | undefined;
 }
 
-export default async function hoursLoader(date?: Date) {
-  const uri = date
+export default async function hoursLoader(date?: Date, future?: boolean) {
+  let uri = date
     ? `/api/hours/count?date=${date.toISOString().split("T")[0]}&dateType=m&api-version=1.0`
     : "/api/hours/count?api-version=1.0";
+
+  if (future) {
+    uri = `${uri}&future=true`;
+  }
 
   const res = await fetch(uri);
 
@@ -54,7 +58,15 @@ export default async function hoursLoader(date?: Date) {
       continue;
     }
 
-    const [daysString, time] = value.split(".");
+    let daysString: string = "0";
+    let time: string = "";
+
+    if (value.includes(".")) {
+      [daysString, time] = value.split(".");
+    } else {
+      time = value;
+    }
+
     const parts = time.split(":");
     const days = parseInt(daysString, 10);
     const hours = parseInt(parts[0], 10);

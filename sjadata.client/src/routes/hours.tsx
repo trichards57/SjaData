@@ -13,6 +13,7 @@ import useSelectedAreas from "../components/useSelectedAreas";
 interface HoursProps {
   lastMonth: Readonly<ParsedHoursCount>;
   month: Readonly<ParsedHoursCount>;
+  monthPlanned: Readonly<ParsedHoursCount>;
   ytd: Readonly<ParsedHoursCount>;
   target: number;
 }
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/hours")({
       new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
     ),
     month: await hoursLoader(new Date()),
+    monthPlanned: await hoursLoader(new Date(), true),
     ytd: await hoursLoader(),
     target: await hoursTargetLoader(new Date()),
   }),
@@ -74,7 +76,13 @@ function calculateSum(
   return total;
 }
 
-export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
+export function Hours({
+  ytd,
+  lastMonth,
+  month,
+  monthPlanned,
+  target,
+}: HoursProps) {
   const ytdKeys = Object.keys(ytd.counts);
 
   const actualNhseAreas = nhseContractAreas.filter(([area]) =>
@@ -105,6 +113,9 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
     calculateSum(lastMonth.counts, selectedAreas)
   );
   const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
+  const plannedTotal = Math.round(
+    calculateSum(monthPlanned.counts, selectedAreas)
+  );
   const nhseLastMonthTotal = Math.round(
     calculateSum(
       lastMonth.counts,
@@ -123,6 +134,14 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
       )
     )
   );
+  const plannedNhseMonthTotal = Math.round(
+    calculateSum(
+      monthPlanned.counts,
+      selectedAreas.filter((a) =>
+        nhseContractAreas.map(([area]) => area).includes(a)
+      )
+    )
+  );
   const regionsLastMonthTotal = Math.round(
     calculateSum(
       lastMonth.counts,
@@ -134,6 +153,12 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
   const regionsMonthTotal = Math.round(
     calculateSum(
       month.counts,
+      selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
+    )
+  );
+  const plannedRegionsMonthTotal = Math.round(
+    calculateSum(
+      monthPlanned.counts,
       selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
     )
   );
@@ -167,6 +192,7 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{monthTotal}</div>
+                <div className="planned">{plannedTotal + monthTotal} Planned</div>
               </li>
               <li className="hours-box ytd">
                 <div>Year to Date</div>
@@ -186,6 +212,7 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{nhseMonthTotal}</div>
+                <div className="planned">{plannedNhseMonthTotal + nhseMonthTotal} Planned</div>
               </li>
               <li className="hours-box target">
                 <div>Target</div>
@@ -205,6 +232,7 @@ export function Hours({ ytd, lastMonth, month, target }: HoursProps) {
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{regionsMonthTotal}</div>
+                <div className="planned">{plannedRegionsMonthTotal + regionsMonthTotal} Planned</div>
               </li>
             </ul>
           </>

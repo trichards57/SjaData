@@ -2,7 +2,7 @@
   "profiles": {
     "SJAData.Loader": {
       "commandName": "Project",
-      "commandLineArgs": "load \"C:\\Users\\trich\\OneDrive - St John Ambulance\\OverallHours.csv\" \"C:\\Users\\trich\\source\\repos\\HoursAnalyser\\Data\\people.csv\""
+      "commandLineArgs": "load \"C:\\Users\\trich\\OneDrive - St John Ambulance\\OverallHours-Sep.csv\" \"C:\\Users\\trich\\source\\repos\\HoursAnalyser\\Data\\people.csv\""
     }
   }
 }

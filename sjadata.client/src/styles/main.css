@@ -127,6 +127,13 @@ h3 > a:hover {
   color: var(--sja-dark-green-text);
 }
 
+.hours-box .planned {
+  font-size: 1.5rem;
+  text-transform: none;
+  font-family: var(--sja-body-font);
+  font-weight: normal;
+}
+
 .hours-box div {
   display: block;
 }

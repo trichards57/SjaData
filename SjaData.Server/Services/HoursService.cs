@@ -70,7 +70,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
     }
 
     /// <inheritdoc/>
-    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType)
+    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType, bool future)
     {
         var items = dataContext.Hours.AsQueryable();
 
@@ -82,6 +82,15 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
                 DateType.Month => items.Where(h => h.Date.Month == date.Value.Month && h.Date.Year == date.Value.Year),
                 _ => items.Where(h => h.Date.Year == date.Value.Year),
             };
+
+            if (future)
+            {
+                items = items.Where(d => d.Date > date);
+            }
+            else
+            {
+                items = items.Where(d => d.Date <= date);
+            }
         }
 
         var hoursCount = (await items.Where(i => i.DeletedAt == null).Select(h => new

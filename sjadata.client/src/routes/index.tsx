@@ -10,7 +10,7 @@ function Index() {
             <h2>Home</h2>
             <div className="link-boxes">
                 <Link className="link-box" to="/hours">Hours</Link>
-                <Link className="link-box" to="/patients">Patients</Link>
+                <Link className="link-box" to="/trends">Trends</Link>
             </div>
         </>
     )
