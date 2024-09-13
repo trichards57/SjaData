@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SjaData.Server.Data;
 
@@ -11,9 +12,11 @@ using SjaData.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240913161033_PersonModel")]
+    partial class PersonModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,11 +178,11 @@ namespace SjaData.Server.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<byte>("Region")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Region")
+                        .HasColumnType("int");
 
-                    b.Property<byte>("Trust")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Trust")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
@@ -213,27 +216,27 @@ namespace SjaData.Server.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<byte>("EventType")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
 
                     b.Property<string>("FinalClinicalImpression")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<byte>("Outcome")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Outcome")
+                        .HasColumnType("int");
 
                     b.Property<string>("PresentingComplaint")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<byte>("Region")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Region")
+                        .HasColumnType("int");
 
-                    b.Property<byte>("Trust")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Trust")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -263,8 +266,8 @@ namespace SjaData.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte>("Region")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("Region")
+                        .HasColumnType("int");
 
                     b.Property<string>("Role")
                         .IsRequired()

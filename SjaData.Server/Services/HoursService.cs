@@ -44,7 +44,6 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         existingItem.Trust = hours.Trust;
         existingItem.Hours = hours.Hours;
         existingItem.Region = hours.Region;
-        existingItem.Name = hours.Name;
 
         await dataContext.SaveChangesAsync();
 

@@ -11,7 +11,7 @@ namespace SjaData.Model;
 /// Represents the outcome of a patient.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Outcome>))]
-public enum Outcome
+public enum Outcome : byte
 {
     /// <summary>
     /// Undefined outcome.

@@ -12,7 +12,7 @@ namespace SjaData.Model;
 /// Represents an ambulance service trust.
 /// </summary>
 [JsonConverter(typeof(TrustConverter))]
-public enum Trust
+public enum Trust : byte
 {
     /// <summary>
     /// An undefined trust.

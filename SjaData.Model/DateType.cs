@@ -1,6 +1,6 @@
 ﻿namespace SjaData.Model;
 
-public enum DateType
+public enum DateType : byte
 {
     Undefined = 0,
     Day = 1,

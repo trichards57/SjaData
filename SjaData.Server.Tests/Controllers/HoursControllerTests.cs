@@ -83,7 +83,7 @@ public class HoursControllerTests
                 { "SW", TimeSpan.FromHours(18) },
             }),
         };
-        hoursService.Setup(s => s.CountAsync(date, dateType)).ReturnsAsync(expected);
+        hoursService.Setup(s => s.CountAsync(date, dateType, false)).ReturnsAsync(expected);
         var controller = new HoursController(hoursService.Object, logger) { ControllerContext = new ControllerContext { HttpContext = context } };
 
         var result = await controller.GetHoursCount(null, date, dateType);
@@ -132,7 +132,7 @@ public class HoursControllerTests
             }),
         };
         hoursService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);
-        hoursService.Setup(s => s.CountAsync(date, dateType)).ReturnsAsync(expected);
+        hoursService.Setup(s => s.CountAsync(date, dateType, false)).ReturnsAsync(expected);
 
         var controller = new HoursController(hoursService.Object, logger) { ControllerContext = new ControllerContext { HttpContext = context } };
 

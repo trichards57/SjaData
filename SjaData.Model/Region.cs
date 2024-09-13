@@ -12,7 +12,7 @@ namespace SjaData.Model;
 /// Represents the SJA region.
 /// </summary>
 [JsonConverter(typeof(RegionConverter))]
-public enum Region
+public enum Region : byte
 {
     /// <summary>
     /// An undefined region.

@@ -11,7 +11,7 @@ namespace SjaData.Model;
 /// The type of event.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<EventType>))]
-public enum EventType
+public enum EventType : byte
 {
     /// <summary>
     /// An undefined event type.
