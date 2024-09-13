@@ -23,7 +23,7 @@
   --box-height: 200px;
   --box-padding: 40px;
   --box-spacing: 20px;
-  --min-box-width: 240px;
+  --min-box-width: 300px;
 }
 
 html {
@@ -79,7 +79,8 @@ h3 > a:hover {
   padding: 0 var(--box-padding);
 }
 
-.link-box, .hours-box {
+.link-box,
+.hours-box {
   width: 100%;
   font-family: var(--sja-header-font);
   font-weight: 600;
@@ -106,6 +107,11 @@ h3 > a:hover {
   padding: var(--box-padding) 0;
 }
 
+.hours-box.last-month {
+  background-color: var(--sja-light-gray);
+  color: var(--sja-light-gray-text);
+}
+
 .hours-box.month {
   background-color: var(--sja-black);
   color: var(--sja-black-text);
@@ -117,8 +123,8 @@ h3 > a:hover {
 }
 
 .hours-box.target {
-  background-color: var(--sja-yellow);
-  color: var(--sja-yellow-text);
+  background-color: var(--sja-dark-green);
+  color: var(--sja-dark-green-text);
 }
 
 .hours-box div {
@@ -144,16 +150,20 @@ h3 > a:hover {
   cursor: pointer;
 }
 
-ul.area-list > li {
+li.area-section {
   background-color: var(--sja-black);
   color: var(--sja-black-text);
+}
+
+ul.area-list > li:not(.area-section) {
+  padding: 0;
 }
 
 .area-section {
   cursor: pointer;
 }
 
-.area-section:hover {
+li.area-section:hover {
   background-color: var(--sja-yellow);
   color: var(--sja-yellow-text);
 }
