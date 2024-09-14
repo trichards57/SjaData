@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { fileURLToPath, URL } from "node:url";
+import { patchCssModules } from "vite-css-modules";
 
 import { defineConfig } from "vite";
 import plugin from "@vitejs/plugin-react";
@@ -47,7 +48,7 @@ const target = env.ASPNETCORE_HTTPS_PORT
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [TanStackRouterVite(), plugin()],
+  plugins: [patchCssModules(), TanStackRouterVite(), plugin()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

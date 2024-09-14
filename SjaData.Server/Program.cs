@@ -49,7 +49,18 @@ builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<DataContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration);
+    .AddJwtBearer(o =>
+    {
+        o.MetadataAddress = "https://login.microsoftonline.com/91d037fb-4714-4fe8-b084-68c083b8193f/v2.0/.well-known/openid-configuration";
+        o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://login.microsoftonline.com/91d037fb-4714-4fe8-b084-68c083b8193f/v2.0",
+            ValidateAudience = true,
+            ValidAudience = "a984d5ce-d914-47d0-b690-1bcf084eb829",
+            ValidateSignatureLast = true,
+        };
+    });
 
 builder.Services.AddTransient<IHoursService, HoursService>();
 builder.Services.AddTransient<IPatientService, PatientService>();
@@ -105,16 +116,9 @@ builder.Services.AddSwaggerGen(o =>
 
     o.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            AuthorizationCode = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/authorize"),
-                TokenUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/token"),
-                RefreshUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/token"),
-            },
-        },
+        Type = SecuritySchemeType.ApiKey,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
     });
 });
 

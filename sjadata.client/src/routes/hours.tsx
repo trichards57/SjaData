@@ -1,37 +1,43 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import hoursLoader, {
+import {
   AreaLabel,
-  ParsedHoursCount,
+  preloadHoursCount,
+  useHoursCount,
 } from "../loaders/hours-loader";
-import hoursTargetLoader from "../loaders/hours-target-loader";
+import {
+  preloadHoursTargetCount,
+  useHoursTarget,
+} from "../loaders/hours-target-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useEffect, useState } from "react";
 import useSelectedAreas from "../components/useSelectedAreas";
 
-interface HoursProps {
-  lastMonth: Readonly<ParsedHoursCount>;
-  month: Readonly<ParsedHoursCount>;
-  monthPlanned: Readonly<ParsedHoursCount>;
-  ytd: Readonly<ParsedHoursCount>;
-  target: number;
-}
-
 export const Route = createFileRoute("/hours")({
-  component: function Component() {
-    return <Hours {...Route.useLoaderData()} />;
-  },
+  component: Hours,
   pendingComponent: Loading,
-  loader: async () => ({
-    lastMonth: await hoursLoader(
-      new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
-    ),
-    month: await hoursLoader(new Date()),
-    monthPlanned: await hoursLoader(new Date(), true),
-    ytd: await hoursLoader(),
-    target: await hoursTargetLoader(new Date()),
-  }),
+  loader: async ({ context }) => {
+    const tokenRes = await context.pca.acquireTokenSilent({
+      scopes: ["User.Read"],
+      account: context.pca.getAccount({
+        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
+      })!,
+    });
+    const token = tokenRes.idToken;
+
+    return Promise.all([
+      preloadHoursCount(
+        context.queryClient,
+        token,
+        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+      ),
+      preloadHoursCount(context.queryClient, token, new Date()),
+      preloadHoursCount(context.queryClient, token, new Date(), true),
+      preloadHoursCount(context.queryClient, token),
+      preloadHoursTargetCount(context.queryClient, token, new Date()),
+    ]);
+  },
 });
 
 const nhseContractAreas: [AreaLabel, string][] = [
@@ -76,14 +82,15 @@ function calculateSum(
   return total;
 }
 
-export function Hours({
-  ytd,
-  lastMonth,
-  month,
-  monthPlanned,
-  target,
-}: HoursProps) {
-  const ytdKeys = Object.keys(ytd.counts);
+export function Hours() {
+  const target = useHoursTarget(new Date());
+  const lastMonth = useHoursCount(
+    new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+  );
+  const month = useHoursCount(new Date());
+  const monthPlanned = useHoursCount(new Date(), true);
+  const ytd = useHoursCount();
+  const ytdKeys = Object.keys(ytd.data.counts);
 
   const actualNhseAreas = nhseContractAreas.filter(([area]) =>
     ytdKeys.includes(area)
@@ -108,17 +115,17 @@ export function Hours({
     }
   }, [selectedAreas]);
 
-  const hoursTotal = Math.round(calculateSum(ytd.counts, selectedAreas));
+  const hoursTotal = Math.round(calculateSum(ytd.data.counts, selectedAreas));
   const lastMonthTotal = Math.round(
-    calculateSum(lastMonth.counts, selectedAreas)
+    calculateSum(lastMonth.data.counts, selectedAreas)
   );
-  const monthTotal = Math.round(calculateSum(month.counts, selectedAreas));
+  const monthTotal = Math.round(calculateSum(month.data.counts, selectedAreas));
   const plannedTotal = Math.round(
-    calculateSum(monthPlanned.counts, selectedAreas)
+    calculateSum(monthPlanned.data.counts, selectedAreas)
   );
   const nhseLastMonthTotal = Math.round(
     calculateSum(
-      lastMonth.counts,
+      lastMonth.data.counts,
       selectedAreas.length === 0
         ? nhseContractAreas.map(([area]) => area)
         : selectedAreas.filter((a) =>
@@ -128,7 +135,7 @@ export function Hours({
   );
   const nhseMonthTotal = Math.round(
     calculateSum(
-      month.counts,
+      month.data.counts,
       selectedAreas.filter((a) =>
         nhseContractAreas.map(([area]) => area).includes(a)
       )
@@ -136,7 +143,7 @@ export function Hours({
   );
   const plannedNhseMonthTotal = Math.round(
     calculateSum(
-      monthPlanned.counts,
+      monthPlanned.data.counts,
       selectedAreas.filter((a) =>
         nhseContractAreas.map(([area]) => area).includes(a)
       )
@@ -144,7 +151,7 @@ export function Hours({
   );
   const regionsLastMonthTotal = Math.round(
     calculateSum(
-      lastMonth.counts,
+      lastMonth.data.counts,
       selectedAreas.length === 0
         ? nhseContractAreas.map(([area]) => area)
         : selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
@@ -152,13 +159,13 @@ export function Hours({
   );
   const regionsMonthTotal = Math.round(
     calculateSum(
-      month.counts,
+      month.data.counts,
       selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
     )
   );
   const plannedRegionsMonthTotal = Math.round(
     calculateSum(
-      monthPlanned.counts,
+      monthPlanned.data.counts,
       selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
     )
   );
@@ -192,7 +199,9 @@ export function Hours({
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{monthTotal}</div>
-                <div className="planned">{plannedTotal + monthTotal} Planned</div>
+                <div className="planned">
+                  {plannedTotal + monthTotal} Planned
+                </div>
               </li>
               <li className="hours-box ytd">
                 <div>Year to Date</div>
@@ -212,11 +221,13 @@ export function Hours({
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{nhseMonthTotal}</div>
-                <div className="planned">{plannedNhseMonthTotal + nhseMonthTotal} Planned</div>
+                <div className="planned">
+                  {plannedNhseMonthTotal + nhseMonthTotal} Planned
+                </div>
               </li>
               <li className="hours-box target">
                 <div>Target</div>
-                <div>{target}</div>
+                <div>{target.data}</div>
               </li>
             </ul>
           </>
@@ -232,7 +243,9 @@ export function Hours({
               <li className="hours-box month">
                 <div>This Month</div>
                 <div>{regionsMonthTotal}</div>
-                <div className="planned">{plannedRegionsMonthTotal + regionsMonthTotal} Planned</div>
+                <div className="planned">
+                  {plannedRegionsMonthTotal + regionsMonthTotal} Planned
+                </div>
               </li>
             </ul>
           </>
@@ -291,7 +304,8 @@ export function Hours({
             double what we bill to NHSE).
           </p>
           <p className="last-update">
-            Data last updated : {ytd.lastUpdate?.toLocaleString() ?? "No Data"}{" "}
+            Data last updated :{" "}
+            {ytd.data.lastUpdate?.toLocaleString() ?? "No Data"}{" "}
           </p>
         </footer>
       </section>

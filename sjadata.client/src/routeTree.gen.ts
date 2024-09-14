@@ -75,12 +75,54 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({
-  IndexRoute,
-  AboutRoute,
-  HoursRoute,
-  TrendsRoute,
-})
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/hours': typeof HoursRoute
+  '/trends': typeof TrendsRoute
+}
+
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/hours': typeof HoursRoute
+  '/trends': typeof TrendsRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/hours': typeof HoursRoute
+  '/trends': typeof TrendsRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/about' | '/hours' | '/trends'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/about' | '/hours' | '/trends'
+  id: '__root__' | '/' | '/about' | '/hours' | '/trends'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  HoursRoute: typeof HoursRoute
+  TrendsRoute: typeof TrendsRoute
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  HoursRoute: HoursRoute,
+  TrendsRoute: TrendsRoute,
+}
+
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* prettier-ignore-end */
 
