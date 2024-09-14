@@ -5,6 +5,7 @@
 
 using SjaData.Model;
 using SjaData.Model.Hours;
+using SjaData.Server.Model;
 
 namespace SjaData.Server.Services.Interfaces;
 
@@ -19,6 +20,8 @@ public interface IHoursService
     /// <param name="hours">The new hours data.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task AddAsync(NewHoursEntry hours);
+
+    Task<int> AddHours(IAsyncEnumerable<Hours> asyncEnumerable);
 
     /// <summary>
     /// Counts the hours that match the given query.

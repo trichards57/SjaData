@@ -1,6 +1,6 @@
 import { useMsal } from "@azure/msal-react";
 
-export function usePeopleUploader() {
+export function useHoursUploader() {
   const msal = useMsal();
 
   return async (file: File) => {
@@ -16,7 +16,7 @@ export function usePeopleUploader() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/api/people?api-version=1.0", {
+    const res = await fetch("/api/hours?api-version=1.0", {
       method: "POST",
       headers: {
         Authorization: authHeader,

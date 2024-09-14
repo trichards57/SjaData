@@ -23,17 +23,17 @@ public class PeopleController(IPersonService personService) : ControllerBase
     /// <summary>
     /// Accepts a CSV file containing person data and adds the people to the database.
     /// </summary>
-    /// <param name="fileData">The CSV file to accept.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
-    /// <response code="204">The people file was accepted successfully.</response>
+    /// <response code="200">The people file was accepted successfully.</response>
     /// <response code="400">The request was invalid.</response>
     [HttpPost]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
-    [Consumes("text/csv")]
-    public async Task<IActionResult> ReceivePersonFile()
+    public async Task<IActionResult> ReceivePersonFile([FromForm]IFormFile file)
     {
-        using var reader = new StreamReader(Request.Body);
+        Request.EnableBuffering();
+
+        using var reader = new StreamReader(file.OpenReadStream());
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<PersonMap>();
 

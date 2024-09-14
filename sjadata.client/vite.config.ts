@@ -63,6 +63,19 @@ export default defineConfig({
       "^/api": {
         target,
         secure: false,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (req) => {
+            if (req.getHeaders()["content-length"]) {
+              const contentLength = parseInt(
+                req.getHeaders()["content-length"]?.toString() ?? "0"
+              );
+              if (contentLength > 100_000_000) {
+                // Example: 100MB limit
+                req.setHeader("content-length", contentLength);
+              }
+            }
+          });
+        },
       },
     },
     port: 5173,

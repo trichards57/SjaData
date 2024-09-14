@@ -4,6 +4,7 @@
 // </copyright>
 
 using Asp.Versioning;
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
@@ -11,7 +12,10 @@ using SjaData.Model;
 using SjaData.Model.Hours;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
+using SjaData.Server.Model;
+using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
+using System.Globalization;
 
 namespace SjaData.Server.Controllers;
 
@@ -30,23 +34,30 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     private readonly ILogger<HoursController> logger = logger;
 
     /// <summary>
-    /// Accepts a new hours record.
+    /// Accepts a CSV file containing hours data and adds the hours to the database.
     /// </summary>
-    /// <param name="entry">The new hours information.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
-    /// <remarks>
-    /// If the provided person already has a shift logged on that day, it will be updated with the given information. Only one entry per person per day is allowed.
-    /// </remarks>
-    /// <response code="204">The hours entry was created successfully.</response>
+    /// <response code="200">The hours file was accepted successfully.</response>
     /// <response code="400">The request was invalid.</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddHours(NewHoursEntry entry)
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReceiveHoursFile([FromForm] IFormFile file)
     {
-        await hoursService.AddAsync(entry);
-        LogHoursCreated(entry.PersonId, User.GetNameIdentifierId() ?? "Unknown", entry);
-        return NoContent();
+        using var reader = new StreamReader(file.OpenReadStream());
+        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
+        csv.Context.RegisterClassMap<HoursMap>();
+
+        try
+        {
+            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<Hours>());
+
+            return Ok(new CountResponse { Count = updatedCount });
+        }
+        catch (CsvHelperException)
+        {
+            return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
+        }
     }
 
     /// <summary>

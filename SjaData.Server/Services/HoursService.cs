@@ -9,6 +9,7 @@ using SjaData.Model.Converters;
 using SjaData.Model.Hours;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
+using SjaData.Server.Model;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
@@ -123,6 +124,11 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
             await dataContext.SaveChangesAsync();
             LogItemDeleted(id);
         }
+    }
+
+    public async Task<int> AddHours(IAsyncEnumerable<Hours> asyncEnumerable)
+    {
+        return 0;
     }
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]

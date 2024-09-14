@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import styles from "./update.module.css";
 import { useState } from "react";
 import { usePeopleUploader } from "../loaders/people-uploader";
+import { useHoursUploader } from "../loaders/hours-uploader";
 
 function dragOver(event: React.DragEvent<HTMLDivElement>) {
   event.preventDefault();
@@ -31,6 +32,7 @@ export function UpdatePage() {
   const [uploadItem, setUploadItem] = useState("");
 
   const uploadPeople = usePeopleUploader();
+  const uploadHours = useHoursUploader();
 
   function fileDrop(event: React.DragEvent<HTMLDivElement>) {
     event.stopPropagation();
@@ -63,20 +65,44 @@ export function UpdatePage() {
 
     if (firstBytes.toUpperCase() === "MYDATA") {
       setShowUploading(true);
-      const result = await uploadPeople(file);
-      setShowUploading(false);
+      try {
+        const result = await uploadPeople(file);
 
-      if (result) {
-        setShowUploadSuccess(true);
-        setUploadCount(result.count);
-        setUploadItem("people");
-        setTimeout(() => setShowUploadSuccess(false), 3000);
-      } else {
+        if (result) {
+          setShowUploadSuccess(true);
+          setUploadCount(result.count);
+          setUploadItem("people");
+          setTimeout(() => setShowUploadSuccess(false), 3000);
+        } else {
+          setShowUploadFailed(true);
+          setTimeout(() => setShowUploadFailed(false), 3000);
+        }
+      } catch {
         setShowUploadFailed(true);
         setTimeout(() => setShowUploadFailed(false), 3000);
+      } finally {
+        setShowUploading(false);
       }
     } else if (firstBytes.toUpperCase() === "LOCATI") {
-      alert("This is an Hours file.");
+      setShowUploading(true);
+      try {
+        const result = await uploadHours(file);
+
+        if (result) {
+          setShowUploadSuccess(true);
+          setUploadCount(result.count);
+          setUploadItem("hours");
+          setTimeout(() => setShowUploadSuccess(false), 3000);
+        } else {
+          setShowUploadFailed(true);
+          setTimeout(() => setShowUploadFailed(false), 3000);
+        }
+      } catch {
+        setShowUploadFailed(true);
+        setTimeout(() => setShowUploadFailed(false), 3000);
+      } finally {
+        setShowUploading(false);
+      }
     } else {
       setShowInvalidFile(true);
       setTimeout(() => setShowInvalidFile(false), 3000);

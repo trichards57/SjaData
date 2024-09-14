@@ -125,6 +125,11 @@ builder.Services.AddSwaggerGen(o =>
 
 builder.Services.AddApiVersioning().AddMvc().AddApiExplorer();
 
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.Limits.MaxRequestBodySize = 100_000_000;
+});
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
