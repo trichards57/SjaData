@@ -64,6 +64,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddTransient<IHoursService, HoursService>();
 builder.Services.AddTransient<IPatientService, PatientService>();
+builder.Services.AddTransient<IPersonService, PersonService>();
 
 builder.Services.AddRedaction(c =>
 {

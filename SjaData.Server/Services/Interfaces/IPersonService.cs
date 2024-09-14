@@ -4,5 +4,5 @@ namespace SjaData.Server.Services.Interfaces;
 
 public interface IPersonService
 {
-    Task AddPeople(IAsyncEnumerable<Person> asyncEnumerable);
+    Task<int> AddPeople(IAsyncEnumerable<Person> asyncEnumerable);
 }

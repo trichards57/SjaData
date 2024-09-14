@@ -5,6 +5,7 @@
 
 using SjaData.Model;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SjaData.Server.Data;
 
@@ -17,6 +18,7 @@ public class Person
     /// Gets or sets the unique identifier for the person.
     /// </summary>
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int Id { get; set; }
 
     /// <summary>
@@ -58,4 +60,6 @@ public class Person
     /// Gets or sets the date the person was deleted.
     /// </summary>
     public DateTimeOffset? DeletedAt { get; set; }
+
+    public bool IsVolunteer { get; set; }
 }

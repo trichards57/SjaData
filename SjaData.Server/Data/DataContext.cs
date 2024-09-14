@@ -23,4 +23,9 @@ public class DataContext(DbContextOptions<DataContext> options) : IdentityDbCont
     /// Gets or sets the patients.
     /// </summary>
     public DbSet<Patient> Patients { get; set; }
+
+    /// <summary>
+    /// Gets or sets the people.
+    /// </summary>
+    public DbSet<Person> People { get; set; }
 }

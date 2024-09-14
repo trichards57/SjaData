@@ -11,6 +11,7 @@ function Index() {
             <div className="link-boxes">
                 <Link className="link-box" to="/hours">Hours</Link>
                 <Link className="link-box" to="/trends">Trends</Link>
+                <Link className="link-box" to="/update">Update</Link>
             </div>
         </>
     )

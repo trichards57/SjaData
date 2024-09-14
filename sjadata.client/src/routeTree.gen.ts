@@ -11,12 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as UpdateImport } from './routes/update'
 import { Route as TrendsImport } from './routes/trends'
 import { Route as HoursImport } from './routes/hours'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const UpdateRoute = UpdateImport.update({
+  path: '/update',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const TrendsRoute = TrendsImport.update({
   path: '/trends',
@@ -70,6 +76,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendsImport
       parentRoute: typeof rootRoute
     }
+    '/update': {
+      id: '/update'
+      path: '/update'
+      fullPath: '/update'
+      preLoaderRoute: typeof UpdateImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -80,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
+  '/update': typeof UpdateRoute
 }
 
 export interface FileRoutesByTo {
@@ -87,6 +101,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
+  '/update': typeof UpdateRoute
 }
 
 export interface FileRoutesById {
@@ -95,14 +110,15 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
+  '/update': typeof UpdateRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/hours' | '/trends'
+  fullPaths: '/' | '/about' | '/hours' | '/trends' | '/update'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/hours' | '/trends'
-  id: '__root__' | '/' | '/about' | '/hours' | '/trends'
+  to: '/' | '/about' | '/hours' | '/trends' | '/update'
+  id: '__root__' | '/' | '/about' | '/hours' | '/trends' | '/update'
   fileRoutesById: FileRoutesById
 }
 
@@ -111,6 +127,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   HoursRoute: typeof HoursRoute
   TrendsRoute: typeof TrendsRoute
+  UpdateRoute: typeof UpdateRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -118,6 +135,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   HoursRoute: HoursRoute,
   TrendsRoute: TrendsRoute,
+  UpdateRoute: UpdateRoute,
 }
 
 export const routeTree = rootRoute
@@ -135,7 +153,8 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/hours",
-        "/trends"
+        "/trends",
+        "/update"
       ]
     },
     "/": {
@@ -149,6 +168,9 @@ export const routeTree = rootRoute
     },
     "/trends": {
       "filePath": "trends.tsx"
+    },
+    "/update": {
+      "filePath": "update.tsx"
     }
   }
 }

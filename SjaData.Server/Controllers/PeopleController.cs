@@ -29,19 +29,19 @@ public class PeopleController(IPersonService personService) : ControllerBase
     /// <response code="400">The request was invalid.</response>
     [HttpPost]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
     [Consumes("text/csv")]
-    public async Task<IActionResult> ReceivePersonFile([FromBody]string fileData)
+    public async Task<IActionResult> ReceivePersonFile()
     {
-        using var reader = new StringReader(fileData);
+        using var reader = new StreamReader(Request.Body);
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<PersonMap>();
 
         try
         {
-            await personService.AddPeople(csv.GetRecordsAsync<Person>());
+            var updatedCount = await personService.AddPeople(csv.GetRecordsAsync<Person>());
 
-            return NoContent();
+            return Ok(new CountResponse { Count = updatedCount });
         }
         catch (CsvHelperException)
         {

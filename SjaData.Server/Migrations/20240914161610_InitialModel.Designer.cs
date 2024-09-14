@@ -12,15 +12,15 @@ using SjaData.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240811181727_UpdateValidation")]
-    partial class UpdateValidation
+    [Migration("20240914161610_InitialModel")]
+    partial class InitialModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.7")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -169,24 +169,27 @@ namespace SjaData.Server.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<TimeSpan>("Hours")
                         .HasColumnType("time");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Region")
-                        .HasColumnType("int");
+                    b.Property<byte>("Region")
+                        .HasColumnType("tinyint");
 
-                    b.Property<int>("Trust")
-                        .HasColumnType("int");
+                    b.Property<byte>("Trust")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PersonId");
 
                     b.ToTable("Hours");
                 });
@@ -213,31 +216,66 @@ namespace SjaData.Server.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("EventType")
-                        .HasColumnType("int");
+                    b.Property<byte>("EventType")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("FinalClinicalImpression")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Outcome")
-                        .HasColumnType("int");
+                    b.Property<byte>("Outcome")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("PresentingComplaint")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Region")
-                        .HasColumnType("int");
+                    b.Property<byte>("Region")
+                        .HasColumnType("tinyint");
 
-                    b.Property<int>("Trust")
-                        .HasColumnType("int");
+                    b.Property<byte>("Trust")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
+                });
+
+            modelBuilder.Entity("SjaData.Server.Data.Person", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("Region")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("SjaData.Server.Data.User", b =>
@@ -354,6 +392,22 @@ namespace SjaData.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SjaData.Server.Data.HoursEntry", b =>
+                {
+                    b.HasOne("SjaData.Server.Data.Person", "Person")
+                        .WithMany("Hours")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("SjaData.Server.Data.Person", b =>
+                {
+                    b.Navigation("Hours");
                 });
 #pragma warning restore 612, 618
         }

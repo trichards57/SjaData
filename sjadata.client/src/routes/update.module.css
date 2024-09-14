@@ -1,0 +1,70 @@
+.drop-site {
+  border-color: var(--sja-light-gray);
+  border-width: 1px;
+  border-style: solid;
+  height: 50vh;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--sja-body-font);
+  flex-direction: column;
+}
+
+.drop-site.drag-over {
+  background-color: var(--sja-light-gray);
+  color: var(--sja-list-gray-text);
+}
+
+.drop-message {
+  color: var(--sja-gray);
+  font-size: 1.5rem;
+}
+
+.file-button {
+  border: 1px solid var(--sja-green);
+  border-radius: 5px;
+  background-color: var(--sja-green);
+  color: var(--sja-green-text);
+  padding: calc(var(--root-padding) * 2);
+  font-size: 1.5rem;
+  margin-top: var(--root-padding);
+  cursor: pointer;
+  transition: background-color ease-in-out 0.2s;
+}
+
+.file-button:hover {
+  font-size: 1.5rem;
+  background-color: var(--sja-dark-green);
+  color: var(--sja-dark-green-text);
+}
+
+.error-message {
+  background-color: var(--sja-yellow);
+  color: var(--sja-yellow-text);
+  margin: var(--root-padding);
+  padding: var(--root-padding);
+  font-size: 1.5rem;
+  font-family: var(--sja-header-font);
+  text-align: center;
+}
+
+.success-message {
+  background-color: var(--sja-green);
+  color: var(--sja-green-text);
+  margin: var(--root-padding);
+  padding: var(--root-padding);
+  font-size: 1.5rem;
+  font-family: var(--sja-header-font);
+  text-align: center;
+}
+
+.working-message {
+  background-color: var(--sja-gray);
+  color: var(--sja-gray-text);
+  margin: var(--root-padding);
+  padding: var(--root-padding);
+  font-size: 1.5rem;
+  font-family: var(--sja-header-font);
+  text-align: center;
+}

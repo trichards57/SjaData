@@ -12,15 +12,15 @@ using SjaData.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240913161215_EnumWidth")]
-    partial class EnumWidth
+    [Migration("20240914161914_VolunteerFlag")]
+    partial class VolunteerFlag
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.7")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -246,10 +246,7 @@ namespace SjaData.Server.Migrations
             modelBuilder.Entity("SjaData.Server.Data.Person", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
@@ -261,6 +258,9 @@ namespace SjaData.Server.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsVolunteer")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -278,7 +278,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Person");
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("SjaData.Server.Data.User", b =>
