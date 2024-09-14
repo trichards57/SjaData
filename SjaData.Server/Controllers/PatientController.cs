@@ -4,6 +4,7 @@
 // </copyright>
 
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using SjaData.Model;
@@ -23,6 +24,7 @@ namespace SjaData.Server.Controllers;
 [Route("api/patients")]
 [ApiController]
 [ApiVersion("1.0")]
+[Authorize]
 public partial class PatientController(IPatientService patientService, ILogger<PatientController> logger) : ControllerBase
 {
     private readonly ILogger<PatientController> logger = logger;

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
+using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Runtime.CompilerServices;
 
@@ -46,7 +48,7 @@ builder.Services.AddDbContext<DataContext>(o =>
 builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<DataContext>();
 
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration);
 
 builder.Services.AddTransient<IHoursService, HoursService>();
@@ -81,6 +83,7 @@ builder.Services.AddSwaggerGen(o =>
             Type = "integer",
             Format = "int32",
         }),
+        AdditionalPropertiesAllowed = false,
     });
     o.MapType<AreaDictionary<TimeSpan>>(() => new OpenApiSchema
     {
@@ -92,10 +95,27 @@ builder.Services.AddSwaggerGen(o =>
             Format = "date-span",
             Example = new OpenApiString("1.10:09:08"),
         }),
+        AdditionalPropertiesAllowed = false,
     });
     o.AddSchemaFilterInstance(new RegionOrTrustSchemaFilter());
     o.AddSchemaFilterInstance(new GreaterThanSchemaFilter());
     o.OperationFilter<SwaggerDefaultValues>();
+    o.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
+    o.OperationFilter<SecurityRequirementsOperationFilter>();
+
+    o.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
+        {
+            AuthorizationCode = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/authorize"),
+                TokenUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/token"),
+                RefreshUrl = new Uri("https://login.microsoftonline.com/15d371bd-0830-4361-8629-598fc9162fdd/oauth2/v2.0/token"),
+            },
+        },
+    });
 });
 
 builder.Services.AddApiVersioning().AddMvc().AddApiExplorer();
@@ -115,6 +135,9 @@ app.UseSwaggerUI(o =>
         o.SwaggerEndpoint($"/swagger/{desc.GroupName}/swagger.json", desc.GroupName);
     }
 });
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

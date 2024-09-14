@@ -4,6 +4,7 @@
 // </copyright>
 
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using SjaData.Model;
@@ -22,6 +23,7 @@ namespace SjaData.Server.Controllers;
 [ApiController]
 [Route("/api/hours")]
 [ApiVersion("1.0")]
+[Authorize]
 public partial class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly IHoursService hoursService = hoursService;
