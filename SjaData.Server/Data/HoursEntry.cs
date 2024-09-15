@@ -4,7 +4,7 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SjaData.Model;
+using SjaData.Server.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -41,7 +41,7 @@ public class HoursEntry
     /// <summary>
     /// Gets or sets the number of hours worked.
     /// </summary>
-    public TimeSpan Hours { get; set; }
+    public double Hours { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the person who worked the hours.

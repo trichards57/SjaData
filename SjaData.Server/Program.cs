@@ -4,22 +4,19 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Compliance.Classification;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using SjaData.Model;
-using SjaData.Model.Converters;
-using SjaData.Model.DataTypes;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Controllers.Filters;
 using SjaData.Server.Data;
+using SjaData.Server.DataTypes;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
+using SjaData.Server.Model.Converters;
 using SjaData.Server.Services;
 using SjaData.Server.Services.Interfaces;
 using Swashbuckle.AspNetCore.Filters;
@@ -76,7 +73,6 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSwaggerGen(o =>
 {
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Server.xml"));
-    o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaData.Model.xml"));
     o.MapType<DateType>(() => DateTypeBinder.Schema);
     o.MapType<Region>(() => RegionBinder.Schema);
     o.MapType<Trust>(() => TrustBinder.Schema);
@@ -109,8 +105,6 @@ builder.Services.AddSwaggerGen(o =>
         }),
         AdditionalPropertiesAllowed = false,
     });
-    o.AddSchemaFilterInstance(new RegionOrTrustSchemaFilter());
-    o.AddSchemaFilterInstance(new GreaterThanSchemaFilter());
     o.OperationFilter<SwaggerDefaultValues>();
     o.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
     o.OperationFilter<SecurityRequirementsOperationFilter>();
@@ -140,9 +134,9 @@ app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI(o =>
 {
-    foreach (var desc in app.DescribeApiVersions())
+    foreach (var desc in app.DescribeApiVersions().Select(s => s.GroupName))
     {
-        o.SwaggerEndpoint($"/swagger/{desc.GroupName}/swagger.json", desc.GroupName);
+        o.SwaggerEndpoint($"/swagger/{desc}/swagger.json", desc);
     }
 });
 

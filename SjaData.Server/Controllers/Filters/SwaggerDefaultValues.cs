@@ -1,12 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿// <copyright file="SwaggerDefaultValues.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json;
 
 namespace SjaData.Server.Controllers.Filters;
 
+/// <summary>
+/// Sets default values for the Swagger UI.
+/// </summary>
 public class SwaggerDefaultValues : IOperationFilter
 {
+    /// <inheritdoc/>
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var apiDescription = context.ApiDescription;
@@ -45,7 +54,7 @@ public class SwaggerDefaultValues : IOperationFilter
             {
                 var json = JsonSerializer.Serialize(
                     description.DefaultValue,
-                    description.ModelMetadata.ModelType);
+                    description.ModelMetadata!.ModelType);
                 parameter.Schema.Default = OpenApiAnyFactory.CreateFromJson(json);
             }
 

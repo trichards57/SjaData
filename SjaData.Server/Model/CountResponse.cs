@@ -7,8 +7,14 @@ using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model;
 
+/// <summary>
+/// Represents a response to an API request that returns a count.
+/// </summary>
 public readonly record struct CountResponse
 {
+    /// <summary>
+    /// Gets the count of items.
+    /// </summary>
     [JsonPropertyName("count")]
     public int Count { get; init; }
 }

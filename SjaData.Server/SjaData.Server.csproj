@@ -48,7 +48,6 @@
 		<ProjectReference Include="..\sjadata.client\sjadata.client.esproj">
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 		</ProjectReference>
-		<ProjectReference Include="..\SjaData.Model\SjaData.Model.csproj" />
 		<None Include="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 

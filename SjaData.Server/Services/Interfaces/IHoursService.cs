@@ -3,9 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaData.Model;
-using SjaData.Model.Hours;
 using SjaData.Server.Model;
+using SjaData.Server.Model.Hours;
 
 namespace SjaData.Server.Services.Interfaces;
 
@@ -15,13 +14,11 @@ namespace SjaData.Server.Services.Interfaces;
 public interface IHoursService
 {
     /// <summary>
-    /// Adds or updates a new hours entry.
+    /// Adds or updates a list of hours entries.
     /// </summary>
     /// <param name="hours">The new hours data.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddAsync(NewHoursEntry hours);
-
-    Task<int> AddHours(IAsyncEnumerable<Hours> asyncEnumerable);
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the number of changed items.</returns>
+    Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours);
 
     /// <summary>
     /// Counts the hours that match the given query.

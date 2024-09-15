@@ -13,6 +13,7 @@ import { faMinus, faPlus, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useEffect, useState } from "react";
 import useSelectedAreas from "../components/useSelectedAreas";
+import { addMonths } from "date-fns";
 
 export const Route = createFileRoute("/hours")({
   component: Hours,
@@ -84,9 +85,7 @@ function calculateSum(
 
 export function Hours() {
   const target = useHoursTarget(new Date());
-  const lastMonth = useHoursCount(
-    new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
-  );
+  const lastMonth = useHoursCount(addMonths(new Date(), -1));
   const month = useHoursCount(new Date());
   const monthPlanned = useHoursCount(new Date(), true);
   const ytd = useHoursCount();
@@ -97,7 +96,7 @@ export function Hours() {
   );
   const actualRegions = regions.filter(([area]) => ytdKeys.includes(area));
 
-  const { selectedAreas, AreaCheck, toggleArea } = useSelectedAreas();
+  const { selectedAreas, AreaCheck, toggleArea, setAreas } = useSelectedAreas();
   const [expandNHSE, setExpandNHSE] = useState(false);
   const [expandRegions, setExpandRegions] = useState(false);
 
@@ -179,6 +178,23 @@ export function Hours() {
     selectedAreas.filter((a) => regions.map(([area]) => area).includes(a))
       .length > 0;
 
+  function selectAllNhse(e: React.MouseEvent) {
+    e.stopPropagation();
+    setAreas(actualNhseAreas.map(([a]) => a));
+  }
+
+  function selectAllEvents(e: React.MouseEvent) {
+    e.stopPropagation();
+    setAreas(actualRegions.map(([a]) => a));
+  }
+
+  function clearAll(e: React.MouseEvent) {
+    e.stopPropagation();
+    setAreas([]);
+    setExpandNHSE(false);
+    setExpandRegions(false);
+  }
+
   return (
     <>
       <section>
@@ -251,16 +267,24 @@ export function Hours() {
           </>
         )}
       </section>
-      <section>
-        <h3>Filter</h3>
+      <section className="filter-section">
+        <h3>
+          Filter
+          <button onClick={clearAll}>Clear</button>
+        </h3>
         <ul className="area-list">
           <li className="area-section" onClick={() => setExpandNHSE((s) => !s)}>
-            {expandNHSE ? (
-              <FontAwesomeIcon icon={faMinus} />
-            ) : (
-              <FontAwesomeIcon icon={faPlus} />
-            )}{" "}
-            NHSE Contract
+            <span>
+              {expandNHSE ? (
+                <FontAwesomeIcon icon={faMinus} />
+              ) : (
+                <FontAwesomeIcon icon={faPlus} />
+              )}{" "}
+              NHSE Contract
+            </span>
+            <span>
+              <button onClick={selectAllNhse}>Select All</button>
+            </span>
           </li>
           <li>
             <ul
@@ -277,12 +301,17 @@ export function Hours() {
             className="area-section"
             onClick={() => setExpandRegions((s) => !s)}
           >
-            {expandRegions ? (
-              <FontAwesomeIcon icon={faMinus} />
-            ) : (
-              <FontAwesomeIcon icon={faPlus} />
-            )}{" "}
-            Event Regions
+            <span>
+              {expandRegions ? (
+                <FontAwesomeIcon icon={faMinus} />
+              ) : (
+                <FontAwesomeIcon icon={faPlus} />
+              )}{" "}
+              Event Regions
+            </span>
+            <span>
+              <button onClick={selectAllEvents}>Select All</button>
+            </span>
           </li>
           <li>
             <ul

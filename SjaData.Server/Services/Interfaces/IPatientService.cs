@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaData.Model;
-using SjaData.Model.Patient;
+using SjaData.Server.Model;
+using SjaData.Server.Model.Patient;
 
 namespace SjaData.Server.Services.Interfaces;
 
@@ -13,13 +13,6 @@ namespace SjaData.Server.Services.Interfaces;
 /// </summary>
 public interface IPatientService
 {
-    /// <summary>
-    /// Adds a new patient entry the system.
-    /// </summary>
-    /// <param name="patient">The new patient data.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddAsync(NewPatient patient);
-
     /// <summary>
     /// Counts the patients that match the given query.
     /// </summary>

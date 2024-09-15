@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaData.Model;
+using SjaData.Server.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -61,5 +61,8 @@ public class Person
     /// </summary>
     public DateTimeOffset? DeletedAt { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the person is a volunteer.
+    /// </summary>
     public bool IsVolunteer { get; set; }
 }

@@ -1,16 +1,23 @@
-﻿using Asp.Versioning.ApiExplorer;
+﻿// <copyright file="ConfigureSwaggerOptions.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SjaData.Server.Controllers.Filters;
 
-public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+/// <summary>
+/// Sets swagger options for the versioned API.
+/// </summary>
+public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : IConfigureOptions<SwaggerGenOptions>
 {
-    private readonly IApiVersionDescriptionProvider provider;
+    private readonly IApiVersionDescriptionProvider provider = provider;
 
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
-
+    /// <inheritdoc/>
     public void Configure(SwaggerGenOptions options)
     {
         foreach (var description in provider.ApiVersionDescriptions)
@@ -30,7 +37,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                     License = new OpenApiLicense()
                     {
                         Name = "MIT",
-                        Url = new System.Uri("https://opensource.org/licenses/MIT"),
+                        Url = new Uri("https://opensource.org/licenses/MIT"),
                     },
                 });
         }

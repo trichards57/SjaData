@@ -4,7 +4,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using SjaData.Model;
+using SjaData.Server.Model;
 
 namespace SjaData.Server.Controllers.Binders;
 

@@ -4,11 +4,11 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SjaData.Model;
-using SjaData.Model.Converters;
-using SjaData.Model.Patient;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
+using SjaData.Server.Model;
+using SjaData.Server.Model.Converters;
+using SjaData.Server.Model.Patient;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
@@ -22,45 +22,6 @@ public partial class PatientService(DataContext dataContext, ILogger<PatientServ
 {
     private readonly DataContext dataContext = dataContext;
     private readonly ILogger<PatientService> logger = logger;
-
-    /// <inheritdoc/>
-    public async Task AddAsync(NewPatient patient)
-    {
-        var existingItem = await dataContext.Patients.FirstOrDefaultAsync(p => p.Id == patient.Id);
-        var newItem = false;
-
-        if (existingItem is null)
-        {
-            newItem = true;
-            existingItem = new Patient();
-            dataContext.Patients.Add(existingItem);
-            existingItem.Id = patient.Id;
-        }
-
-        existingItem.CallSign = patient.CallSign;
-        existingItem.Date = patient.Date;
-        existingItem.EventType = patient.EventType;
-        existingItem.FinalClinicalImpression = patient.FinalClinicalImpression ?? string.Empty;
-        existingItem.Outcome = patient.Outcome;
-        existingItem.PresentingComplaint = patient.PresentingComplaint ?? string.Empty;
-        existingItem.Region = patient.Region;
-        existingItem.Trust = patient.Trust;
-        existingItem.CreatedAt = DateTimeOffset.UtcNow;
-        existingItem.DeletedAt = null;
-
-        dataContext.Add(existingItem);
-
-        await dataContext.SaveChangesAsync();
-
-        if (newItem)
-        {
-            LogItemCreated(patient);
-        }
-        else
-        {
-            LogItemModified(existingItem.Id, patient);
-        }
-    }
 
     /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
@@ -140,10 +101,4 @@ public partial class PatientService(DataContext dataContext, ILogger<PatientServ
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient entry {id} has been deleted.")]
     private partial void LogItemDeleted(int id);
-
-    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Patient entry has been created.")]
-    private partial void LogItemCreated([LogProperties] NewPatient hours);
-
-    [LoggerMessage(EventCodes.ItemModified, LogLevel.Information, "Patient entry {id} has been updated.")]
-    private partial void LogItemModified(int id, [LogProperties] NewPatient hours);
 }

@@ -6,12 +6,10 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
-using SjaData.Model;
-using SjaData.Model.DataTypes;
-using SjaData.Model.Patient;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
+using SjaData.Server.Model;
+using SjaData.Server.Model.Patient;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Controllers;
@@ -31,26 +29,6 @@ public partial class PatientController(IPatientService patientService, ILogger<P
     private readonly IPatientService patientService = patientService;
 
     /// <summary>
-    /// Accepts a new patient record.
-    /// </summary>
-    /// <param name="patient">The new patient information.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
-    /// <remarks>
-    /// If the provided patient records has already been uploaded, it will be updated with the given information.
-    /// </remarks>
-    /// <response code="204">The patient entry was created successfully.</response>
-    /// <response code="400">The request was invalid.</response>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddPatient([FromBody] NewPatient patient)
-    {
-        await patientService.AddAsync(patient);
-        LogPatientCreated(User.GetNameIdentifierId() ?? "Unknown", patient);
-        return NoContent();
-    }
-
-    /// <summary>
     /// Deletes the patient entry with the given ID.
     /// </summary>
     /// <param name="id">The ID of the entry to remove.</param>
@@ -62,8 +40,6 @@ public partial class PatientController(IPatientService patientService, ILogger<P
     public async Task<IActionResult> DeleteHours([FromRoute] int id)
     {
         await patientService.DeleteAsync(id);
-
-        LogPatientDeleted(id, User.GetNameIdentifierId() ?? "Unknown");
 
         return NoContent();
     }
@@ -141,10 +117,4 @@ public partial class PatientController(IPatientService patientService, ILogger<P
 
     [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "Patient count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
     private partial void LogPatientCountNotModified(DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
-
-    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "Patient record has been created by user {userId}.")]
-    private partial void LogPatientCreated(string userId, [LogProperties] NewPatient patient);
-
-    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Patient {id} deleted by user {userId}")]
-    private partial void LogPatientDeleted([PatientData] int id, string userId);
 }

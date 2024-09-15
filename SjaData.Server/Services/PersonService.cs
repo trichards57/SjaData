@@ -1,21 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SjaData.Model;
+﻿// <copyright file="PersonService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.EntityFrameworkCore;
 using SjaData.Server.Data;
 using SjaData.Server.Model;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
 
-public class PersonService : IPersonService
+/// <summary>
+/// A service to manage people.
+/// </summary>
+public class PersonService(DataContext context) : IPersonService
 {
-    private readonly DataContext context;
+    private readonly DataContext context = context;
 
-    public PersonService(DataContext context)
-    {
-        this.context = context;
-    }
-
-    public async Task<int> AddPeople(IAsyncEnumerable<Model.Person> people)
+    /// <inheritdoc/>
+    public async Task<int> AddPeople(IAsyncEnumerable<Model.People.PersonFileLine> people)
     {
         var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
         {
@@ -77,7 +80,6 @@ public class PersonService : IPersonService
                 {
                     existingPerson.UpdatedAt = DateTimeOffset.UtcNow;
                 }
-
             }
             else
             {
@@ -98,7 +100,7 @@ public class PersonService : IPersonService
         return await context.SaveChangesAsync();
     }
 
-    private static Region CalculateRegion(Model.Person person)
+    private static Region CalculateRegion(Model.People.PersonFileLine person)
     {
         return person.DepartmentRegion.ToLowerInvariant() switch
         {

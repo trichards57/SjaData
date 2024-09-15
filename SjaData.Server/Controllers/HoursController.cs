@@ -8,12 +8,10 @@ using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using SjaData.Model;
-using SjaData.Model.Hours;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
-using SjaData.Server.Services;
+using SjaData.Server.Model.Hours;
 using SjaData.Server.Services.Interfaces;
 using System.Globalization;
 
@@ -36,6 +34,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     /// <summary>
     /// Accepts a CSV file containing hours data and adds the hours to the database.
     /// </summary>
+    /// <param name="file">The file containing hours data.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
     /// <response code="200">The hours file was accepted successfully.</response>
     /// <response code="400">The request was invalid.</response>
@@ -46,11 +45,11 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     {
         using var reader = new StreamReader(file.OpenReadStream());
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
-        csv.Context.RegisterClassMap<HoursMap>();
+        csv.Context.RegisterClassMap<HoursFileLineMap>();
 
         try
         {
-            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<Hours>());
+            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>());
 
             return Ok(new CountResponse { Count = updatedCount });
         }
@@ -82,8 +81,9 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     /// Gets the person-hours count matching the given query.
     /// </summary>
     /// <param name="ifModifiedSince">The last-modified date held by the local cache.</param>
-    /// <param name="date">The date to filter the hours by.</param>
-    /// <param name="dateType">The type of date filter to apply.  Defaults to month.</param>
+    /// <param name="date">The date to filter the hours by.  Defaults to today's date.</param>
+    /// <param name="dateType">The type of date filter to apply.  Defaults to month, unless the date is blank when it defaults to year.</param>
+    /// <param name="future">Indicates that only future values are wanted.  Otherwise only values from today and the past will be returned.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
     /// <response code="200">The person-hours count matching the given query.</response>
     /// <response code="304">The count has not changed since the given date.</response>
@@ -150,9 +150,6 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
 
     [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An hours count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
     private partial void LogHoursCountNotModified(DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
-
-    [LoggerMessage(EventCodes.ItemCreated, LogLevel.Information, "An hours entry for person {id} was created by user {userId}.")]
-    private partial void LogHoursCreated(int id, string userId, [LogProperties] NewHoursEntry entry);
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "An hours entry with ID {id} was deleted by user {userId}.")]
     private partial void LogHoursDeleted(int id, string userId);

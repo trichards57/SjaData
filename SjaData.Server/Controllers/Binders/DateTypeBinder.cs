@@ -6,7 +6,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using SjaData.Model;
+using SjaData.Server.Model;
 
 namespace SjaData.Server.Controllers.Binders;
 

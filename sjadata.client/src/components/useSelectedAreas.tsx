@@ -23,6 +23,11 @@ export default function useSelectedAreas() {
     localStorage.setItem("selectedAreas", JSON.stringify(newAreas));
   }
 
+  function setAreas(areas: AreaLabel[]) {
+    setSelectedAreas(areas);
+    localStorage.setItem("selectedAreas", JSON.stringify(areas));
+  }
+
   useEffect(() => {
     const stored = localStorage.getItem("selectedAreas");
     if (stored) {
@@ -30,5 +35,5 @@ export default function useSelectedAreas() {
     }
   }, []);
 
-  return { selectedAreas, AreaCheck, toggleArea };
+  return { selectedAreas, AreaCheck, toggleArea, setAreas };
 }

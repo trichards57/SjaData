@@ -4,9 +4,8 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Mvc;
-using SjaData.Model;
-using SjaData.Model.Hours;
-using SjaData.Model.Patient;
+using SjaData.Server.Model.Hours;
+using SjaData.Server.Model.Patient;
 using System.Text.Json.Serialization;
 
 namespace SjaData.Server.Model;
@@ -14,10 +13,8 @@ namespace SjaData.Server.Model;
 /// <summary>
 /// Context for JSON serialization.
 /// </summary>
-[JsonSerializable(typeof(NewHoursEntry))]
 [JsonSerializable(typeof(HoursTarget))]
 [JsonSerializable(typeof(HoursCount))]
-[JsonSerializable(typeof(NewPatient))]
 [JsonSerializable(typeof(PatientCount))]
 [JsonSerializable(typeof(EventType))]
 [JsonSerializable(typeof(Region))]

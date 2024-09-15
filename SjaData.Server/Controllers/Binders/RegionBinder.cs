@@ -5,8 +5,8 @@
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.OpenApi.Models;
-using SjaData.Model;
-using SjaData.Model.Converters;
+using SjaData.Server.Model;
+using SjaData.Server.Model.Converters;
 
 namespace SjaData.Server.Controllers.Binders;
 
