@@ -79,7 +79,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
         [FromHeader(Name = "If-Modified-Since")] DateTimeOffset? ifModifiedSince,
         [FromQuery(Name = "date")] DateOnly? date,
         [FromQuery(Name = "date-type")][ModelBinder(BinderType = typeof(DateTypeBinder))] DateType? dateType,
-        [FromQuery(Name = "future")]bool future = false)
+        [FromQuery(Name = "future")] bool future = false)
     {
         if (date is null && dateType is not null)
         {
@@ -126,6 +126,16 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     public IActionResult GetHoursTarget()
     {
         return Ok(new HoursTarget { Target = 4000 });
+    }
+
+    [HttpGet("trends")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(Policy = "Lead")]
+    public async Task<ActionResult<Trends>> GetTrends([ModelBinder<RegionBinder>] Region region, bool nhse = false)
+    {
+        var trends = await hoursService.GetTrendsAsync(region, nhse);
+
+        return Ok(trends);
     }
 
     [LoggerMessage(EventCodes.ItemFound, LogLevel.Information, "Hours count has been returned. It was last modified on {lastModified}.")]

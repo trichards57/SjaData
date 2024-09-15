@@ -28,6 +28,38 @@ export type Trust =
 
 export type Region = "NE" | "NW" | "WM" | "EM" | "EOE" | "LON" | "SE" | "SW";
 
+export const Regions: Region[] = [
+  "NE",
+  "NW",
+  "WM",
+  "EM",
+  "EOE",
+  "LON",
+  "SE",
+  "SW",
+];
+
+export function regionToString(region: Region) {
+  switch (region) {
+    case "NE":
+      return "North East";
+    case "NW":
+      return "North West";
+    case "WM":
+      return "West Midlands";
+    case "EM":
+      return "East Midlands";
+    case "EOE":
+      return "East of England";
+    case "LON":
+      return "London";
+    case "SE":
+      return "South East";
+    case "SW":
+      return "South West";
+  }
+}
+
 export type AreaLabel = Region | Trust;
 
 export interface ParsedHoursCount {

@@ -45,4 +45,5 @@ public interface IHoursService
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the date.
     /// </returns>
     Task<DateTimeOffset> GetLastModifiedAsync();
+    Task<Trends> GetTrendsAsync(Region region, bool nhse);
 }

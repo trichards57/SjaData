@@ -1,3 +1,4 @@
+import { IPublicClientApplication } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
@@ -10,8 +11,8 @@ interface UserDetails {
   role: string;
 }
 
-function meOptions(token: string) {
-  const loader = meLoader(token);
+function meOptions(app: IPublicClientApplication) {
+  const loader = meLoader(app);
 
   return queryOptions({
     queryKey: ["user", "me"],
@@ -22,17 +23,35 @@ function meOptions(token: string) {
 export function useMe() {
   const msal = useMsal();
 
-  return useSuspenseQuery(meOptions(msal.accounts[0].idToken ?? ""));
+  return useSuspenseQuery(meOptions(msal.instance));
 }
 
-export function preloadMe(queryClient: QueryClient, token: string) {
-  queryClient.ensureQueryData(meOptions(token));
+export function preloadMe(
+  queryClient: QueryClient,
+  app: IPublicClientApplication
+) {
+  queryClient.ensureQueryData(meOptions(app));
 }
 
-function meLoader(token: string) {
-  const authHeader = `Bearer ${token}`;
-
+function meLoader(app: IPublicClientApplication) {
   return async () => {
+    const tokenResult = await app.acquireTokenSilent({
+      scopes: ["user.read"],
+      account: app.getAccount({
+        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
+      })!,
+    });
+
+    if (!tokenResult.idToken) {
+      app.acquireTokenRedirect({
+        scopes: ["user.read"],
+        account: app.getAccount({
+          tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
+        })!,
+      });
+    }
+
+    const authHeader = `Bearer ${tokenResult.idToken}`;
     const uri = "/api/user/me?api-version=1.0";
 
     const res = await fetch(uri, {

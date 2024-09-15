@@ -40,7 +40,6 @@ export function preloadHoursTargetCount(
 
 function hoursTargetLoader(token: string) {
   const authHeader = `Bearer ${token}`;
-  console.log(authHeader);
 
   return async (date?: string) => {
     const uri = date

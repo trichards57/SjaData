@@ -12,11 +12,12 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as UpdateImport } from './routes/update'
-import { Route as TrendsImport } from './routes/trends'
+import { Route as TrendsMenuImport } from './routes/trends-menu'
 import { Route as HoursImport } from './routes/hours'
 import { Route as AccessImport } from './routes/access'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as TrendsRegionImport } from './routes/trends.$region'
 
 // Create/Update Routes
 
@@ -25,8 +26,8 @@ const UpdateRoute = UpdateImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const TrendsRoute = TrendsImport.update({
-  path: '/trends',
+const TrendsMenuRoute = TrendsMenuImport.update({
+  path: '/trends-menu',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -47,6 +48,11 @@ const AboutRoute = AboutImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TrendsRegionRoute = TrendsRegionImport.update({
+  path: '/trends/$region',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -82,11 +88,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HoursImport
       parentRoute: typeof rootRoute
     }
-    '/trends': {
-      id: '/trends'
-      path: '/trends'
-      fullPath: '/trends'
-      preLoaderRoute: typeof TrendsImport
+    '/trends-menu': {
+      id: '/trends-menu'
+      path: '/trends-menu'
+      fullPath: '/trends-menu'
+      preLoaderRoute: typeof TrendsMenuImport
       parentRoute: typeof rootRoute
     }
     '/update': {
@@ -94,6 +100,13 @@ declare module '@tanstack/react-router' {
       path: '/update'
       fullPath: '/update'
       preLoaderRoute: typeof UpdateImport
+      parentRoute: typeof rootRoute
+    }
+    '/trends/$region': {
+      id: '/trends/$region'
+      path: '/trends/$region'
+      fullPath: '/trends/$region'
+      preLoaderRoute: typeof TrendsRegionImport
       parentRoute: typeof rootRoute
     }
   }
@@ -106,8 +119,9 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
-  '/trends': typeof TrendsRoute
+  '/trends-menu': typeof TrendsMenuRoute
   '/update': typeof UpdateRoute
+  '/trends/$region': typeof TrendsRegionRoute
 }
 
 export interface FileRoutesByTo {
@@ -115,8 +129,9 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
-  '/trends': typeof TrendsRoute
+  '/trends-menu': typeof TrendsMenuRoute
   '/update': typeof UpdateRoute
+  '/trends/$region': typeof TrendsRegionRoute
 }
 
 export interface FileRoutesById {
@@ -125,16 +140,39 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
-  '/trends': typeof TrendsRoute
+  '/trends-menu': typeof TrendsMenuRoute
   '/update': typeof UpdateRoute
+  '/trends/$region': typeof TrendsRegionRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/access'
+    | '/hours'
+    | '/trends-menu'
+    | '/update'
+    | '/trends/$region'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
-  id: '__root__' | '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
+  to:
+    | '/'
+    | '/about'
+    | '/access'
+    | '/hours'
+    | '/trends-menu'
+    | '/update'
+    | '/trends/$region'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/access'
+    | '/hours'
+    | '/trends-menu'
+    | '/update'
+    | '/trends/$region'
   fileRoutesById: FileRoutesById
 }
 
@@ -143,8 +181,9 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccessRoute: typeof AccessRoute
   HoursRoute: typeof HoursRoute
-  TrendsRoute: typeof TrendsRoute
+  TrendsMenuRoute: typeof TrendsMenuRoute
   UpdateRoute: typeof UpdateRoute
+  TrendsRegionRoute: typeof TrendsRegionRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -152,8 +191,9 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccessRoute: AccessRoute,
   HoursRoute: HoursRoute,
-  TrendsRoute: TrendsRoute,
+  TrendsMenuRoute: TrendsMenuRoute,
   UpdateRoute: UpdateRoute,
+  TrendsRegionRoute: TrendsRegionRoute,
 }
 
 export const routeTree = rootRoute
@@ -172,8 +212,9 @@ export const routeTree = rootRoute
         "/about",
         "/access",
         "/hours",
-        "/trends",
-        "/update"
+        "/trends-menu",
+        "/update",
+        "/trends/$region"
       ]
     },
     "/": {
@@ -188,11 +229,14 @@ export const routeTree = rootRoute
     "/hours": {
       "filePath": "hours.tsx"
     },
-    "/trends": {
-      "filePath": "trends.tsx"
+    "/trends-menu": {
+      "filePath": "trends-menu.tsx"
     },
     "/update": {
       "filePath": "update.tsx"
+    },
+    "/trends/$region": {
+      "filePath": "trends.$region.tsx"
     }
   }
 }
