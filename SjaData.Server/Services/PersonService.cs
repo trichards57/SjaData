@@ -6,6 +6,7 @@
 using Microsoft.EntityFrameworkCore;
 using SjaData.Server.Data;
 using SjaData.Server.Model;
+using SjaData.Server.Model.People;
 using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
@@ -17,13 +18,62 @@ public class PersonService(DataContext context) : IPersonService
 {
     private readonly DataContext context = context;
 
+    public async IAsyncEnumerable<PersonReport> GetPeopleReports(Region region)
+    {
+        var people = await context.People
+            .Where(p => p.Region == region && p.DeletedAt == null)
+            .Include(p => p.Hours)
+            .Select(p => new
+            {
+                Name = $"{p.FirstName} {p.LastName}",
+                Hours = p.Hours.Where(h => h.DeletedAt != null),
+            }).ToListAsync();
+
+        foreach (var person in people.Select(p => new PersonReport
+        {
+            Name = p.Name,
+            Hours = GetOverTime(p.Hours),
+        }))
+        {
+            yield return person;
+        }
+    }
+
+    private static double[] GetOverTime(IEnumerable<HoursEntry> hours)
+    {
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var endDate = startDate.AddMonths(-12);
+
+        // Create an array to hold 12 months of data
+        double[] monthlyHours = new double[12];
+
+        // Fetch the relevant data, grouped by year and month
+        var details = hours
+            .Where(h => h.DeletedAt == null && h.Person.IsVolunteer)
+            .Where(h => h.Date <= startDate && h.Date >= endDate)
+            .GroupBy(h => new { h.Date.Year, h.Date.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });
+
+        // Iterate over the details and map them to the correct months
+        foreach (var detail in details)
+        {
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
+            if (index >= 0 && index < 12)
+            {
+                monthlyHours[index] = detail.HoursSum;
+            }
+        }
+
+        return monthlyHours;
+    }
+
     /// <inheritdoc/>
-    public async Task<int> AddPeople(IAsyncEnumerable<Model.People.PersonFileLine> people)
+    public async Task<int> AddPeople(IAsyncEnumerable<PersonFileLine> people)
     {
         var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
         {
             var name = p.Name.Split(',');
-            return new Data.Person
+            return new Person
             {
                 Id = p.MyDataNumber,
                 FirstName = name[1].Trim(),

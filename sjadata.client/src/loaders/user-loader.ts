@@ -35,12 +35,18 @@ export function preloadMe(
 
 function meLoader(app: IPublicClientApplication) {
   return async () => {
-    const tokenResult = await app.acquireTokenSilent({
-      scopes: ["user.read"],
-      account: app.getAccount({
-        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
-      })!,
+    const knownAccount = app.getAccount({
+      tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
     });
+
+    let tokenResult: { idToken: string } = { idToken: "" };
+
+    if (knownAccount) {
+      tokenResult = await app.acquireTokenSilent({
+        scopes: ["user.read"],
+        account: knownAccount,
+      });
+    }
 
     if (!tokenResult.idToken) {
       app.acquireTokenRedirect({

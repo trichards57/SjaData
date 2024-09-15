@@ -7,6 +7,7 @@ using Asp.Versioning;
 using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Model;
 using SjaData.Server.Model.People;
 using SjaData.Server.Services.Interfaces;
@@ -55,5 +56,12 @@ public class PeopleController(IPersonService personService) : ControllerBase
         {
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
+    }
+
+    [HttpGet("reports")]
+    [Authorize(Policy = "Lead")]
+    public async Task<ActionResult<IEnumerable<PersonReport>>> GetReports([ModelBinder(typeof(RegionBinder))] Region region)
+    {
+        return Ok(await personService.GetPeopleReports(region).ToListAsync());
     }
 }

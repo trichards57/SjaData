@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaData.Server.Model;
 using SjaData.Server.Model.People;
 
 namespace SjaData.Server.Services.Interfaces;
@@ -20,4 +21,5 @@ public interface IPersonService
     /// A task that represents the asynchronous operation. The task result contains the number of people added or updated.
     /// </returns>
     Task<int> AddPeople(IAsyncEnumerable<PersonFileLine> people);
+    IAsyncEnumerable<PersonReport> GetPeopleReports(Region region);
 }

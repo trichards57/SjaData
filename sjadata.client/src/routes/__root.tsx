@@ -4,7 +4,7 @@ import {
   PublicClientApplication,
   SilentRequest,
 } from "@azure/msal-browser";
-import { useMsalAuthentication } from "@azure/msal-react";
+import { useMsal, useMsalAuthentication } from "@azure/msal-react";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import React, { Suspense, useEffect } from "react";
 import styles from "./__root.module.css";
@@ -39,7 +39,7 @@ export const Route = createRootRouteWithContext<{
 
     useEffect(() => {
       if (error) {
-        login(InteractionType.Popup, request);
+        login(InteractionType.Redirect, request);
       }
     }, [error]);
 

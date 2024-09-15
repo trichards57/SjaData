@@ -19,9 +19,14 @@ function Index() {
           Hours
         </Link>
         {(me.role === "Lead" || me.role === "Admin") && (
-          <Link className="link-box" to="/trends-menu">
-            Trends
-          </Link>
+          <>
+            <Link className="link-box" to="/trends-menu">
+              Trends
+            </Link>
+            <Link className="link-box" to="/people-menu">
+              People
+            </Link>
+          </>
         )}
         {me.role === "Admin" && (
           <>
