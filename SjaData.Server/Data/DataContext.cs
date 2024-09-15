@@ -12,8 +12,13 @@ namespace SjaData.Server.Data;
 /// Main data context for the application.
 /// </summary>
 /// <param name="options">Options to configure the data context.</param>
-public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<User>(options)
+public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
+    /// <summary>
+    /// Gets or sets the user entries.
+    /// </summary>
+    public DbSet<User> Users { get; set; }
+
     /// <summary>
     /// Gets or sets the hours entries.
     /// </summary>

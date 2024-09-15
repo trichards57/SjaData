@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as UpdateImport } from './routes/update'
 import { Route as TrendsImport } from './routes/trends'
 import { Route as HoursImport } from './routes/hours'
+import { Route as AccessImport } from './routes/access'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
@@ -31,6 +32,11 @@ const TrendsRoute = TrendsImport.update({
 
 const HoursRoute = HoursImport.update({
   path: '/hours',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AccessRoute = AccessImport.update({
+  path: '/access',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -62,6 +68,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/access': {
+      id: '/access'
+      path: '/access'
+      fullPath: '/access'
+      preLoaderRoute: typeof AccessImport
+      parentRoute: typeof rootRoute
+    }
     '/hours': {
       id: '/hours'
       path: '/hours'
@@ -91,6 +104,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
   '/update': typeof UpdateRoute
@@ -99,6 +113,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
   '/update': typeof UpdateRoute
@@ -108,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
   '/trends': typeof TrendsRoute
   '/update': typeof UpdateRoute
@@ -115,16 +131,17 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/hours' | '/trends' | '/update'
+  fullPaths: '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/hours' | '/trends' | '/update'
-  id: '__root__' | '/' | '/about' | '/hours' | '/trends' | '/update'
+  to: '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
+  id: '__root__' | '/' | '/about' | '/access' | '/hours' | '/trends' | '/update'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccessRoute: typeof AccessRoute
   HoursRoute: typeof HoursRoute
   TrendsRoute: typeof TrendsRoute
   UpdateRoute: typeof UpdateRoute
@@ -133,6 +150,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccessRoute: AccessRoute,
   HoursRoute: HoursRoute,
   TrendsRoute: TrendsRoute,
   UpdateRoute: UpdateRoute,
@@ -152,6 +170,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
+        "/access",
         "/hours",
         "/trends",
         "/update"
@@ -162,6 +181,9 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.tsx"
+    },
+    "/access": {
+      "filePath": "access.tsx"
     },
     "/hours": {
       "filePath": "hours.tsx"

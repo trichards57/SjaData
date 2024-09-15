@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Compliance.Classification;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using SjaData.Server.Controllers.Binders;
@@ -22,6 +23,7 @@ using SjaData.Server.Services.Interfaces;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 
 [assembly: InternalsVisibleTo("SjaData.Server.Tests")]
 
@@ -42,9 +44,6 @@ builder.Services.AddDbContext<DataContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentityCore<User>()
-    .AddEntityFrameworkStores<DataContext>();
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
@@ -56,6 +55,58 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudience = "a984d5ce-d914-47d0-b690-1bcf084eb829",
             ValidateSignatureLast = true,
+        };
+        o.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async c =>
+            {
+                var db = c.HttpContext.RequestServices.GetRequiredService<DataContext>();
+
+                if (c.Principal == null || c.Principal.Identity == null)
+                {
+                    return;
+                }
+
+                var principal = c.Principal;
+
+                var id = principal.GetNameIdentifierId();
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    return;
+                }
+
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user is null)
+                {
+                    user = new User
+                    {
+                        Id = id,
+                        Name = c.Principal?.FindFirstValue("name") ?? "User",
+                        Role = Role.None,
+                    };
+                    db.Users.Add(user);
+                    try
+                    {
+                        await db.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        // There was probably a concurrent request and that one got there first.
+                        user = await db.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new InvalidOperationException();
+                    }
+                }
+
+                // Add the role to the claims
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.Role, user.Role.ToString()),
+                    new(ClaimTypes.Name, user.Name),
+                };
+
+                var identity = new ClaimsIdentity(claims, principal.Identity.AuthenticationType);
+                principal.AddIdentity(identity);
+            },
         };
     });
 

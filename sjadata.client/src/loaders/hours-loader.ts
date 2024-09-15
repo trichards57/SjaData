@@ -51,6 +51,7 @@ function hoursOptions(token: string, date?: Date, future?: boolean) {
 
 export function useHoursCount(date?: Date, future: boolean = false) {
   const msal = useMsal();
+
   return useSuspenseQuery(
     hoursOptions(msal.accounts[0].idToken ?? "", date, future)
   );
@@ -67,7 +68,6 @@ export function preloadHoursCount(
 
 function hoursLoader(token: string) {
   const authHeader = `Bearer ${token}`;
-  console.log(authHeader);
 
   return async (date?: string, future: boolean = false) => {
     let uri = date
