@@ -22,27 +22,11 @@ namespace SjaData.Server.Controllers;
 [Route("api/patients")]
 [ApiController]
 [ApiVersion("1.0")]
-[Authorize]
+[Authorize(Policy = "User")]
 public partial class PatientController(IPatientService patientService, ILogger<PatientController> logger) : ControllerBase
 {
     private readonly ILogger<PatientController> logger = logger;
     private readonly IPatientService patientService = patientService;
-
-    /// <summary>
-    /// Deletes the patient entry with the given ID.
-    /// </summary>
-    /// <param name="id">The ID of the entry to remove.</param>
-    /// <remarks>Will succeed even if the entry does not exist.</remarks>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
-    /// <response code="204">The patient entry was deleted.</response>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteHours([FromRoute] int id)
-    {
-        await patientService.DeleteAsync(id);
-
-        return NoContent();
-    }
 
     /// <summary>
     /// Gets the patient count matching the given query.

@@ -25,7 +25,7 @@ namespace SjaData.Server.Controllers;
 [ApiController]
 [Route("/api/hours")]
 [ApiVersion("1.0")]
-[Authorize]
+[Authorize(Policy = "User")]
 public partial class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly IHoursService hoursService = hoursService;
@@ -41,6 +41,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [HttpPost]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> ReceiveHoursFile([FromForm] IFormFile file)
     {
         using var reader = new StreamReader(file.OpenReadStream());
@@ -57,24 +58,6 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
         {
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
-    }
-
-    /// <summary>
-    /// Deletes the hours entry with the given ID.
-    /// </summary>
-    /// <param name="id">The ID of the entry to remove.</param>
-    /// <remarks>Will succeed even if the entry does not exist.</remarks>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
-    /// <response code="204">The hours entry was deleted.</response>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteHours([FromRoute] int id)
-    {
-        await hoursService.DeleteAsync(id);
-
-        LogHoursDeleted(id, User.GetNameIdentifierId() ?? "Unknown");
-
-        return NoContent();
     }
 
     /// <summary>
@@ -150,7 +133,4 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
 
     [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An hours count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
     private partial void LogHoursCountNotModified(DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
-
-    [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "An hours entry with ID {id} was deleted by user {userId}.")]
-    private partial void LogHoursDeleted(int id, string userId);
 }

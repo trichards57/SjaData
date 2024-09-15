@@ -15,7 +15,7 @@ namespace SjaData.Server.Controllers;
 public class UserController : ControllerBase
 {
     [HttpGet("me")]
-    public async Task<IActionResult> GetMe()
+    public IActionResult GetMe()
     {
         var name = HttpContext.User.FindFirstValue(ClaimTypes.Name);
         var role = HttpContext.User.FindFirstValue(ClaimTypes.Role);

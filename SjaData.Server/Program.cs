@@ -110,6 +110,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorizationCore(o =>
+{
+    o.AddPolicy("Admin", p => p.RequireClaim(ClaimTypes.Role, Role.Admin.ToString()));
+    o.AddPolicy("Lead", p => p.RequireClaim(ClaimTypes.Role, Role.Admin.ToString(), Role.Lead.ToString()));
+    o.AddPolicy("User", p => p.RequireClaim(ClaimTypes.Role, Role.Admin.ToString(), Role.Lead.ToString(), Role.None.ToString()));
+});
+
 builder.Services.AddTransient<IHoursService, HoursService>();
 builder.Services.AddTransient<IPatientService, PatientService>();
 builder.Services.AddTransient<IPersonService, PersonService>();
