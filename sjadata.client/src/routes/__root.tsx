@@ -11,28 +11,26 @@ import React, { Suspense, useEffect } from "react";
 import styles from "./__root.module.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
+import { scopes } from "../loaders/auth-details";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
-    ? () => null // Render nothing in production
+    ? () => null
     : React.lazy(() =>
-        // Lazy load in development
         import("@tanstack/router-devtools").then((res) => ({
           default: res.TanStackRouterDevtools,
-          // For Embedded Mode
-          // default: res.TanStackRouterDevtoolsPanel
         }))
       );
+
+const request: SilentRequest | PopupRequest = {
+  scopes,
+};
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   pca: IPublicClientApplication;
 }>()({
   component: function Component() {
-    const request: SilentRequest | PopupRequest = {
-      scopes: ["User.Read"],
-    };
-
     const { login, error } = useMsalAuthentication(
       InteractionType.Silent,
       request
@@ -42,7 +40,7 @@ export const Route = createRootRouteWithContext<{
       if (error instanceof InteractionRequiredAuthError) {
         login(InteractionType.Redirect, request);
       }
-    }, [error]);
+    }, [error, login]);
 
     if (error) {
       return (

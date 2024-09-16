@@ -14,6 +14,7 @@ import {
 } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { clientId, redirectUri, tenantId } from "./loaders/auth-details";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -24,10 +25,9 @@ declare module "@tanstack/react-router" {
 
 const configuration: Configuration = {
   auth: {
-    clientId: "a984d5ce-d914-47d0-b690-1bcf084eb829",
-    authority:
-      "https://login.microsoftonline.com/91d037fb-4714-4fe8-b084-68c083b8193f",
-    redirectUri: "https://localhost:5173",
+    clientId,
+    authority: `https://login.microsoftonline.com/${tenantId}`,
+    redirectUri,
   },
 };
 
@@ -36,7 +36,7 @@ const pca = await createStandardPublicClientApplication(configuration);
 // Default to using the first account if no account is active on page load
 if (!pca.getActiveAccount()) {
   const knownAccount = pca.getAccount({
-    tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
+    tenantId,
   });
 
   if (knownAccount) {

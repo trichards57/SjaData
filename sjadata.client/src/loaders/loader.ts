@@ -2,13 +2,14 @@ import {
   InteractionRequiredAuthError,
   IPublicClientApplication,
 } from "@azure/msal-browser";
+import { scopes, tenantId } from "./auth-details";
 
 export default function loader<T>(app: IPublicClientApplication, uri: string) {
   return async () => {
     const account =
       app.getActiveAccount() ??
       app.getAccount({
-        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
+        tenantId,
       });
 
     if (account === null) {
@@ -17,12 +18,12 @@ export default function loader<T>(app: IPublicClientApplication, uri: string) {
 
     const request = {
       account,
-      scopes: ["User.Read"],
+      scopes,
     };
 
     try {
       const tokenResult = await app.acquireTokenSilent(request);
-      const authHeader = `Bearer ${tokenResult.idToken}`;
+      const authHeader = `Bearer ${tokenResult.accessToken}`;
 
       const res = await fetch(uri, {
         headers: {
