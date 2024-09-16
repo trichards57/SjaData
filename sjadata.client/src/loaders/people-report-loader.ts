@@ -5,11 +5,8 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Region } from "./hours-loader";
-import {
-  InteractionRequiredAuthError,
-  IPublicClientApplication,
-  SilentRequest,
-} from "@azure/msal-browser";
+import { IPublicClientApplication } from "@azure/msal-browser";
+import loader from "./loader";
 
 export interface PersonReport {
   name: string;
@@ -19,11 +16,13 @@ export interface PersonReport {
 }
 
 function peopleReportsOptions(app: IPublicClientApplication, region: Region) {
-  const loader = peopleReportsLoader(app);
+  const uri = `/api/people/reports?region=${region}&api-version=1.0`;
+
+  const load = loader<PersonReport[]>(app, uri);
 
   return queryOptions({
     queryKey: ["people", "report", region],
-    queryFn: () => loader(region),
+    queryFn: load,
   });
 }
 
@@ -39,35 +38,4 @@ export function preloadPeopleReports(
   region: Region
 ) {
   queryClient.ensureQueryData(peopleReportsOptions(app, region));
-}
-
-function peopleReportsLoader(app: IPublicClientApplication) {
-  return async (region: Region) => {
-    const request: SilentRequest = {
-      account: app.getAllAccounts()[0],
-      scopes: ["User.Read"],
-      forceRefresh: true,
-    };
-
-    try {
-      const tokenResult = await app.acquireTokenSilent(request);
-      const authHeader = `Bearer ${tokenResult.idToken}`;
-      const uri = `/api/people/reports?region=${region}&api-version=1.0`;
-
-      const res = await fetch(uri, {
-        headers: {
-          Authorization: authHeader,
-        },
-      });
-
-      if (!res.ok) throw new Error("Failed to load hours trends.");
-
-      return (await res.json()) as PersonReport[];
-    } catch (error) {
-      if (error instanceof InteractionRequiredAuthError) {
-        await app.acquireTokenRedirect(request);
-      }
-      return [];
-    }
-  };
 }

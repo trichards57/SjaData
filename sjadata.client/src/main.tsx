@@ -54,7 +54,9 @@ pca.addEventCallback((event) => {
   }
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 30_000 } },
+});
 
 // Create a new router instance
 const router = createRouter({

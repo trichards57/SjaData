@@ -4,6 +4,8 @@ import {
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import loader from "./loader";
+import { IPublicClientApplication } from "@azure/msal-browser";
 
 interface HoursCount {
   counts: Partial<Record<AreaLabel, string>>;
@@ -67,58 +69,52 @@ export interface ParsedHoursCount {
   lastUpdate: Date | undefined;
 }
 
-function hoursOptions(token: string, date?: Date, future?: boolean) {
+function hoursOptions(
+  app: IPublicClientApplication,
+  date?: Date,
+  future?: boolean
+) {
   let dateString: string | undefined = undefined;
   if (date) {
     dateString = date.toISOString().split("T")[0];
   }
 
-  const loader = hoursLoader(token);
+  let uri = date
+    ? `/api/hours/count?date=${dateString}&dateType=m&api-version=1.0`
+    : "/api/hours/count?api-version=1.0";
+
+  if (future) {
+    uri = `${uri}&future=true`;
+  }
+
+  const load = hoursLoader(app, uri);
 
   return queryOptions({
     queryKey: ["hours", dateString, future],
-    queryFn: () => loader(dateString, future),
+    queryFn: load,
   });
 }
 
 export function useHoursCount(date?: Date, future: boolean = false) {
   const msal = useMsal();
 
-  return useSuspenseQuery(
-    hoursOptions(msal.accounts[0].idToken ?? "", date, future)
-  );
+  return useSuspenseQuery(hoursOptions(msal.instance, date, future));
 }
 
 export function preloadHoursCount(
   queryClient: QueryClient,
-  token: string,
+  app: IPublicClientApplication,
   date?: Date,
   future: boolean = false
 ) {
-  queryClient.ensureQueryData(hoursOptions(token, date, future));
+  queryClient.ensureQueryData(hoursOptions(app, date, future));
 }
 
-function hoursLoader(token: string) {
-  const authHeader = `Bearer ${token}`;
+function hoursLoader(app: IPublicClientApplication, uri: string) {
+  const load = loader<HoursCount>(app, uri);
 
-  return async (date?: string, future: boolean = false) => {
-    let uri = date
-      ? `/api/hours/count?date=${date}&dateType=m&api-version=1.0`
-      : "/api/hours/count?api-version=1.0";
-
-    if (future) {
-      uri = `${uri}&future=true`;
-    }
-
-    const res = await fetch(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (!res.ok) throw new Error("Failed to load hours details.");
-
-    const data = (await res.json()) as HoursCount;
+  return async () => {
+    const data = await load();
 
     const parsedData: ParsedHoursCount = {
       counts: {},

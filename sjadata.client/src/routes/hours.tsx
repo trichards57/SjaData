@@ -19,24 +19,16 @@ export const Route = createFileRoute("/hours")({
   component: Hours,
   pendingComponent: Loading,
   loader: async ({ context }) => {
-    const tokenRes = await context.pca.acquireTokenSilent({
-      scopes: ["User.Read"],
-      account: context.pca.getAccount({
-        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
-      })!,
-    });
-    const token = tokenRes.idToken;
-
     return Promise.all([
       preloadHoursCount(
         context.queryClient,
-        token,
+        context.pca,
         new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
       ),
-      preloadHoursCount(context.queryClient, token, new Date()),
-      preloadHoursCount(context.queryClient, token, new Date(), true),
-      preloadHoursCount(context.queryClient, token),
-      preloadHoursTargetCount(context.queryClient, token, new Date()),
+      preloadHoursCount(context.queryClient, context.pca, new Date()),
+      preloadHoursCount(context.queryClient, context.pca, new Date(), true),
+      preloadHoursCount(context.queryClient, context.pca),
+      preloadHoursTargetCount(context.queryClient, context.pca, new Date()),
     ]);
   },
 });
@@ -243,7 +235,7 @@ export function Hours() {
               </li>
               <li className="hours-box target">
                 <div>Target</div>
-                <div>{target.data}</div>
+                <div>{target.data.target}</div>
               </li>
             </ul>
           </>

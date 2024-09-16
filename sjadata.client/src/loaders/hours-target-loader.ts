@@ -4,58 +4,42 @@ import {
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import loader from "./loader";
+import { IPublicClientApplication } from "@azure/msal-browser";
 
 interface TargetHours {
   target: number;
 }
 
-function hoursTargetOptions(token: string, date?: Date) {
+function hoursTargetOptions(app: IPublicClientApplication, date?: Date) {
   let dateString: string | undefined = undefined;
   if (date) {
     dateString = date.toISOString().split("T")[0];
   }
 
-  const loader = hoursTargetLoader(token);
+  const uri = date
+    ? `/api/hours/target?date=${dateString}&dateType=m&api-version=1.0`
+    : "/api/hours/target?api-version=1.0";
+
+  const load = loader<TargetHours>(app, uri);
+
+  // const loader = hoursTargetLoader(token);
 
   return queryOptions({
     queryKey: ["hours-target", dateString],
-    queryFn: () => loader(dateString),
+    queryFn: load,
   });
 }
 
 export function useHoursTarget(date?: Date) {
   const msal = useMsal();
-  return useSuspenseQuery(
-    hoursTargetOptions(msal.accounts[0].idToken ?? "", date)
-  );
+  return useSuspenseQuery(hoursTargetOptions(msal.instance, date));
 }
 
 export function preloadHoursTargetCount(
   queryClient: QueryClient,
-  token: string,
+  app: IPublicClientApplication,
   date?: Date
 ) {
-  queryClient.ensureQueryData(hoursTargetOptions(token, date));
-}
-
-function hoursTargetLoader(token: string) {
-  const authHeader = `Bearer ${token}`;
-
-  return async (date?: string) => {
-    const uri = date
-      ? `/api/hours/target?date=${date}&dateType=m&api-version=1.0`
-      : "/api/hours/target?api-version=1.0";
-
-    const res = await fetch(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (!res.ok) throw new Error("Failed to load hours details.");
-
-    const data = (await res.json()) as TargetHours;
-
-    return data.target;
-  };
+  queryClient.ensureQueryData(hoursTargetOptions(app, date));
 }
