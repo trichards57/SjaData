@@ -56,10 +56,10 @@ export const Route = createRootRouteWithContext<{
             </div>
           </div>
           <div className="footer-image" />
-          {/* <ReactQueryDevtools initialIsOpen={false} />
+          <ReactQueryDevtools initialIsOpen={false} />
           <Suspense>
             <TanStackRouterDevtools />
-          </Suspense> */}
+          </Suspense>
         </>
       );
     }
@@ -71,10 +71,10 @@ export const Route = createRootRouteWithContext<{
           <Outlet />
         </div>
         <div className="footer-image" />
-        {/* <ReactQueryDevtools initialIsOpen={false} />
+        <ReactQueryDevtools initialIsOpen={false} />
         <Suspense>
           <TanStackRouterDevtools />
-        </Suspense> */}
+        </Suspense>
       </>
     );
   },
