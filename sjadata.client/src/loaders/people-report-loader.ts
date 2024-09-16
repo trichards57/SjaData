@@ -5,6 +5,11 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Region } from "./hours-loader";
+import {
+  InteractionRequiredAuthError,
+  IPublicClientApplication,
+  SilentRequest,
+} from "@azure/msal-browser";
 
 export interface PersonReport {
   name: string;
@@ -13,8 +18,8 @@ export interface PersonReport {
   hoursThisYear: number;
 }
 
-function peopleReportsOptions(token: string, region: Region) {
-  const loader = peopleReportsLoader(token);
+function peopleReportsOptions(app: IPublicClientApplication, region: Region) {
+  const loader = peopleReportsLoader(app);
 
   return queryOptions({
     queryKey: ["people", "report", region],
@@ -25,33 +30,44 @@ function peopleReportsOptions(token: string, region: Region) {
 export function usePeopleReports(region: Region) {
   const msal = useMsal();
 
-  return useSuspenseQuery(
-    peopleReportsOptions(msal.accounts[0].idToken ?? "", region)
-  );
+  return useSuspenseQuery(peopleReportsOptions(msal.instance, region));
 }
 
 export function preloadPeopleReports(
   queryClient: QueryClient,
-  token: string,
+  app: IPublicClientApplication,
   region: Region
 ) {
-  queryClient.ensureQueryData(peopleReportsOptions(token, region));
+  queryClient.ensureQueryData(peopleReportsOptions(app, region));
 }
 
-function peopleReportsLoader(token: string) {
-  const authHeader = `Bearer ${token}`;
-
+function peopleReportsLoader(app: IPublicClientApplication) {
   return async (region: Region) => {
-    const uri = `/api/people/reports?region=${region}&api-version=1.0`;
+    const request: SilentRequest = {
+      account: app.getAllAccounts()[0],
+      scopes: ["User.Read"],
+      forceRefresh: true,
+    };
 
-    const res = await fetch(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
+    try {
+      const tokenResult = await app.acquireTokenSilent(request);
+      const authHeader = `Bearer ${tokenResult.idToken}`;
+      const uri = `/api/people/reports?region=${region}&api-version=1.0`;
 
-    if (!res.ok) throw new Error("Failed to load hours trends.");
+      const res = await fetch(uri, {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
 
-    return (await res.json()) as PersonReport[];
+      if (!res.ok) throw new Error("Failed to load hours trends.");
+
+      return (await res.json()) as PersonReport[];
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        await app.acquireTokenRedirect(request);
+      }
+      return [];
+    }
   };
 }

@@ -226,17 +226,14 @@ export const Route = createFileRoute("/trends/$region")({
     }
   },
   loader: async ({ context, params }) => {
-    const tokenRes = await context.pca.acquireTokenSilent({
-      scopes: ["User.Read"],
-      account: context.pca.getAccount({
-        tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
-      })!,
-    });
-    const token = tokenRes.idToken;
-
     return Promise.all([
-      preloadTrends(context.queryClient, token, params.region as Region),
-      preloadTrends(context.queryClient, token, params.region as Region, true),
+      preloadTrends(context.queryClient, context.pca, params.region as Region),
+      preloadTrends(
+        context.queryClient,
+        context.pca,
+        params.region as Region,
+        true
+      ),
     ]);
   },
   component: function Component() {

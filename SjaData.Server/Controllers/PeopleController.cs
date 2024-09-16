@@ -62,6 +62,7 @@ public class PeopleController(IPersonService personService) : ControllerBase
     [Authorize(Policy = "Lead")]
     public async Task<ActionResult<IEnumerable<PersonReport>>> GetReports([ModelBinder(typeof(RegionBinder))] Region region)
     {
-        return Ok(await personService.GetPeopleReports(region).ToListAsync());
+        var res = await personService.GetPeopleReports(region);
+        return Ok(res.ToList());
     }
 }

@@ -18,25 +18,25 @@ public class PersonService(DataContext context) : IPersonService
 {
     private readonly DataContext context = context;
 
-    public async IAsyncEnumerable<PersonReport> GetPeopleReports(Region region)
+    public async Task<IEnumerable<PersonReport>> GetPeopleReports(Region region)
     {
         var people = await context.People
+            .AsNoTracking()
             .Where(p => p.Region == region && p.DeletedAt == null)
             .Include(p => p.Hours)
             .Select(p => new
             {
                 Name = $"{p.FirstName} {p.LastName}",
-                Hours = p.Hours.Where(h => h.DeletedAt != null),
+                Hours = p.Hours.Where(h => h.DeletedAt == null && h.PersonId == p.Id && Math.Abs(EF.Functions.DateDiffMonth(DateOnly.FromDateTime(DateTime.Today), h.Date)) < 13).ToList(),
             }).ToListAsync();
 
-        foreach (var person in people.Select(p => new PersonReport
+        return people.Select(p => new PersonReport
         {
             Name = p.Name,
             Hours = GetOverTime(p.Hours),
-        }))
-        {
-            yield return person;
-        }
+            HoursThisYear = p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum(),
+            MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
+        });
     }
 
     private static double[] GetOverTime(IEnumerable<HoursEntry> hours)
@@ -49,7 +49,6 @@ public class PersonService(DataContext context) : IPersonService
 
         // Fetch the relevant data, grouped by year and month
         var details = hours
-            .Where(h => h.DeletedAt == null && h.Person.IsVolunteer)
             .Where(h => h.Date <= startDate && h.Date >= endDate)
             .GroupBy(h => new { h.Date.Year, h.Date.Month })
             .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });

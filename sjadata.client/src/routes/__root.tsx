@@ -1,10 +1,11 @@
 import {
+  InteractionRequiredAuthError,
   InteractionType,
+  IPublicClientApplication,
   PopupRequest,
-  PublicClientApplication,
   SilentRequest,
 } from "@azure/msal-browser";
-import { useMsal, useMsalAuthentication } from "@azure/msal-react";
+import { useMsalAuthentication } from "@azure/msal-react";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import React, { Suspense, useEffect } from "react";
 import styles from "./__root.module.css";
@@ -25,7 +26,7 @@ const TanStackRouterDevtools =
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  pca: PublicClientApplication;
+  pca: IPublicClientApplication;
 }>()({
   component: function Component() {
     const request: SilentRequest | PopupRequest = {
@@ -38,7 +39,7 @@ export const Route = createRootRouteWithContext<{
     );
 
     useEffect(() => {
-      if (error) {
+      if (error instanceof InteractionRequiredAuthError) {
         login(InteractionType.Redirect, request);
       }
     }, [error]);
@@ -55,10 +56,10 @@ export const Route = createRootRouteWithContext<{
             </div>
           </div>
           <div className="footer-image" />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} />
           <Suspense>
             <TanStackRouterDevtools />
-          </Suspense>
+          </Suspense> */}
         </>
       );
     }
@@ -70,10 +71,10 @@ export const Route = createRootRouteWithContext<{
           <Outlet />
         </div>
         <div className="footer-image" />
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} />
         <Suspense>
           <TanStackRouterDevtools />
-        </Suspense>
+        </Suspense> */}
       </>
     );
   },

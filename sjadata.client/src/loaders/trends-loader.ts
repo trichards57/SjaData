@@ -5,6 +5,10 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Region } from "./hours-loader";
+import {
+  InteractionRequiredAuthError,
+  IPublicClientApplication,
+} from "@azure/msal-browser";
 
 export interface Trends {
   twelveMonthAverage: Record<string, number>;
@@ -17,8 +21,12 @@ export interface Trends {
   thresholdDate: string;
 }
 
-function trendsOptions(token: string, region: Region, nhse: boolean = false) {
-  const loader = trendsLoader(token);
+function trendsOptions(
+  app: IPublicClientApplication,
+  region: Region,
+  nhse: boolean = false
+) {
+  const loader = trendsLoader(app);
 
   return queryOptions({
     queryKey: ["trends", region, nhse],
@@ -29,40 +37,59 @@ function trendsOptions(token: string, region: Region, nhse: boolean = false) {
 export function useTrends(region: Region, nhse: boolean = false) {
   const msal = useMsal();
 
-  return useSuspenseQuery(
-    trendsOptions(msal.accounts[0].idToken ?? "", region, nhse)
-  );
+  return useSuspenseQuery(trendsOptions(msal.instance, region, nhse));
 }
 
 export function preloadTrends(
   queryClient: QueryClient,
-  token: string,
+  app: IPublicClientApplication,
   region: Region,
   nhse: boolean = false
 ) {
-  queryClient.ensureQueryData(trendsOptions(token, region, nhse));
+  queryClient.ensureQueryData(trendsOptions(app, region, nhse));
 }
 
-function trendsLoader(token: string) {
-  const authHeader = `Bearer ${token}`;
-
+function trendsLoader(app: IPublicClientApplication) {
   return async (region: Region, nhse: boolean = false) => {
-    let uri = `/api/hours/trends?region=${region}&api-version=1.0`;
+    const request = {
+      account: app.getAllAccounts()[0],
+      scopes: ["User.Read"],
+    };
 
-    if (nhse) {
-      uri += "&nhse=true";
+    try {
+      const tokenResult = await app.acquireTokenSilent(request);
+      const authHeader = `Bearer ${tokenResult.idToken}`;
+      let uri = `/api/hours/trends?region=${region}&api-version=1.0`;
+
+      if (nhse) {
+        uri += "&nhse=true";
+      }
+
+      const res = await fetch(uri, {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to load hours trends.");
+
+      const data = (await res.json()) as Trends;
+
+      return data as Readonly<Trends>;
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        await app.acquireTokenRedirect(request);
+      }
+      return {
+        twelveMonthAverage: {},
+        twelveMonthMinusOneAverage: {},
+        sixMonthAverage: {},
+        sixMonthMinusOneAverage: {},
+        threeMonthAverage: {},
+        threeMonthMinusOneAverage: {},
+        hours: {},
+        thresholdDate: "Unknown",
+      };
     }
-
-    const res = await fetch(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (!res.ok) throw new Error("Failed to load hours trends.");
-
-    const data = (await res.json()) as Trends;
-
-    return data as Readonly<Trends>;
   };
 }

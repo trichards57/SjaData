@@ -1,4 +1,7 @@
-import { IPublicClientApplication } from "@azure/msal-browser";
+import {
+  InteractionRequiredAuthError,
+  IPublicClientApplication,
+} from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
@@ -16,7 +19,7 @@ function meOptions(app: IPublicClientApplication) {
 
   return queryOptions({
     queryKey: ["user", "me"],
-    queryFn: () => loader(),
+    queryFn: loader,
   });
 }
 
@@ -35,41 +38,32 @@ export function preloadMe(
 
 function meLoader(app: IPublicClientApplication) {
   return async () => {
-    const knownAccount = app.getAccount({
-      tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
-    });
+    const request = {
+      account: app.getAllAccounts()[0],
+      scopes: ["User.Read"],
+    };
 
-    let tokenResult: { idToken: string } = { idToken: "" };
+    try {
+      const tokenResult = await app.acquireTokenSilent(request);
+      const authHeader = `Bearer ${tokenResult.idToken}`;
+      const uri = "/api/user/me?api-version=1.0";
 
-    if (knownAccount) {
-      tokenResult = await app.acquireTokenSilent({
-        scopes: ["user.read"],
-        account: knownAccount,
+      const res = await fetch(uri, {
+        headers: {
+          Authorization: authHeader,
+        },
       });
+
+      if (!res.ok) throw new Error("Failed to load my user details.");
+
+      const data = (await res.json()) as UserDetails;
+
+      return data as Readonly<UserDetails>;
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        await app.acquireTokenRedirect(request);
+      }
+      return { name: "Anonymous", role: "guest" };
     }
-
-    if (!tokenResult.idToken) {
-      app.acquireTokenRedirect({
-        scopes: ["user.read"],
-        account: app.getAccount({
-          tenantId: "91d037fb-4714-4fe8-b084-68c083b8193f",
-        })!,
-      });
-    }
-
-    const authHeader = `Bearer ${tokenResult.idToken}`;
-    const uri = "/api/user/me?api-version=1.0";
-
-    const res = await fetch(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (!res.ok) throw new Error("Failed to load my user details.");
-
-    const data = (await res.json()) as UserDetails;
-
-    return data as Readonly<UserDetails>;
   };
 }
