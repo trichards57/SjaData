@@ -14,6 +14,7 @@ import { Loading } from "../components/loading";
 import { useEffect, useState } from "react";
 import useSelectedAreas from "../components/useSelectedAreas";
 import { addMonths } from "date-fns";
+import { LinkBox, LinkBoxes } from "../components/link-boxes";
 
 export const Route = createFileRoute("/hours")({
   component: Hours,
@@ -199,63 +200,63 @@ export function Hours() {
         {nhseSelected && regionsSelected && (
           <>
             <h3>Volunteer Activity</h3>
-            <ul className="link-boxes">
-              <li className="hours-box last-month">
+            <LinkBoxes size="large">
+              <LinkBox color="light-gray">
                 <div>Last Month</div>
                 <div>{lastMonthTotal}</div>
-              </li>
-              <li className="hours-box month">
+              </LinkBox>
+              <LinkBox color="black">
                 <div>This Month</div>
                 <div>{monthTotal}</div>
                 <div className="planned">
                   {plannedTotal + monthTotal} Planned
                 </div>
-              </li>
-              <li className="hours-box ytd">
+              </LinkBox>
+              <LinkBox color="dark-green">
                 <div>Year to Date</div>
                 <div>{hoursTotal}</div>
-              </li>
-            </ul>
+              </LinkBox>
+            </LinkBoxes>
           </>
         )}
         {nhseSelected && !regionsSelected && (
           <>
             <h3>NHSE Contract</h3>
-            <ul className="link-boxes">
-              <li className="hours-box last-month">
+            <LinkBoxes size="large">
+              <LinkBox color="light-gray">
                 <div>Last Month</div>
                 <div>{nhseLastMonthTotal}</div>
-              </li>
-              <li className="hours-box month">
+              </LinkBox>
+              <LinkBox color="black">
                 <div>This Month</div>
                 <div>{nhseMonthTotal}</div>
                 <div className="planned">
                   {plannedNhseMonthTotal + nhseMonthTotal} Planned
                 </div>
-              </li>
-              <li className="hours-box target">
+              </LinkBox>
+              <LinkBox color="dark-green">
                 <div>Target</div>
                 <div>{target.data.target}</div>
-              </li>
-            </ul>
+              </LinkBox>
+            </LinkBoxes>
           </>
         )}
         {!nhseSelected && regionsSelected && (
           <>
             <h3>Events</h3>
-            <ul className="link-boxes">
-              <li className="hours-box last-month">
+            <LinkBoxes size="large">
+              <LinkBox color="light-gray">
                 <div>Last Month</div>
                 <div>{regionsLastMonthTotal}</div>
-              </li>
-              <li className="hours-box month">
+              </LinkBox>
+              <LinkBox color="black">
                 <div>This Month</div>
                 <div>{regionsMonthTotal}</div>
                 <div className="planned">
                   {plannedRegionsMonthTotal + regionsMonthTotal} Planned
                 </div>
-              </li>
-            </ul>
+              </LinkBox>
+            </LinkBoxes>
           </>
         )}
       </section>

@@ -72,70 +72,11 @@ h3 > a:hover {
   color: var(--sja-gray);
 }
 
-.link-boxes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--min-box-width), 1fr));
-  gap: var(--box-spacing);
-  padding: 0 var(--box-padding);
-}
-
-.link-box,
-.hours-box {
-  width: 100%;
-  font-family: var(--sja-header-font);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-
-.link-box {
-  background-color: var(--sja-green);
-  color: var(--sja-green-text);
-  height: var(--box-height);
-  justify-content: center;
-  font-size: 3rem;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.hours-box {
-  height: calc(var(--box-height) - 2 * var(--box-padding));
-  justify-content: space-between;
-  flex-direction: column;
-  font-size: 2rem;
-  text-transform: uppercase;
-  padding: var(--box-padding) 0;
-}
-
-.hours-box.last-month {
-  background-color: var(--sja-light-gray);
-  color: var(--sja-light-gray-text);
-}
-
-.hours-box.month {
-  background-color: var(--sja-black);
-  color: var(--sja-black-text);
-}
-
-.hours-box.ytd {
-  background-color: var(--sja-dark-green);
-  color: var(--sja-dark-green-text);
-}
-
-.hours-box.target {
-  background-color: var(--sja-dark-green);
-  color: var(--sja-dark-green-text);
-}
-
-.hours-box .planned {
+.planned {
   font-size: 1.5rem;
   text-transform: none;
   font-family: var(--sja-body-font);
   font-weight: normal;
-}
-
-.hours-box div {
-  display: block;
 }
 
 .see {

@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { preloadMe, useMe } from "../loaders/user-loader";
+import { LinkBox, LinkBoxes } from "../components/link-boxes";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -14,31 +15,31 @@ function Index() {
   return (
     <>
       <h2>Home</h2>
-      <div className="link-boxes">
-        <Link className="link-box" to="/hours">
+      <LinkBoxes size="small">
+        <LinkBox color="green" to="/hours">
           Hours
-        </Link>
+        </LinkBox>
         {(me.role === "Lead" || me.role === "Admin") && (
           <>
-            <Link className="link-box" to="/trends-menu">
+            <LinkBox color="green" to="/trends-menu">
               Trends
-            </Link>
-            <Link className="link-box" to="/people-menu">
+            </LinkBox>
+            <LinkBox color="green" to="/people-menu">
               People
-            </Link>
+            </LinkBox>
           </>
         )}
         {me.role === "Admin" && (
           <>
-            <Link className="link-box" to="/update">
+            <LinkBox color="dark-green" to="/update">
               Update
-            </Link>
-            <Link className="link-box" to="/access">
+            </LinkBox>
+            <LinkBox color="yellow" to="/access">
               Access
-            </Link>
+            </LinkBox>
           </>
         )}
-      </div>
+      </LinkBoxes>
     </>
   );
 }
