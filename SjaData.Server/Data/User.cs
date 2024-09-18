@@ -13,18 +13,20 @@ namespace SjaData.Server.Data;
 /// </summary>
 public class User
 {
+    /// <summary>
+    /// Gets or sets the user's Microsoft ID.
+    /// </summary>
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
-    public string Name { get; set; }
+    /// <summary>
+    /// Gets or sets the user's name.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the user's role.
+    /// </summary>
     public Role Role { get; set; }
-}
-
-public enum Role : byte
-{
-    None = 0,
-    Lead = 1,
-    Admin = 2,
 }

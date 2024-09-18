@@ -44,4 +44,19 @@ public static class EventCodes
     /// The item was not found.
     /// </summary>
     public const int ItemNotFound = 2002;
+
+    /// <summary>
+    /// An update file has been received.
+    /// </summary>
+    public const int FileUploaded = 3001;
+
+    /// <summary>
+    /// An update file was accepted and successfully loaded.
+    /// </summary>
+    public const int FileUploadSuccess = 3002;
+
+    /// <summary>
+    /// An update file could not be loaded.
+    /// </summary>
+    public const int FileUploadFailed = 3003;
 }

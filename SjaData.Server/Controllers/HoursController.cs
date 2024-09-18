@@ -7,9 +7,11 @@ using Asp.Versioning;
 using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using SjaData.Server.Controllers.Binders;
+using SjaData.Server.Controllers.Filters;
 using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
@@ -44,8 +46,11 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
     public async Task<IActionResult> ReceiveHoursFile([FromForm] IFormFile file)
     {
+        LogFileUploaded();
+
         using var reader = new StreamReader(file.OpenReadStream());
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<HoursFileLineMap>();
@@ -54,10 +59,14 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
         {
             var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>());
 
+            LogFileUploadSuccess(updatedCount);
+
             return Ok(new CountResponse { Count = updatedCount });
         }
-        catch (CsvHelperException)
+        catch (CsvHelperException ex)
         {
+            LogFileUploadFailed(ex);
+
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
     }
@@ -130,6 +139,13 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
         return Ok(new HoursTarget { Target = 4000 });
     }
 
+    /// <summary>
+    /// Gets the trends report for the requested region.
+    /// </summary>
+    /// <param name="region">The region to report on.</param>
+    /// <param name="nhse">Indicates if only NHSE data should be returned.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
+    /// <response code="200">The region's trends report.</response>
     [HttpGet("trends")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [Authorize(Policy = "Lead")]
@@ -145,4 +161,13 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
 
     [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An hours count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
     private partial void LogHoursCountNotModified(DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
+
+    [LoggerMessage(EventCodes.FileUploaded, LogLevel.Information, "An hours file has been updated.")]
+    private partial void LogFileUploaded();
+
+    [LoggerMessage(EventCodes.FileUploadSuccess, LogLevel.Information, "{number} hours entries have been updated from the uploaded file.")]
+    private partial void LogFileUploadSuccess(int number);
+
+    [LoggerMessage(EventCodes.FileUploadFailed, LogLevel.Warning, "An hours file could not be parsed.")]
+    private partial void LogFileUploadFailed(Exception ex);
 }
