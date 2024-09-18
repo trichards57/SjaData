@@ -11,6 +11,8 @@ using SjaData.Server.Model.Converters;
 using SjaData.Server.Model.Hours;
 using SjaData.Server.Services.Interfaces;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SjaData.Server.Services;
 
@@ -309,4 +311,27 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
 
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]
     private partial void LogItemDeleted(int id);
+
+    /// <inheritdoc/>
+    public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetTrendsEtagAsync(Region region, bool nhse)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{region}-{nhse}-{startDate}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
 }

@@ -7,12 +7,9 @@ using Asp.Versioning;
 using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.Net.Http.Headers;
 using SjaData.Server.Controllers.Binders;
 using SjaData.Server.Controllers.Filters;
-using SjaData.Server.Data;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Model.Hours;
@@ -74,7 +71,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     /// <summary>
     /// Gets the person-hours count matching the given query.
     /// </summary>
-    /// <param name="ifModifiedSince">The last-modified date held by the local cache.</param>
+    /// <param name="etag">The etag of the data held by the local cache.</param>
     /// <param name="date">The date to filter the hours by.  Defaults to today's date.</param>
     /// <param name="dateType">The type of date filter to apply.  Defaults to month, unless the date is blank when it defaults to year.</param>
     /// <param name="future">Indicates that only future values are wanted.  Otherwise only values from today and the past will be returned.</param>
@@ -86,43 +83,31 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [ProducesResponseType<HoursCount>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [RevalidateCache]
     public async Task<IActionResult> GetHoursCount(
-        [FromHeader(Name = "If-Modified-Since")] DateTimeOffset? ifModifiedSince,
-        [FromQuery(Name = "date")] DateOnly? date,
-        [FromQuery(Name = "date-type")][ModelBinder(BinderType = typeof(DateTypeBinder))] DateType? dateType,
+        [FromHeader(Name = "If-None-Match")] string? etag,
+        [FromQuery(Name = "date")] DateOnly date,
+        [FromQuery(Name = "date-type")][ModelBinder(BinderType = typeof(DateTypeBinder))] DateType dateType = DateType.Month,
         [FromQuery(Name = "future")] bool future = false)
     {
-        if (date is null && dateType is not null)
+        var actualEtagValue = await hoursService.GetHoursCountEtagAsync(date, dateType, future);
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = await hoursService.GetLastModifiedAsync();
+
+        if (actualEtag.Compare(etagValue, false))
         {
-            ModelState.AddModelError("date", "Date must be provided if date-type is specified.");
-            return ValidationProblem();
-        }
+            LogHoursCountNotModified(actualEtag);
 
-        if (date is not null && dateType is null)
-        {
-            dateType = DateType.Month;
-        }
-
-        if (ifModifiedSince.HasValue)
-        {
-            var lastModified = await hoursService.GetLastModifiedAsync();
-
-            var age = lastModified - ifModifiedSince;
-
-            if (age < TimeSpan.FromSeconds(1))
-            {
-                LogHoursCountNotModified(ifModifiedSince.Value, lastModified);
-
-                return StatusCode(StatusCodes.Status304NotModified);
-            }
+            return StatusCode(StatusCodes.Status304NotModified);
         }
 
         var count = await hoursService.CountAsync(date, dateType, future);
 
-        Response.GetTypedHeaders().LastModified = count.LastUpdate;
-        Response.GetTypedHeaders().CacheControl = new() { Private = true, NoCache = true };
-
-        LogHoursCountFound(count.LastUpdate, count);
+        LogHoursCountFound(count.LastUpdate, actualEtag, count);
 
         return Ok(count);
     }
@@ -134,6 +119,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     /// <response code="200">The current NHS England hours target, represented as person-hours.</response>
     [HttpGet("target")]
     [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]
+    [RevalidateCache]
     public IActionResult GetHoursTarget()
     {
         return Ok(new HoursTarget { Target = 4000 });
@@ -142,25 +128,48 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     /// <summary>
     /// Gets the trends report for the requested region.
     /// </summary>
+    /// <param name="etag">The etag of the data held by the local cache.</param>
     /// <param name="region">The region to report on.</param>
     /// <param name="nhse">Indicates if only NHSE data should be returned.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation. Resolves to the outcome of the action.</returns>
     /// <response code="200">The region's trends report.</response>
+    /// <response code="304">The count has not changed since the given date.</response>
+    /// <response code="400">The query was invalid.</response>
     [HttpGet("trends")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Trends), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize(Policy = "Lead")]
-    public async Task<ActionResult<Trends>> GetTrends([ModelBinder<RegionBinder>] Region region, bool nhse = false)
+    [RevalidateCache]
+    public async Task<ActionResult<Trends>> GetTrends(
+        [FromHeader(Name = "If-None-Match")] string? etag,
+        [ModelBinder<RegionBinder>] Region region,
+        bool nhse = false)
     {
+        var actualEtagValue = await hoursService.GetTrendsEtagAsync(region, nhse);
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = await hoursService.GetLastModifiedAsync();
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            LogHoursCountNotModified(actualEtag);
+
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
         var trends = await hoursService.GetTrendsAsync(region, nhse);
 
         return Ok(trends);
     }
 
-    [LoggerMessage(EventCodes.ItemFound, LogLevel.Information, "Hours count has been returned. It was last modified on {lastModified}.")]
-    private partial void LogHoursCountFound(DateTimeOffset lastModified, [LogProperties] HoursCount count);
+    [LoggerMessage(EventCodes.ItemFound, LogLevel.Information, "Hours count has been returned. It was last modified on {lastModified} and has ETag {etag}.")]
+    private partial void LogHoursCountFound(DateTimeOffset lastModified, EntityTagHeaderValue etag, [LogProperties] HoursCount count);
 
-    [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An hours count modified since {ifModifiedSince} was requested. It was last modified on {lastModified} and so has not been returned.")]
-    private partial void LogHoursCountNotModified(DateTimeOffset ifModifiedSince, DateTimeOffset lastModified);
+    [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An hours count that does not match ETag {etag} was requested. It's etag matched and so has not been returned.")]
+    private partial void LogHoursCountNotModified(EntityTagHeaderValue etag);
 
     [LoggerMessage(EventCodes.FileUploaded, LogLevel.Information, "An hours file has been updated.")]
     private partial void LogFileUploaded();

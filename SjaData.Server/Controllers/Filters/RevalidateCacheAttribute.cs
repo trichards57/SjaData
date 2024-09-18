@@ -19,6 +19,7 @@ public class RevalidateCacheAttribute : ActionFilterAttribute
     {
         var header = new CacheControlHeaderValue
         {
+            NoCache = true,
             MustRevalidate = true,
             Private = true,
         };
