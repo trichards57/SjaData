@@ -22,7 +22,6 @@ namespace SjaData.Server.Controllers;
 [Route("api/people")]
 [ApiController]
 [ApiVersion("1.0")]
-[Authorize(Policy = "User")]
 public class PeopleController(IPersonService personService) : ControllerBase
 {
     private readonly IPersonService personService = personService;
@@ -38,7 +37,7 @@ public class PeopleController(IPersonService personService) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "Admin")]
-    public async Task<IActionResult> ReceivePersonFile([FromForm] IFormFile file)
+    public async Task<IActionResult> ReceivePersonFile(IFormFile file)
     {
         Request.EnableBuffering();
 

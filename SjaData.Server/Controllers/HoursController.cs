@@ -26,7 +26,6 @@ namespace SjaData.Server.Controllers;
 [ApiController]
 [Route("/api/hours")]
 [ApiVersion("1.0")]
-[Authorize(Policy = "User")]
 public partial class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly IHoursService hoursService = hoursService;
@@ -44,7 +43,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]
-    public async Task<IActionResult> ReceiveHoursFile([FromForm] IFormFile file)
+    public async Task<IActionResult> ReceiveHoursFile(IFormFile file)
     {
         LogFileUploaded();
 
@@ -84,6 +83,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [RevalidateCache]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> GetHoursCount(
         [FromHeader(Name = "If-None-Match")] string? etag,
         [FromQuery(Name = "date")] DateOnly date,
@@ -120,6 +120,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [HttpGet("target")]
     [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]
     [RevalidateCache]
+    [Authorize(Policy = "User")]
     public IActionResult GetHoursTarget()
     {
         return Ok(new HoursTarget { Target = 4000 });
