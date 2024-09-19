@@ -1,13 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Region, Regions, regionToString } from "../loaders/hours-loader";
+import { Region, Regions, regionToString } from "../../loaders/hours-loader";
 import {
   PersonReport,
   preloadPeopleReports,
   usePeopleReports,
-} from "../loaders/people-report-loader";
+} from "../../loaders/people-report-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBackward } from "@fortawesome/free-solid-svg-icons";
-import styles from "./trends.module.css";
+import styles from "../trends.module.css";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 
 interface PeopleReportsPageProps {
@@ -95,7 +95,7 @@ export function PeopleReportsPage({ region }: PeopleReportsPageProps) {
       <section>
         <h2>People Activity - {regionToString(region)}</h2>
         <h3>
-          <Link to="/people-menu">
+          <Link to="/people">
             <FontAwesomeIcon icon={faBackward} /> Go Back
           </Link>
         </h3>

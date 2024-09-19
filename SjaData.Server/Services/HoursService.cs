@@ -132,7 +132,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         }
         else
         {
-            items = items.Where(d => d.Date <= DateOnly.FromDateTime(DateTime.Today));
+            items = items.Where(d => d.Date <= date);
         }
 
         var hoursCount = (await items.Select(h => new

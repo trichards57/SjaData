@@ -1,8 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AreaLabel,
-  preloadHoursCount,
-  useHoursCount,
+  preloadFutureHoursCount,
+  preloadLastMonthHoursCount,
+  preloadMonthToDateHoursCount,
+  preloadYearToDateHoursCount,
+  useFutureHoursCount,
+  useLastMonthHoursCount,
+  useMonthToDateHoursCount,
+  useYearToDateHoursCount,
 } from "../loaders/hours-loader";
 import {
   preloadHoursTargetCount,
@@ -13,7 +19,6 @@ import { faMinus, faPlus, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { Loading } from "../components/loading";
 import { useEffect, useState } from "react";
 import useSelectedAreas from "../components/useSelectedAreas";
-import { addMonths } from "date-fns";
 import { LinkBox, LinkBoxes } from "../components/link-boxes";
 
 export const Route = createFileRoute("/hours")({
@@ -21,14 +26,10 @@ export const Route = createFileRoute("/hours")({
   pendingComponent: Loading,
   loader: async ({ context }) => {
     return Promise.all([
-      preloadHoursCount(
-        context.queryClient,
-        context.pca,
-        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
-      ),
-      preloadHoursCount(context.queryClient, context.pca, new Date()),
-      preloadHoursCount(context.queryClient, context.pca, new Date(), true),
-      preloadHoursCount(context.queryClient, context.pca),
+      preloadLastMonthHoursCount(context.queryClient, context.pca),
+      preloadMonthToDateHoursCount(context.queryClient, context.pca),
+      preloadYearToDateHoursCount(context.queryClient, context.pca),
+      preloadFutureHoursCount(context.queryClient, context.pca),
       preloadHoursTargetCount(context.queryClient, context.pca, new Date()),
     ]);
   },
@@ -78,10 +79,10 @@ function calculateSum(
 
 export function Hours() {
   const target = useHoursTarget(new Date());
-  const lastMonth = useHoursCount(addMonths(new Date(), -1));
-  const month = useHoursCount(new Date());
-  const monthPlanned = useHoursCount(new Date(), true);
-  const ytd = useHoursCount();
+  const lastMonth = useLastMonthHoursCount();
+  const month = useMonthToDateHoursCount();
+  const monthPlanned = useFutureHoursCount();
+  const ytd = useYearToDateHoursCount();
   const ytdKeys = Object.keys(ytd.data.counts);
 
   const actualNhseAreas = nhseContractAreas.filter(([area]) =>

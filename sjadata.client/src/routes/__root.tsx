@@ -1,13 +1,10 @@
 import {
-  InteractionRequiredAuthError,
-  InteractionType,
   IPublicClientApplication,
   PopupRequest,
   SilentRequest,
 } from "@azure/msal-browser";
-import { useMsalAuthentication } from "@azure/msal-react";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import styles from "./__root.module.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
@@ -30,19 +27,22 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   pca: IPublicClientApplication;
 }>()({
+  loader: async ({ context }) => {
+    const { queryClient, pca } = context;
+
+    try {
+      const authResult = await pca.acquireTokenSilent(request);
+      return { queryClient, pca, authResult };
+    } catch {
+      await pca.acquireTokenRedirect(request);
+    }
+  },
   component: function Component() {
-    const { login, error } = useMsalAuthentication(
-      InteractionType.Silent,
-      request
-    );
+    const data = Route.useLoaderData();
 
-    useEffect(() => {
-      if (error instanceof InteractionRequiredAuthError) {
-        login(InteractionType.Redirect, request);
-      }
-    }, [error, login]);
+    if (!data?.authResult) {
+      console.log(data);
 
-    if (error) {
       return (
         <>
           <div className="container">

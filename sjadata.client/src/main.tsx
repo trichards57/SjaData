@@ -40,6 +40,7 @@ if (!pca.getActiveAccount()) {
   });
 
   if (knownAccount) {
+    console.log("Already logged in - setting account.");
     pca.setActiveAccount(knownAccount);
   }
 }
@@ -50,9 +51,22 @@ pca.addEventCallback((event) => {
     (event.payload as AuthenticationResult)?.account
   ) {
     const account = (event.payload as AuthenticationResult).account;
+    console.log("Logged in - setting account.");
     pca.setActiveAccount(account);
   }
 });
+
+try {
+  await pca.handleRedirectPromise();
+  const account = pca.getActiveAccount();
+  if (!account) {
+    // redirect anonymous user to login page
+    pca.loginRedirect();
+  }
+} catch (err) {
+  // TODO: Handle errors
+  console.log(err);
+}
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
