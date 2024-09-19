@@ -9,6 +9,7 @@ import styles from "./__root.module.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
 import { scopes } from "../loaders/auth-details";
+import { Loading } from "../components/loading";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -27,6 +28,7 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   pca: IPublicClientApplication;
 }>()({
+  pendingComponent: Loading,
   loader: async ({ context }) => {
     const { queryClient, pca } = context;
 

@@ -106,8 +106,8 @@ li.area-section {
   align-items: center;
 }
 
-li.area-section > span > button,
-.filter-section > h3 > button {
+.filter-section > h3 > button,
+li.area-section > span > button {
   background-color: var(--sja-dark-green);
   color: var(--sja-dark-green-text);
   border: none;
@@ -115,6 +115,11 @@ li.area-section > span > button,
   cursor: pointer;
   margin: var(--root-padding);
   font-size: 1.25rem;
+}
+
+.area-section-list li:hover {
+  background-color: var(--sja-light-gray);
+  color: var(--sja-light-gray-text);
 }
 
 ul.area-list > li:not(.area-section) {
@@ -139,11 +144,6 @@ ul.area-section-list {
 
 .area-section-list.expanded {
   max-height: 310px;
-}
-
-.area-section-list li:hover {
-  background-color: var(--sja-light-gray);
-  color: var(--sja-light-gray-text);
 }
 
 .last-update {

@@ -5,6 +5,7 @@ import styles from "./update.module.css";
 import { useState } from "react";
 import { usePeopleUploader } from "../loaders/people-uploader";
 import { useHoursUploader } from "../loaders/hours-uploader";
+import { Loading } from "../components/loading";
 
 function dragOver(event: React.DragEvent<HTMLDivElement>) {
   event.preventDefault();
@@ -151,5 +152,6 @@ export function UpdatePage() {
 }
 
 export const Route = createFileRoute("/update")({
+  pendingComponent: Loading,
   component: UpdatePage,
 });

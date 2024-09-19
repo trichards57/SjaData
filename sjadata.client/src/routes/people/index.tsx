@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { LinkBox, LinkBoxes } from '../../components/link-boxes'
 import { Regions, regionToString } from '../../loaders/hours-loader'
+import { Loading } from '../../components/loading'
 
 export function PeoplePage() {
   const sortedRegions = [...Regions].sort((a, b) => a.localeCompare(b))
@@ -32,5 +33,6 @@ export function PeoplePage() {
 }
 
 export const Route = createFileRoute('/people/')({
+  pendingComponent: Loading,
   component: PeoplePage,
 })

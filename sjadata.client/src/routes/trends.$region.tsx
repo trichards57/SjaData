@@ -11,6 +11,7 @@ import {
 import { preloadTrends, Trends, useTrends } from "../loaders/trends-loader";
 import { Region, Regions, regionToString } from "../loaders/hours-loader";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
+import { Loading } from "../components/loading";
 
 const significantChange = 0.05; // 5%
 const significantHours = 24;
@@ -219,6 +220,7 @@ export function TrendsPage({ region }: TrendsPageProps) {
 }
 
 export const Route = createFileRoute("/trends/$region")({
+  pendingComponent: Loading,
   beforeLoad: async (ctx) => {
     const { region } = ctx.params;
     if (!Regions.includes(region as Region)) {

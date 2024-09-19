@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBackward } from "@fortawesome/free-solid-svg-icons";
 import styles from "../trends.module.css";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
+import { Loading } from "../../components/loading";
 
 interface PeopleReportsPageProps {
   region: Region;
@@ -122,6 +123,7 @@ export function PeopleReportsPage({ region }: PeopleReportsPageProps) {
 }
 
 export const Route = createFileRoute("/people/$region")({
+  pendingComponent: Loading,
   beforeLoad: async (ctx) => {
     const { region } = ctx.params;
     if (!Regions.includes(region as Region)) {

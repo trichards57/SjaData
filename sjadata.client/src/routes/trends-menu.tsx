@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Regions, regionToString } from "../loaders/hours-loader";
 import { LinkBox, LinkBoxes } from "../components/link-boxes";
+import { Loading } from "../components/loading";
 
 export function TrendsPage() {
   const sortedRegions = [...Regions].sort((a, b) => a.localeCompare(b));
@@ -32,5 +33,6 @@ export function TrendsPage() {
 }
 
 export const Route = createFileRoute("/trends-menu")({
+  pendingComponent: Loading,
   component: TrendsPage,
 });
