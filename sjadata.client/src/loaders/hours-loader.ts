@@ -1,11 +1,13 @@
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
+           QueryKey,
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import loader from "./loader";
+import loader, { preloader } from "./loader";
 import { IPublicClientApplication } from "@azure/msal-browser";
+import { addMonths, formatISO } from "date-fns";
 
 interface HoursCount {
   counts: Partial<Record<AreaLabel, string>>;
@@ -71,43 +73,98 @@ export interface ParsedHoursCount {
 
 function hoursOptions(
   app: IPublicClientApplication,
-  date?: Date,
-  future?: boolean
+  queryTemplate: string,
+  key: string
 ) {
-  let dateString: string | undefined = undefined;
-  if (date) {
-    dateString = date.toISOString().split("T")[0];
-  }
+  const dateString = formatISO(new Date(), { representation: "date" });
 
-  let uri = date
-    ? `/api/hours/count?date=${dateString}&dateType=m&api-version=1.0`
-    : "/api/hours/count?api-version=1.0";
-
-  if (future) {
-    uri = `${uri}&future=true`;
-  }
+  const uri = `/api/hours/count?date=${dateString}${queryTemplate}&api-version=1.0`;
 
   const load = hoursLoader(app, uri);
 
   return queryOptions({
-    queryKey: ["hours", dateString, future],
+    queryKey: ["hours", dateString, key] as QueryKey,
     queryFn: load,
   });
 }
 
-export function useHoursCount(date?: Date, future: boolean = false) {
-  const msal = useMsal();
-
-  return useSuspenseQuery(hoursOptions(msal.instance, date, future));
+function futureHoursOptions(app: IPublicClientApplication) {
+  return hoursOptions(app, "&date-type=m&future=true", "future");
 }
 
-export function preloadHoursCount(
+function yearToDateOptions(app: IPublicClientApplication) {
+  return hoursOptions(app, "&date-type=y", "ytd");
+}
+
+function monthToDateOptions(app: IPublicClientApplication) {
+  return hoursOptions(app, "&date-type=m", "mtd");
+}
+
+function lastMonthOptions(app: IPublicClientApplication) {
+  const dateString = formatISO(addMonths(new Date(), -1), {
+    representation: "date",
+  });
+
+  const uri = `/api/hours/count?date=${dateString}&date-type=m&future=true&api-version=1.0`;
+
+  const load = hoursLoader(app, uri);
+
+  return queryOptions({
+    queryKey: ["hours", dateString] as QueryKey,
+    queryFn: load,
+  });
+}
+
+export function useFutureHoursCount() {
+  const msal = useMsal();
+
+  return useSuspenseQuery(futureHoursOptions(msal.instance));
+}
+
+export function useYearToDateHoursCount() {
+  const msal = useMsal();
+
+  return useSuspenseQuery(yearToDateOptions(msal.instance));
+}
+
+export function useMonthToDateHoursCount() {
+  const msal = useMsal();
+
+  return useSuspenseQuery(monthToDateOptions(msal.instance));
+}
+
+export function useLastMonthHoursCount() {
+  const msal = useMsal();
+
+  return useSuspenseQuery(lastMonthOptions(msal.instance));
+}
+
+export function preloadFutureHoursCount(
   queryClient: QueryClient,
-  app: IPublicClientApplication,
-  date?: Date,
-  future: boolean = false
+  app: IPublicClientApplication
 ) {
-  queryClient.ensureQueryData(hoursOptions(app, date, future));
+  return preloader(queryClient, app, futureHoursOptions(app));
+}
+
+export function preloadYearToDateHoursCount(
+  queryClient: QueryClient,
+  app: IPublicClientApplication
+) {
+  return preloader(queryClient, app, yearToDateOptions(app));
+}
+
+export function preloadMonthToDateHoursCount(
+  queryClient: QueryClient,
+  app: IPublicClientApplication
+) {
+  return preloader(queryClient, app, monthToDateOptions(app));
+}
+
+export function preloadLastMonthHoursCount(
+  queryClient: QueryClient,
+  app: IPublicClientApplication
+) {
+  return preloader(queryClient, app, lastMonthOptions(app));
 }
 
 function hoursLoader(app: IPublicClientApplication, uri: string) {

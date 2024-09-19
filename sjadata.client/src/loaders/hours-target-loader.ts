@@ -1,10 +1,11 @@
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
+  QueryKey,
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import loader from "./loader";
+import loader, { preloader } from "./loader";
 import { IPublicClientApplication } from "@azure/msal-browser";
 
 interface TargetHours {
@@ -26,7 +27,7 @@ function hoursTargetOptions(app: IPublicClientApplication, date?: Date) {
   // const loader = hoursTargetLoader(token);
 
   return queryOptions({
-    queryKey: ["hours-target", dateString],
+    queryKey: ["hours-target", dateString] as QueryKey,
     queryFn: load,
   });
 }
@@ -41,5 +42,5 @@ export function preloadHoursTargetCount(
   app: IPublicClientApplication,
   date?: Date
 ) {
-  queryClient.ensureQueryData(hoursTargetOptions(app, date));
+  return preloader(queryClient, app, hoursTargetOptions(app, date));
 }

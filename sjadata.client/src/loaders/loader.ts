@@ -3,6 +3,24 @@ import {
   IPublicClientApplication,
 } from "@azure/msal-browser";
 import { scopes, tenantId } from "./auth-details";
+import { EnsureQueryDataOptions, QueryClient } from "@tanstack/react-query";
+
+export function preloader<T>(
+  queryClient: QueryClient,
+  app: IPublicClientApplication,
+  options: EnsureQueryDataOptions<T>
+) {
+  const account =
+    app.getActiveAccount() ??
+    app.getAccount({
+      tenantId,
+    });
+
+  if (account !== null) {
+    return queryClient.ensureQueryData(options) as Promise<void>;
+  }
+  return Promise.resolve();
+}
 
 export default function loader<T>(app: IPublicClientApplication, uri: string) {
   return async () => {

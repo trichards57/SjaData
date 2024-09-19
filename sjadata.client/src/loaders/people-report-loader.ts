@@ -1,12 +1,13 @@
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
+  QueryKey,
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Region } from "./hours-loader";
 import { IPublicClientApplication } from "@azure/msal-browser";
-import loader from "./loader";
+import loader, { preloader } from "./loader";
 
 export interface PersonReport {
   name: string;
@@ -21,7 +22,7 @@ function peopleReportsOptions(app: IPublicClientApplication, region: Region) {
   const load = loader<PersonReport[]>(app, uri);
 
   return queryOptions({
-    queryKey: ["people", "report", region],
+    queryKey: ["people", "report", region] as QueryKey,
     queryFn: load,
   });
 }
@@ -37,5 +38,5 @@ export function preloadPeopleReports(
   app: IPublicClientApplication,
   region: Region
 ) {
-  queryClient.ensureQueryData(peopleReportsOptions(app, region));
+  return preloader(queryClient, app, peopleReportsOptions(app, region));
 }

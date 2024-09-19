@@ -1,12 +1,13 @@
 import { useMsal } from "@azure/msal-react";
 import {
   QueryClient,
+  QueryKey,
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Region } from "./hours-loader";
 import { IPublicClientApplication } from "@azure/msal-browser";
-import loader from "./loader";
+import loader, { preloader } from "./loader";
 
 export interface Trends {
   twelveMonthAverage: Record<string, number>;
@@ -33,7 +34,7 @@ function trendsOptions(
   const load = loader<Trends>(app, uri);
 
   return queryOptions({
-    queryKey: ["trends", region, nhse],
+    queryKey: ["trends", region, nhse] as QueryKey,
     queryFn: load,
   });
 }
@@ -50,5 +51,5 @@ export function preloadTrends(
   region: Region,
   nhse: boolean = false
 ) {
-  queryClient.ensureQueryData(trendsOptions(app, region, nhse));
+  return preloader(queryClient, app, trendsOptions(app, region, nhse));
 }
