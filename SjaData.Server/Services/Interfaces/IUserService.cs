@@ -5,4 +5,5 @@ namespace SjaData.Server.Services.Interfaces;
 public interface IUserService
 {
     IAsyncEnumerable<UserDetails> GetAll();
+    Task<bool> UpdateUserAsync(UserRoleChange userDetails);
 }

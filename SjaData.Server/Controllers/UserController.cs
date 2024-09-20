@@ -32,4 +32,13 @@ public class UserController(IUserService userService) : ControllerBase
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]
     public IAsyncEnumerable<UserDetails> GetAll() => userService.GetAll();
+
+    [HttpPost]
+    [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
+    public async Task<IActionResult> UpdateUser([FromBody] UserRoleChange userChange)
+    {
+        await userService.UpdateUserAsync(userChange);
+        return Ok();
+    }
 }

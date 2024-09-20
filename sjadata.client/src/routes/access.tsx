@@ -1,19 +1,34 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loading } from "../components/loading";
-import { preloadUsers, useUsers } from "../loaders/users-loader";
+import { preloadUsers, useUpdateRole, useUsers } from "../loaders/users-loader";
 import { useMsal } from "@azure/msal-react";
+import styles from "./access.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-solid-svg-icons";
 
 export function UserAccess() {
   const { data: users } = useUsers();
   const msal = useMsal();
   const userId = msal.instance.getActiveAccount()?.idTokenClaims?.sub;
+  const { mutateAsync: updateRole, status: mutateStatus } = useUpdateRole();
 
-  console.log(msal.instance.getActiveAccount());
+  async function changeRole(id: string, role: string) {
+    if (id === userId) return;
+
+    await updateRole({ id, role });
+  }
+
+  const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
       <h2>Users</h2>
-      <table>
+      <h3>
+        <Link to="/">
+          <FontAwesomeIcon icon={faHouse} /> Go Home
+        </Link>
+      </h3>
+      <table className={styles["access-table"]}>
         <thead>
           <tr>
             <th />
@@ -21,28 +36,25 @@ export function UserAccess() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {sortedUsers.map((user) => (
             <tr key={user.id}>
               <td>{user.name}</td>
               <td>
-                <button
-                  disabled={user.id === userId}
-                  className={user.role === "Admin" ? "checked" : ""}
-                >
-                  Admin
-                </button>
-                <button
-                  disabled={user.id === userId}
-                  className={user.role === "Lead" ? "checked" : ""}
-                >
-                  Lead
-                </button>
-                <button
-                  disabled={user.id === userId}
-                  className={user.role === "None" ? "checked" : ""}
-                >
-                  User
-                </button>
+                {["Admin", "Lead", "None"].map((role) => (
+                  <button
+                    disabled={user.id === userId || mutateStatus === "pending"}
+                    className={user.role === role ? styles["checked"] : ""}
+                    title={
+                      user.id === userId
+                        ? "You cannot change your own role."
+                        : ""
+                    }
+                    aria-checked={user.role === role ? "true" : "false"}
+                    onClick={() => changeRole(user.id, role)}
+                  >
+                    {role}
+                  </button>
+                ))}
               </td>
             </tr>
           ))}
