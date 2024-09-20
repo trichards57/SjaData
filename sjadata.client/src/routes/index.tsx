@@ -23,7 +23,7 @@ function Index() {
         </LinkBox>
         {(me.role === "Lead" || me.role === "Admin") && (
           <>
-            <LinkBox isLink color="green" to="/trends-menu">
+            <LinkBox isLink color="green" to="/trends">
               Trends
             </LinkBox>
             <LinkBox isLink color="green" to="/people">
