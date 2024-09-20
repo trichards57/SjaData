@@ -16,15 +16,25 @@ export function LinkBoxes({
 export function LinkBox({
   children,
   color,
+  isLink = false,
   ...rest
 }: PropsWithChildren<
   ToOptions & {
     color: "green" | "dark-green" | "yellow" | "black" | "light-gray";
+    isLink?: boolean;
   }
 >) {
-  return (
-    <Link className={`${styles["link-box"]} ${styles[color]}`} {...rest}>
-      {children}
-    </Link>
-  );
+  if (isLink) {
+    return (
+      <Link className={`${styles["link-box"]} ${styles[color]}`} {...rest}>
+        {children}
+      </Link>
+    );
+  } else {
+    return (
+      <div className={`${styles["link-box"]} ${styles[color]}`} {...rest}>
+        {children}
+      </div>
+    );
+  }
 }

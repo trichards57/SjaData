@@ -19,6 +19,7 @@ export function TrendsPage() {
       <LinkBoxes size="small">
         {sortedRegions.map((r) => (
           <LinkBox
+            isLink
             key="r"
             color="green"
             to="/trends/$region"

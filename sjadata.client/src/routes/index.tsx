@@ -18,25 +18,25 @@ function Index() {
     <>
       <h2>Home</h2>
       <LinkBoxes size="small">
-        <LinkBox color="green" to="/hours">
+        <LinkBox isLink color="green" to="/hours">
           Hours
         </LinkBox>
         {(me.role === "Lead" || me.role === "Admin") && (
           <>
-            <LinkBox color="green" to="/trends-menu">
+            <LinkBox isLink color="green" to="/trends-menu">
               Trends
             </LinkBox>
-            <LinkBox color="green" to="/people">
+            <LinkBox isLink color="green" to="/people">
               People
             </LinkBox>
           </>
         )}
         {me.role === "Admin" && (
           <>
-            <LinkBox color="dark-green" to="/update">
+            <LinkBox isLink color="dark-green" to="/update">
               Update
             </LinkBox>
-            <LinkBox color="yellow" to="/access">
+            <LinkBox isLink color="yellow" to="/access">
               Access
             </LinkBox>
           </>

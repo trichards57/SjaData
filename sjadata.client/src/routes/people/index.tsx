@@ -1,12 +1,12 @@
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { LinkBox, LinkBoxes } from '../../components/link-boxes'
-import { Regions, regionToString } from '../../loaders/hours-loader'
-import { Loading } from '../../components/loading'
+import { faHouse } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { LinkBox, LinkBoxes } from "../../components/link-boxes";
+import { Regions, regionToString } from "../../loaders/hours-loader";
+import { Loading } from "../../components/loading";
 
 export function PeoplePage() {
-  const sortedRegions = [...Regions].sort((a, b) => a.localeCompare(b))
+  const sortedRegions = [...Regions].sort((a, b) => a.localeCompare(b));
 
   return (
     <>
@@ -19,6 +19,7 @@ export function PeoplePage() {
       <LinkBoxes size="small">
         {sortedRegions.map((r) => (
           <LinkBox
+            isLink
             key={r}
             color="green"
             to="/people/$region"
@@ -29,10 +30,10 @@ export function PeoplePage() {
         ))}
       </LinkBoxes>
     </>
-  )
+  );
 }
 
-export const Route = createFileRoute('/people/')({
+export const Route = createFileRoute("/people/")({
   pendingComponent: Loading,
   component: PeoplePage,
-})
+});
