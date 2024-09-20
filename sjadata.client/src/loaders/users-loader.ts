@@ -9,12 +9,13 @@ import {
 import loader, { preloader } from "./loader";
 
 interface UserDetails {
+  id: string;
   name: string;
   role: string;
 }
 
 function usersOptions(app: IPublicClientApplication) {
-  const load = loader<UserDetails>(app, "/api/user?api-version=1.0");
+  const load = loader<UserDetails[]>(app, "/api/user?api-version=1.0");
 
   return queryOptions({
     queryKey: ["users"] as QueryKey,

@@ -5,16 +5,21 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SjaData.Server.Controllers.Filters;
+using SjaData.Server.Model.Users;
+using SjaData.Server.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SjaData.Server.Controllers;
 
 [Route("api/user")]
 [ApiController]
-[Authorize]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
+    private readonly IUserService userService = userService;
+
     [HttpGet("me")]
+    [Authorize]
     public IActionResult GetMe()
     {
         var name = HttpContext.User.FindFirstValue(ClaimTypes.Name);
@@ -22,4 +27,9 @@ public class UserController : ControllerBase
 
         return Ok(new { Name = name, Role = role });
     }
+
+    [HttpGet]
+    [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
+    public IAsyncEnumerable<UserDetails> GetAll() => userService.GetAll();
 }

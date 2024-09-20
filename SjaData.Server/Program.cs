@@ -117,6 +117,7 @@ builder.Services.AddAuthorizationCore(o =>
 builder.Services.AddTransient<IHoursService, HoursService>();
 builder.Services.AddTransient<IPatientService, PatientService>();
 builder.Services.AddTransient<IPersonService, PersonService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddRedaction(c =>
 {

@@ -3,11 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 namespace SjaData.Server.Data;
 
 /// <summary>
 /// Represents a user's role.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Role : byte
 {
     /// <summary>
