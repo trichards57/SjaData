@@ -10,6 +10,10 @@ using SjaData.Server.Services.Interfaces;
 
 namespace SjaData.Server.Services;
 
+/// <summary>
+/// Service for managing user information.
+/// </summary>
+/// <param name="context">The data context containing the information.</param>
 public class UserService(DataContext context) : IUserService
 {
     private readonly DataContext context = context;
