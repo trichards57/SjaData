@@ -87,6 +87,8 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     [Authorize(Policy = "User")]
     public IActionResult GetHoursTarget()
     {
+        LogItemFound("Hours target", DateTimeOffset.Now);
+
         return Ok(new HoursTarget { Target = 4000 });
     }
 
@@ -182,7 +184,7 @@ public partial class HoursController(IHoursService hoursService, ILogger<HoursCo
     private partial void LogFileUploadSuccess(int number);
 
     [LoggerMessage(EventCodes.ItemFound, LogLevel.Information, "{item} has been returned. It was last modified on {lastModified} and has ETag {etag}.")]
-    private partial void LogItemFound(string item, DateTimeOffset lastModified, EntityTagHeaderValue etag);
+    private partial void LogItemFound(string item, DateTimeOffset lastModified, EntityTagHeaderValue? etag = null);
 
     [LoggerMessage(EventCodes.ItemNotModified, LogLevel.Information, "An {item} that does not match ETag {etag} was requested. It's etag matched and so has not been returned.")]
     private partial void LogItemNotModified(string item, EntityTagHeaderValue etag);

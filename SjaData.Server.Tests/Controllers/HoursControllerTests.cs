@@ -134,6 +134,8 @@ public class HoursControllerTests
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().Be(new HoursTarget { Target = 4000 });
+
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.ItemFound);
     }
 
     [Fact]
@@ -236,6 +238,9 @@ public class HoursControllerTests
 
         result.Should().BeOfType<ObjectResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploaded);
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploadFailed);
     }
 
     [Fact]
@@ -251,6 +256,9 @@ public class HoursControllerTests
 
         result.Should().BeOfType<ObjectResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploaded);
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploadFailed);
     }
 
     [Fact]
@@ -266,5 +274,8 @@ public class HoursControllerTests
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeEquivalentTo(new CountResponse { Count = 2 });
+
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploaded);
+        logger.Collector.GetSnapshot().Should().ContainSingle(l => l.Id.Id == EventCodes.FileUploadSuccess);
     }
 }
