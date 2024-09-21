@@ -4,11 +4,16 @@
 // </copyright>
 
 using SjaData.Server.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace SjaData.Server.Model.Users;
 
 public readonly record struct UserRoleChange
 {
+    [Required(AllowEmptyStrings = false)]
     public string Id { get; init; }
+
+    [Required(AllowEmptyStrings = false)]
+    [EnumDataType(typeof(Role))]
     public Role Role { get; init; }
 }
