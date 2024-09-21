@@ -8,6 +8,8 @@ using SjaData.Server.Data;
 using SjaData.Server.Model;
 using SjaData.Server.Model.People;
 using SjaData.Server.Services.Interfaces;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SjaData.Server.Services;
 
@@ -17,54 +19,6 @@ namespace SjaData.Server.Services;
 public class PersonService(DataContext context) : IPersonService
 {
     private readonly DataContext context = context;
-
-    public async Task<IEnumerable<PersonReport>> GetPeopleReports(Region region)
-    {
-        var people = await context.People
-            .AsNoTracking()
-            .Where(p => p.Region == region && p.DeletedAt == null)
-            .Include(p => p.Hours)
-            .Select(p => new
-            {
-                Name = $"{p.FirstName} {p.LastName}",
-                Hours = p.Hours.Where(h => h.DeletedAt == null && h.PersonId == p.Id && Math.Abs(EF.Functions.DateDiffMonth(DateOnly.FromDateTime(DateTime.Today), h.Date)) < 13).ToList(),
-            }).ToListAsync();
-
-        return people.Select(p => new PersonReport
-        {
-            Name = p.Name,
-            Hours = GetOverTime(p.Hours),
-            HoursThisYear = p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum(),
-            MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
-        });
-    }
-
-    private static double[] GetOverTime(IEnumerable<HoursEntry> hours)
-    {
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var endDate = startDate.AddMonths(-12);
-
-        // Create an array to hold 12 months of data
-        double[] monthlyHours = new double[12];
-
-        // Fetch the relevant data, grouped by year and month
-        var details = hours
-            .Where(h => h.Date <= startDate && h.Date >= endDate)
-            .GroupBy(h => new { h.Date.Year, h.Date.Month })
-            .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });
-
-        // Iterate over the details and map them to the correct months
-        foreach (var detail in details)
-        {
-            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
-            if (index >= 0 && index < 12)
-            {
-                monthlyHours[index] = detail.HoursSum;
-            }
-        }
-
-        return monthlyHours;
-    }
 
     /// <inheritdoc/>
     public async Task<int> AddPeople(IAsyncEnumerable<PersonFileLine> people)
@@ -149,6 +103,47 @@ public class PersonService(DataContext context) : IPersonService
         return await context.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        var hoursLastModified = await context.Hours.Select(s => s.UpdatedAt).DefaultIfEmpty(DateTimeOffset.MinValue).MaxAsync();
+        var peopleLastModified = await context.People.Select(s => s.UpdatedAt).DefaultIfEmpty(DateTimeOffset.MinValue).MaxAsync();
+
+        return DateTimeOffset.Compare(hoursLastModified, peopleLastModified) > 0 ? hoursLastModified : peopleLastModified;
+    }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region)
+    {
+        var people = context.People
+            .AsNoTracking()
+            .Where(p => p.Region == region && p.DeletedAt == null)
+            .Include(p => p.Hours)
+            .Select(p => new
+            {
+                Name = $"{p.FirstName} {p.LastName}",
+                Hours = p.Hours.Where(h => h.DeletedAt == null && h.Date <= date && Math.Abs(EF.Functions.DateDiffMonth(date, h.Date)) < 13).ToList(),
+            }).AsAsyncEnumerable();
+
+        return people.Select(p => new PersonReport
+        {
+            Name = p.Name,
+            Hours = GetOverTime(p.Hours),
+            HoursThisYear = p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum(),
+            MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
+        });
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{date}-{region}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
     private static Region CalculateRegion(Model.People.PersonFileLine person)
     {
         return person.DepartmentRegion.ToLowerInvariant() switch
@@ -164,5 +159,32 @@ public class PersonService(DataContext context) : IPersonService
             "north west region" => Region.NorthWest,
             _ => Region.Undefined,
         };
+    }
+
+    private static double[] GetOverTime(IEnumerable<HoursEntry> hours)
+    {
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var endDate = startDate.AddMonths(-12);
+
+        // Create an array to hold 12 months of data
+        double[] monthlyHours = new double[12];
+
+        // Fetch the relevant data, grouped by year and month
+        var details = hours
+            .Where(h => h.Date <= startDate && h.Date >= endDate)
+            .GroupBy(h => new { h.Date.Year, h.Date.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });
+
+        // Iterate over the details and map them to the correct months
+        foreach (var detail in details)
+        {
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
+            if (index >= 0 && index < 12)
+            {
+                monthlyHours[index] = detail.HoursSum;
+            }
+        }
+
+        return monthlyHours;
     }
 }

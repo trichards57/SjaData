@@ -10,7 +10,6 @@ using SjaData.Server.Model;
 using SjaData.Server.Model.Converters;
 using SjaData.Server.Model.Hours;
 using SjaData.Server.Services.Interfaces;
-using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -110,7 +109,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
     /// <inheritdoc/>
     public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType, bool future)
     {
-        var items = dataContext.Hours
+        var items = dataContext.Hours.AsNoTracking()
             .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Region.Undefined || i.Trust != Trust.Undefined));
 
         if (!date.HasValue)
@@ -178,6 +177,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         return DateTimeOffset.MinValue;
     }
 
+    /// <inheritdoc/>
     public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
     {
         var districts = await dataContext.People.Where(p => p.Region == region).Select(p => p.District).Distinct().ToListAsync();
@@ -185,7 +185,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         var today = DateOnly.FromDateTime(DateTime.Today);
         var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
 
-        IQueryable<HoursEntry> hours = dataContext.Hours;
+        IQueryable<HoursEntry> hours = dataContext.Hours.AsNoTracking();
 
         if (nhse)
         {

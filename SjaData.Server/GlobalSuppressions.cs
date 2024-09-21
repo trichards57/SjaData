@@ -8,3 +8,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "These are required for the logging functions.", Scope = "member", Target = "~F:SjaData.Server.Services.HoursService.logger")]
 [assembly: SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "These are required for the logging functions.", Scope = "member", Target = "~F:SjaData.Server.Services.PatientService.logger")]
 [assembly: SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "These are required for the logging functions.", Scope = "member", Target = "~F:SjaData.Server.Controllers.HoursController.logger")]
+[assembly: SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "These are required for the logging functions.", Scope = "member", Target = "~F:SjaData.Server.Controllers.PeopleController.logger")]

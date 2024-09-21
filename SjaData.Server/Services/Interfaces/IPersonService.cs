@@ -21,5 +21,16 @@ public interface IPersonService
     /// A task that represents the asynchronous operation. The task result contains the number of people added or updated.
     /// </returns>
     Task<int> AddPeople(IAsyncEnumerable<PersonFileLine> people);
-    Task<IEnumerable<PersonReport>> GetPeopleReports(Region region);
+
+    IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region);
+
+    Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region);
+    
+    /// <summary>
+    /// Gets the date the source data was last modified.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the date.
+    /// </returns>
+    Task<DateTimeOffset> GetLastModifiedAsync();
 }

@@ -115,7 +115,6 @@ builder.Services.AddAuthorizationCore(o =>
 });
 
 builder.Services.AddTransient<IHoursService, HoursService>();
-builder.Services.AddTransient<IPatientService, PatientService>();
 builder.Services.AddTransient<IPersonService, PersonService>();
 builder.Services.AddTransient<IUserService, UserService>();
 
@@ -124,7 +123,6 @@ builder.Services.AddRedaction(c =>
     c.SetRedactor<StarRedactor>(new DataClassificationSet(DataClassifications.PatientData));
 });
 
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen(o =>
 {
