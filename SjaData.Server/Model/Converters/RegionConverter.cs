@@ -36,12 +36,6 @@ public class RegionConverter : JsonConverter<Region>
         };
 
     /// <summary>
-    /// Gets the names of the regions.
-    /// </summary>
-    /// <returns>An enumeration of names.</returns>
-    public static IEnumerable<string> GetNames() => Enum.GetValues<Region>().Where(s => s != Region.Undefined).Select(ToString);
-
-    /// <summary>
     /// Converts a string to a <see cref="Region"/>.
     /// </summary>
     /// <param name="value">The value to convert.</param>
@@ -58,6 +52,12 @@ public class RegionConverter : JsonConverter<Region>
         "SW" => Region.SouthWest,
         _ => Region.Undefined,
     };
+
+    /// <summary>
+    /// Gets the names of the regions.
+    /// </summary>
+    /// <returns>An enumeration of names.</returns>
+    public static IEnumerable<string> GetNames() => Enum.GetValues<Region>().Where(s => s != Region.Undefined).Select(ToString);
 
     /// <summary>
     /// Converts a <see cref="Region"/> to a string.

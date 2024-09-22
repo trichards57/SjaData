@@ -42,12 +42,6 @@ public class TrustConverter : JsonConverter<Trust>
         };
 
     /// <summary>
-    /// Gets the names of the trusts.
-    /// </summary>
-    /// <returns>An enumeration of names.</returns>
-    public static IEnumerable<string> GetNames() => Enum.GetValues<Trust>().Where(s => s != Trust.Undefined).Select(ToString);
-
-    /// <summary>
     /// Converts a string to a <see cref="Trust"/>.
     /// </summary>
     /// <param name="value">The value to convert.</param>
@@ -70,6 +64,12 @@ public class TrustConverter : JsonConverter<Trust>
         "IWAS" => Trust.IsleOfWightAmbulanceService,
         _ => Trust.Undefined,
     };
+
+    /// <summary>
+    /// Gets the names of the trusts.
+    /// </summary>
+    /// <returns>An enumeration of names.</returns>
+    public static IEnumerable<string> GetNames() => Enum.GetValues<Trust>().Where(s => s != Trust.Undefined).Select(ToString);
 
     /// <summary>
     /// Converts a <see cref="Trust"/> to a string.
