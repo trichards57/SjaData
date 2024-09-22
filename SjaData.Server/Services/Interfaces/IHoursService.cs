@@ -60,8 +60,23 @@ public interface IHoursService
     /// </returns>
     Task<DateTimeOffset> GetLastModifiedAsync();
 
+    /// <summary>
+    /// Gets the activity trends for a region.
+    /// </summary>
+    /// <param name="region">The region to query for.</param>
+    /// <param name="nhse">Indicates that only NSHE data should be returned.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the trends report.
+    /// </returns>
     Task<Trends> GetTrendsAsync(Region region, bool nhse);
 
+    /// <summary>
+    /// Calculates the ETag associated with an activity report.
+    /// </summary>
+    /// <param name="region">The region to query for.</param>
+    /// <param name="nhse">Indicates that only NSHE data should be returned.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the ETag.
+    /// </returns>
     Task<string> GetTrendsEtagAsync(Region region, bool nhse);
-
 }
