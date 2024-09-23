@@ -4,7 +4,6 @@
 // </copyright>
 
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Testing;
@@ -165,8 +164,7 @@ public class HoursControllerTests
         var etag = $"\"{Guid.NewGuid()}\"";
         var region = Region.SouthWest;
 
-        var expected = new Trends();
-        expected.Hours["national"] = [1, 2, 3, 4, 5];
+        var expected = new Trends() { Hours = new Dictionary<string, double[]> { { "national", [1, 2, 3, 4, 5] } } };
 
         hoursService.Setup(s => s.GetTrendsEtagAsync(region, false)).ReturnsAsync(etag);
         hoursService.Setup(s => s.GetTrendsAsync(region, false)).ReturnsAsync(expected);
@@ -208,8 +206,7 @@ public class HoursControllerTests
         var etag = $"\"{Guid.NewGuid()}\"";
         var region = Region.SouthWest;
 
-        var expected = new Trends();
-        expected.Hours["national"] = [1, 2, 3, 4, 5];
+        var expected = new Trends() { Hours = new Dictionary<string, double[]> { { "national", [1, 2, 3, 4, 5] } } };
 
         hoursService.Setup(s => s.GetTrendsEtagAsync(region, false)).ReturnsAsync(etag);
         hoursService.Setup(s => s.GetLastModifiedAsync()).ReturnsAsync(lastModified);

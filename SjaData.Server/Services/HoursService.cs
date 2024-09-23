@@ -5,6 +5,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaData.Server.Data;
+using SjaData.Server.Helpers;
 using SjaData.Server.Logging;
 using SjaData.Server.Model;
 using SjaData.Server.Model.Converters;
@@ -20,10 +21,11 @@ namespace SjaData.Server.Services;
 /// </summary>
 /// <param name="dataContext">The data context containing the hours data.</param>
 /// <param name="logger">The logger to write to.</param>
-public partial class HoursService(DataContext dataContext, ILogger<HoursService> logger) : IHoursService
+public partial class HoursService(TimeProvider timeProvider, DataContext dataContext, ILogger<HoursService> logger) : IHoursService
 {
     private readonly DataContext dataContext = dataContext;
     private readonly ILogger<HoursService> logger = logger;
+    private readonly TimeProvider timeProvider = timeProvider;
 
     /// <inheritdoc/>
     public async Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours)
@@ -167,6 +169,16 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
     }
 
     /// <inheritdoc/>
+    public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
         if (await dataContext.Hours.AnyAsync())
@@ -183,7 +195,7 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         var districts = await dataContext.People.Where(p => p.Region == region).Select(p => p.District).Distinct().ToListAsync();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+        var reportDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
 
         IQueryable<HoursEntry> hours = dataContext.Hours.AsNoTracking();
 
@@ -196,50 +208,115 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
             hours = hours.Where(h => h.Region != Region.Undefined || h.Trust != Trust.Undefined);
         }
 
-        var nationalAverages = await GetAverages(hours, startDate);
-        var nationalAveragesMinusOne = await GetAverages(hours, startDate.AddMonths(-1));
-        var regionAverages = await GetAverages(hours.Where(h => h.Person.Region == region), startDate);
-        var regionAveragesMinusOne = await GetAverages(hours.Where(h => h.Person.Region == region), startDate.AddMonths(-1));
+        var nationalAverages = await GetAverages(hours, reportDate);
+        var nationalAveragesMinusOne = await GetAverages(hours, reportDate.AddMonths(-1));
+        var regionAverages = await GetAverages(hours.Where(h => h.Person.Region == region), reportDate);
+        var regionAveragesMinusOne = await GetAverages(hours.Where(h => h.Person.Region == region), reportDate.AddMonths(-1));
 
-        var trends = new Trends() { ThresholdDate = startDate };
-        trends.TwelveMonthAverage["national"] = nationalAverages.TwelveMonthAverage;
-        trends.TwelveMonthAverage["region"] = regionAverages.TwelveMonthAverage;
-        trends.TwelveMonthMinusOneAverage["national"] = nationalAveragesMinusOne.TwelveMonthAverage;
-        trends.TwelveMonthMinusOneAverage["region"] = regionAveragesMinusOne.TwelveMonthAverage;
-        trends.SixMonthAverage["national"] = nationalAverages.SixMonthAverage;
-        trends.SixMonthAverage["region"] = regionAverages.SixMonthAverage;
-        trends.SixMonthMinusOneAverage["national"] = nationalAveragesMinusOne.SixMonthAverage;
-        trends.SixMonthMinusOneAverage["region"] = regionAveragesMinusOne.SixMonthAverage;
-        trends.ThreeMonthAverage["national"] = nationalAverages.ThreeMonthAverage;
-        trends.ThreeMonthAverage["region"] = regionAverages.ThreeMonthAverage;
-        trends.ThreeMonthMinusOneAverage["national"] = nationalAveragesMinusOne.ThreeMonthAverage;
-        trends.ThreeMonthMinusOneAverage["region"] = regionAveragesMinusOne.ThreeMonthAverage;
-        trends.Hours["national"] = await GetOverTime(hours, startDate);
-        trends.Hours["region"] = await GetOverTime(hours.Where(h => h.Person.Region == region), startDate);
+        var twelveMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.TwelveMonthAverage },
+            { "region", regionAverages.TwelveMonthAverage },
+        };
+        var twelveMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.TwelveMonthAverage },
+            { "region", regionAveragesMinusOne.TwelveMonthAverage },
+        };
+        var sixMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.SixMonthAverage },
+            { "region", regionAverages.SixMonthAverage },
+        };
+        var sixMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.SixMonthAverage },
+            { "region", regionAveragesMinusOne.SixMonthAverage },
+        };
+        var threeMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.ThreeMonthAverage },
+            { "region", regionAverages.ThreeMonthAverage },
+        };
+        var threeMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.ThreeMonthAverage },
+            { "region", regionAveragesMinusOne.ThreeMonthAverage },
+        };
+        var hoursResult = new Dictionary<string, double[]>
+        {
+            { "national", await GetOverTime(hours, reportDate) },
+            { "region", await GetOverTime(hours.Where(h => h.Person.Region == region), reportDate) },
+        };
 
         foreach (var d in districts)
         {
             try
             {
-                var districtAverages = await GetAverages(hours.Where(h => h.Person.District == d), startDate);
-                var districtAverageMinusOne = await GetAverages(hours.Where(h => h.Person.District == d), startDate.AddMonths(-1));
+                var districtAverages = await GetAverages(hours.Where(h => h.Person.District == d), reportDate);
+                var districtAverageMinusOne = await GetAverages(hours.Where(h => h.Person.District == d), reportDate.AddMonths(-1));
 
-                trends.TwelveMonthAverage[d] = districtAverages.TwelveMonthAverage;
-                trends.TwelveMonthMinusOneAverage[d] = districtAverageMinusOne.TwelveMonthAverage;
-                trends.SixMonthAverage[d] = districtAverages.SixMonthAverage;
-                trends.SixMonthMinusOneAverage[d] = districtAverageMinusOne.SixMonthAverage;
-                trends.ThreeMonthAverage[d] = districtAverages.ThreeMonthAverage;
-                trends.ThreeMonthMinusOneAverage[d] = districtAverageMinusOne.ThreeMonthAverage;
-                trends.Hours[d] = await GetOverTime(hours.Where(h => h.Person.District == d), startDate);
+                twelveMonthAverages[d] = districtAverages.TwelveMonthAverage;
+                twelveMonthMinusOneAverages[d] = districtAverageMinusOne.TwelveMonthAverage;
+                sixMonthAverages[d] = districtAverages.SixMonthAverage;
+                sixMonthMinusOneAverages[d] = districtAverageMinusOne.SixMonthAverage;
+                threeMonthAverages[d] = districtAverages.ThreeMonthAverage;
+                threeMonthMinusOneAverages[d] = districtAverageMinusOne.ThreeMonthAverage;
+                hoursResult[d] = await GetOverTime(hours.Where(h => h.Person.District == d), reportDate);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error processing district {district}", d);
+                logger.LogError(ex, "Error processing district {District}", d);
             }
         }
 
+        var trends = new Trends()
+        {
+            ReportDate = reportDate,
+            TwelveMonthAverage = twelveMonthAverages,
+            TwelveMonthMinusOneAverage = twelveMonthMinusOneAverages,
+            SixMonthAverage = sixMonthAverages,
+            SixMonthMinusOneAverage = sixMonthMinusOneAverages,
+            ThreeMonthAverage = threeMonthAverages,
+            ThreeMonthMinusOneAverage = threeMonthMinusOneAverages,
+            Hours = hoursResult,
+        };
+
         return trends;
     }
+
+    /// <inheritdoc/>
+    public async Task<string> GetTrendsEtagAsync(Region region, bool nhse)
+    {
+        ExceptionHelpers.ThrowIfUndefined(region);
+
+        var lastModified = await GetLastModifiedAsync();
+
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().Date);
+        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+
+        var marker = $"{region}-{nhse}-{startDate}-{lastModified}";
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(marker));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    private static Trust CalculateTrust(HoursFileLine hour) => hour.CrewType switch
+    {
+        "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
+        "NHS E EMAS" => Trust.EastMidlandsAmbulanceService,
+        "NHS E IOW" => Trust.IsleOfWightAmbulanceService,
+        "NHS E LAS" => Trust.LondonAmbulanceService,
+        "NHS E NEAS" => Trust.NorthEastAmbulanceService,
+        "NHS E NWAS" => Trust.NorthWestAmbulanceService,
+        "NWAS 365" => Trust.NorthWestAmbulanceService,
+        "NHS E SCAS" => Trust.SouthCentralAmbulanceService,
+        "NHS E SECAmb" => Trust.SouthEastCoastAmbulanceService,
+        "NHS E SWAST" => Trust.SouthWesternAmbulanceService,
+        "NHS E YAS" => Trust.YorkshireAmbulanceService,
+        "YAS" => Trust.YorkshireAmbulanceService,
+        _ => Trust.Undefined,
+    };
 
     private static Task<Averages> GetAverages(IQueryable<HoursEntry> hours, DateOnly startDate)
     {
@@ -285,53 +362,15 @@ public partial class HoursService(DataContext dataContext, ILogger<HoursService>
         return monthlyHours;
     }
 
-    private readonly record struct Averages
-    {
-        public double TwelveMonthAverage { get; init; }
-        public double SixMonthAverage { get; init; }
-        public double ThreeMonthAverage { get; init; }
-    }
-
-    private static Trust CalculateTrust(HoursFileLine hour) => hour.CrewType switch
-    {
-        "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
-        "NHS E EMAS" => Trust.EastMidlandsAmbulanceService,
-        "NHS E IOW" => Trust.IsleOfWightAmbulanceService,
-        "NHS E LAS" => Trust.LondonAmbulanceService,
-        "NHS E NEAS" => Trust.NorthEastAmbulanceService,
-        "NHS E NWAS" => Trust.NorthWestAmbulanceService,
-        "NWAS 365" => Trust.NorthWestAmbulanceService,
-        "NHS E SCAS" => Trust.SouthCentralAmbulanceService,
-        "NHS E SECAmb" => Trust.SouthEastCoastAmbulanceService,
-        "NHS E SWAST" => Trust.SouthWesternAmbulanceService,
-        "NHS E YAS" => Trust.YorkshireAmbulanceService,
-        "YAS" => Trust.YorkshireAmbulanceService,
-        _ => Trust.Undefined,
-    };
-
     [LoggerMessage(EventCodes.ItemDeleted, LogLevel.Information, "Hours entry {id} has been deleted.")]
     private partial void LogItemDeleted(int id);
 
-    /// <inheritdoc/>
-    public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
+    private readonly record struct Averages
     {
-        var lastModified = await GetLastModifiedAsync();
+        public double TwelveMonthAverage { get; init; }
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
+        public double SixMonthAverage { get; init; }
 
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
-
-    /// <inheritdoc/>
-    public async Task<string> GetTrendsEtagAsync(Region region, bool nhse)
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{region}-{nhse}-{startDate}-{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
+        public double ThreeMonthAverage { get; init; }
     }
 }

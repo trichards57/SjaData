@@ -95,7 +95,7 @@ public partial class PeopleController(IPersonService personService, ILogger<Peop
 
         try
         {
-            var updatedCount = await personService.AddPeople(csv.GetRecordsAsync<PersonFileLine>());
+            var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>());
 
             return Ok(new CountResponse { Count = updatedCount });
         }
