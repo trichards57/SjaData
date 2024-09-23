@@ -21,6 +21,23 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: NodeTool@0
+  inputs:
+    versionSpec: '22.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+    npm run test:ci
+  displayName: 'npm install and test'
+  workingDirectory: sja.client
+
+- task: PublishTestResults@2
+  displayName: 'supply npm test results to pipelines'
+  condition: succeededOrFailed() # because otherwise we won't know what tests failed
+  inputs:
+    testResultsFiles: 'sja.client/reports/junit.xml'
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
