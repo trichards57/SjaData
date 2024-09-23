@@ -10,6 +10,8 @@ import path from "path";
 import child_process from "child_process";
 import { env } from "process";
 
+import browserslistToEsbuild from "browserslist-to-esbuild";
+
 const baseFolder =
   env.APPDATA !== undefined && env.APPDATA !== ""
     ? `${env.APPDATA}/ASP.NET/https`
@@ -53,6 +55,9 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  build: {
+    target: browserslistToEsbuild(),
   },
   server: {
     proxy: {
