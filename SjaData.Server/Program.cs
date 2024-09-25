@@ -47,10 +47,12 @@ builder.Services.AddDbContext<DataContext>(o =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
-        o.MetadataAddress = "https://login.microsoftonline.com/91d037fb-4714-4fe8-b084-68c083b8193f/.well-known/openid-configuration";
+        var configSection = builder.Configuration.GetRequiredSection("AzureAd");
+
+        o.MetadataAddress = $"https://login.microsoftonline.com/{configSection.GetValue<string>("TenantId")}/.well-known/openid-configuration";
         o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
-            ValidAudience = "a984d5ce-d914-47d0-b690-1bcf084eb829",
+            ValidAudience = configSection.GetValue<string>("ClientId"),
             ValidateSignatureLast = true,
         };
         o.Events = new JwtBearerEvents

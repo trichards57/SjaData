@@ -29,40 +29,40 @@ export const Route = createRootRouteWithContext<{
   pca: IPublicClientApplication;
 }>()({
   pendingComponent: Loading,
-  loader: async ({ context }) => {
-    const { queryClient, pca } = context;
+  // loader: async ({ context }) => {
+  //   const { queryClient, pca } = context;
 
-    try {
-      const authResult = await pca.acquireTokenSilent(request);
-      return { queryClient, pca, authResult };
-    } catch {
-      await pca.acquireTokenRedirect(request);
-    }
-  },
+  //   try {
+  //     const authResult = await pca.acquireTokenSilent(request);
+  //     return { queryClient, pca, authResult };
+  //   } catch {
+  //     await pca.acquireTokenRedirect(request);
+  //   }
+  // },
   component: function Component() {
-    const data = Route.useLoaderData();
+    // const data = Route.useLoaderData();
 
-    if (!data?.authResult) {
-      console.log(data);
+    // if (!data?.authResult) {
+    //   console.log(data);
 
-      return (
-        <>
-          <div className="container">
-            <h1>SJA In Numbers</h1>
-            <div className={styles["error-message-root"]}>
-              <div className={styles["error-message"]}>
-                Unable to sign you in. Try refreshing the page.
-              </div>
-            </div>
-          </div>
-          <div className="footer-image" />
-          <ReactQueryDevtools initialIsOpen={false} />
-          <Suspense>
-            <TanStackRouterDevtools />
-          </Suspense>
-        </>
-      );
-    }
+    //   return (
+    //     <>
+    //       <div className="container">
+    //         <h1>SJA In Numbers</h1>
+    //         <div className={styles["error-message-root"]}>
+    //           <div className={styles["error-message"]}>
+    //             Unable to sign you in. Try refreshing the page.
+    //           </div>
+    //         </div>
+    //       </div>
+    //       <div className="footer-image" />
+    //       <ReactQueryDevtools initialIsOpen={false} />
+    //       <Suspense>
+    //         <TanStackRouterDevtools />
+    //       </Suspense>
+    //     </>
+    //   );
+    // }
 
     return (
       <>

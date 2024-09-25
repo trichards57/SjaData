@@ -58,11 +58,11 @@ pca.addEventCallback((event) => {
 
 try {
   await pca.handleRedirectPromise();
-  const account = pca.getActiveAccount();
-  if (!account) {
-    // redirect anonymous user to login page
-    pca.loginRedirect();
-  }
+  // const account = pca.getActiveAccount();
+  // if (!account) {
+  //   // redirect anonymous user to login page
+  //   pca.loginRedirect();
+  // }
 } catch (err) {
   // TODO: Handle errors
   console.log(err);

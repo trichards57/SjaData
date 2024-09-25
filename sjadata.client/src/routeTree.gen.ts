@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as UpdateImport } from './routes/update'
+import { Route as PrivacyImport } from './routes/privacy'
 import { Route as HoursImport } from './routes/hours'
 import { Route as AccessImport } from './routes/access'
 import { Route as IndexImport } from './routes/index'
@@ -24,6 +25,11 @@ import { Route as PeopleRegionImport } from './routes/people/$region'
 
 const UpdateRoute = UpdateImport.update({
   path: '/update',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PrivacyRoute = PrivacyImport.update({
+  path: '/privacy',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -87,6 +93,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HoursImport
       parentRoute: typeof rootRoute
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyImport
+      parentRoute: typeof rootRoute
+    }
     '/update': {
       id: '/update'
       path: '/update'
@@ -131,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
+  '/privacy': typeof PrivacyRoute
   '/update': typeof UpdateRoute
   '/people/$region': typeof PeopleRegionRoute
   '/trends/$region': typeof TrendsRegionRoute
@@ -142,6 +156,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
+  '/privacy': typeof PrivacyRoute
   '/update': typeof UpdateRoute
   '/people/$region': typeof PeopleRegionRoute
   '/trends/$region': typeof TrendsRegionRoute
@@ -154,6 +169,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/access': typeof AccessRoute
   '/hours': typeof HoursRoute
+  '/privacy': typeof PrivacyRoute
   '/update': typeof UpdateRoute
   '/people/$region': typeof PeopleRegionRoute
   '/trends/$region': typeof TrendsRegionRoute
@@ -167,6 +183,7 @@ export interface FileRouteTypes {
     | '/'
     | '/access'
     | '/hours'
+    | '/privacy'
     | '/update'
     | '/people/$region'
     | '/trends/$region'
@@ -177,6 +194,7 @@ export interface FileRouteTypes {
     | '/'
     | '/access'
     | '/hours'
+    | '/privacy'
     | '/update'
     | '/people/$region'
     | '/trends/$region'
@@ -187,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/access'
     | '/hours'
+    | '/privacy'
     | '/update'
     | '/people/$region'
     | '/trends/$region'
@@ -199,6 +218,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccessRoute: typeof AccessRoute
   HoursRoute: typeof HoursRoute
+  PrivacyRoute: typeof PrivacyRoute
   UpdateRoute: typeof UpdateRoute
   PeopleRegionRoute: typeof PeopleRegionRoute
   TrendsRegionRoute: typeof TrendsRegionRoute
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccessRoute: AccessRoute,
   HoursRoute: HoursRoute,
+  PrivacyRoute: PrivacyRoute,
   UpdateRoute: UpdateRoute,
   PeopleRegionRoute: PeopleRegionRoute,
   TrendsRegionRoute: TrendsRegionRoute,
@@ -232,6 +253,7 @@ export const routeTree = rootRoute
         "/",
         "/access",
         "/hours",
+        "/privacy",
         "/update",
         "/people/$region",
         "/trends/$region",
@@ -247,6 +269,9 @@ export const routeTree = rootRoute
     },
     "/hours": {
       "filePath": "hours.tsx"
+    },
+    "/privacy": {
+      "filePath": "privacy.tsx"
     },
     "/update": {
       "filePath": "update.tsx"
