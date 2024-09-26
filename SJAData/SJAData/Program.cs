@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using SJAData.Client.Pages;
 using SJAData.Components;
 using SJAData.Components.Account;
+using SJAData.Controllers;
 using SJAData.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+builder.Services.AddGrpc();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,5 +72,7 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+app.MapGrpcService<HoursController>().EnableGrpcWeb();
 
 app.Run();
