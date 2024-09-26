@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+service HoursService {
+	rpc Count(HoursCountRequest) returns (HoursCountResponse);
+	rpc Target(HoursTargetRequest) returns (HoursTargetResponse);
+	rpc Trends(HoursTrendsRequest) returns (HoursTrendsResponse);
+	rpc Update(HoursUpdateRequest) returns (HoursUpdateResponse);
+}

@@ -1,8 +1,14 @@
+// <copyright file="PersistentAuthenticationStateProvider.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace SJAData.Client;
+
 // This is a client-side AuthenticationStateProvider that determines the user's authentication state by
 // looking for data persisted in the page when it was rendered on the server. This authentication state will
 // be fixed for the lifetime of the WebAssembly application. So, if the user needs to log in or out, a full
