@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package SjaDataGrpc;
+package SJAData.Grpc;
 
 import "google/protobuf/timestamp.proto";
 
@@ -63,9 +63,32 @@ message HoursTrendsResponse {
 message HoursUpdateRequest {}
 message HoursUpdateResponse {}
 
-service HoursService {
+message PeopleReportsRequest {
+	Region region = 1;
+}
+
+message PersonReport {
+	string name = 1;
+	uint32 months_since_last_active = 2;
+	repeated uint32 hours = 3;
+	uint32 hours_this_year = 4;
+}
+
+message PeopleReportsResponse {
+	repeated PersonReport people = 1;
+}
+
+message PeopleUpdateRequest {}
+message PeopleUpdateResponse {}
+
+service HoursController {
 	rpc Count(HoursCountRequest) returns (HoursCountResponse);
 	rpc Target(HoursTargetRequest) returns (HoursTargetResponse);
 	rpc Trends(HoursTrendsRequest) returns (HoursTrendsResponse);
 	rpc Update(HoursUpdateRequest) returns (HoursUpdateResponse);
+}
+
+service PeopleController {
+	rpc Reports(PeopleReportsRequest) returns (PeopleReportsResponse);
+	rpc Update(PeopleUpdateRequest) returns (PeopleUpdateResponse);
 }

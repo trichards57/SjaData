@@ -10,4 +10,13 @@ namespace SJAData.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
+    /// <summary>
+    /// Gets or sets the hours entries.
+    /// </summary>
+    public DbSet<HoursEntry> Hours { get; set; }
+
+    /// <summary>
+    /// Gets or sets the people.
+    /// </summary>
+    public DbSet<Person> People { get; set; }
 }

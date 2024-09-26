@@ -23,7 +23,7 @@ internal sealed class IdentityRedirectManager(NavigationManager navigationManage
     [DoesNotReturn]
     public void RedirectTo(string? uri)
     {
-        uri ??= "";
+        uri ??= string.Empty;
 
         // Prevent open redirects.
         if (!Uri.IsWellFormedUriString(uri, UriKind.Relative))

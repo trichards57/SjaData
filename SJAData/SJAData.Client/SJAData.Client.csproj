@@ -17,14 +17,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Google.Protobuf" Version="3.28.2" />
-		<PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
-		<PackageReference Include="Grpc.Net.Client.Web" Version="2.66.0" />
-		<PackageReference Include="Grpc.Net.ClientFactory" Version="2.66.0" />
-		<PackageReference Include="Grpc.Tools" Version="2.66.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.8" />
 		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
@@ -38,11 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Protos\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Protobuf Include="..\SJAData\Protos\Hours.proto" Link="Protos\Hours.proto" GrpcServices="Client" Access="Internal" />
+	  <ProjectReference Include="..\..\SjaData.Grpc\SjaData.Grpc.csproj" />
 	</ItemGroup>
 
 </Project>
