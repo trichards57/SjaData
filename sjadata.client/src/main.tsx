@@ -15,6 +15,7 @@ import {
 import { MsalProvider } from "@azure/msal-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { clientId, redirectUri, tenantId } from "./loaders/auth-details";
+import { Loading } from "./components/loading";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -78,6 +79,8 @@ const router = createRouter({
   defaultPreload: "intent",
   context: { queryClient, pca },
   defaultPreloadStaleTime: 0,
+  defaultPendingComponent: Loading,
+  defaultOnCatch(error, errorInfo) {},
 });
 
 // Render the app

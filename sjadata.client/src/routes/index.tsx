@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { preloadMe, useMe } from "../loaders/user-loader";
 import { LinkBox, LinkBoxes } from "../components/link-boxes";
-import { Loading } from "../components/loading";
 
 export const Route = createFileRoute("/")({
   component: Index,
-  pendingComponent: Loading,
   loader: async ({ context }) => {
     preloadMe(context.queryClient, context.pca);
   },
