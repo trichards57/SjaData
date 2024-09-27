@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Authorization
+
+@page "/"
+@attribute [Authorize]
+
+<PageTitle>SJA In Numbers - Home</PageTitle>
+
+<h2>Home</h2>
+
+<LinkBoxes Size="LinkBoxSize.Small">
+    <LinkBox IsLink="true" Link="/hours">
+        Hours
+    </LinkBox>
+    <AuthorizeView Roles="Lead,Admin">
+        <LinkBox IsLink="true" Link="/trends">
+            Trends
+        </LinkBox>
+        <LinkBox IsLink="true" Link="/people">
+            People
+        </LinkBox>
+    </AuthorizeView>
+    <AuthorizeView Roles="Admin">
+        <LinkBox IsLink="true" Link="/update">
+            Update
+        </LinkBox>
+        <LinkBox IsLink="true" Link="/access">
+            Access
+        </LinkBox>
+    </AuthorizeView>
+</LinkBoxes>

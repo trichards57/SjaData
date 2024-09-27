@@ -1,0 +1,13 @@
+﻿<div class="@StyleClasses">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public LinkBoxSize Size { get; set; }
+
+    private string StyleClasses => "link-boxes link-boxes-" + Size.ToString().ToLower();
+}
