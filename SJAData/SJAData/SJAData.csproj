@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<Content Remove="stylecop.json" />
+		<Content Remove="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,6 +21,7 @@
 		<ProjectReference Include="..\SJAData.Client\SJAData.Client.csproj" />
 		<PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
 		<PackageReference Include="Grpc.AspNetCore.Web" Version="2.66.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
@@ -33,6 +35,10 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 
 </Project>
