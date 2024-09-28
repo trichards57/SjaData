@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SJAData.Client.Pages;
+using SJAData.Authorization;
 using SJAData.Components;
 using SJAData.Components.Account;
 using SJAData.Controllers;
@@ -23,6 +24,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -39,6 +41,11 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
         microsoftOptions.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
         microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
     });
+
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -72,6 +79,8 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.UseMiddleware<RequireApprovalFailureMiddleware>();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

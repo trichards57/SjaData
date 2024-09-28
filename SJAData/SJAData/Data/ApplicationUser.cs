@@ -9,4 +9,5 @@ namespace SJAData.Data;
 
 public class ApplicationUser : IdentityUser
 {
+    public bool IsApproved { get; set; }
 }
