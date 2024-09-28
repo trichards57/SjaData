@@ -35,6 +35,10 @@ html {
     background-attachment: scroll;
 }
 
+body {
+    margin: var(--root-padding);
+}
+
 h2 {
     background-color: var(--sja-yellow);
     color: var(--sja-yellow-text);
@@ -44,6 +48,65 @@ h2 {
     padding: var(--root-padding) calc(var(--root-padding) * 2);
     display: block;
     max-width: fit-content;
+}
+
+.form-label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    display: block;
+    width: calc(100% - var(--root-padding) * 2 - 0.75rem - 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    border: 1px solid var(--sja-light-gray);
+    border-radius: 0.25rem;
+}
+
+.btn-large {
+    width: 100%;
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.375rem 0.75rem;
+    border: none;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+}
+
+a.btn-large {
+    width: calc(100% - var(--root-padding) * 2 - 0.75rem - 2px);
+}
+
+.btn-large + .btn-large {
+    margin-top: 0.25rem;
+}
+
+.btn-primary {
+    background-color: var(--sja-dark-green);
+    color: var(--sja-dark-green-text);
+}
+
+.btn-secondary {
+    background-color: var(--sja-yellow);
+    color: var(--sja-yellow-text);
+}
+
+.validation-error, .validation-message {
+    color: darkred;
+}
+
+.validation-error {
+    margin-top: 0.25rem;
 }
 
 .blazor-error-boundary {
