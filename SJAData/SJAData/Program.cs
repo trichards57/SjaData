@@ -6,12 +6,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SJAData.Authorization;
+using SJAData.Client.Services.Interfaces;
 using SJAData.Components;
 using SJAData.Components.Account;
 using SJAData.Controllers;
 using SJAData.Data;
+using SJAData.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +29,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
+builder.Services.AddScoped<IHoursService, HoursService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -42,10 +47,8 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
         microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
     });
 
-builder.Services.AddAuthorization(o =>
-{
-    o.AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -53,13 +56,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.AddGrpc();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -90,6 +94,6 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-app.MapGrpcService<HoursController>().EnableGrpcWeb();
+app.MapControllers();
 
 app.Run();

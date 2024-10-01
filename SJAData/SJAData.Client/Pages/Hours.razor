@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using SJAData.Client.Services.Interfaces
+
+@rendermode InteractiveAuto
+
+@inject IHoursService HoursService
+
+@page "/hours"
+@attribute [Authorize(Policy = "Approved")]
+
+<PageTitle>SJA In Numbers - Hours</PageTitle>
+
+<h2>Hours</h2>
+<h3>
+    <a href="/">
+        <img src="/img/home.svg" /> Go Home
+    </a>
+</h3>
+<h3>
+    @Title
+</h3>
+<LinkBoxes Size="LinkBoxSize.Large">
+    <LinkBox Colour="LinkBoxColour.LightGray">
+        <div>Last Month</div>
+        <div>0</div>
+    </LinkBox>
+    <LinkBox Colour="LinkBoxColour.Black">
+        <div>This Month</div>
+        <div>0</div>
+        <div class="planned">0 Planned</div>
+    </LinkBox>
+    <LinkBox Colour="LinkBoxColour.DarkGreen">
+        <div>Year to Date</div>
+        <div>0</div>
+    </LinkBox>
+    <LinkBox Colour="LinkBoxColour.DarkGreen">
+        <div>Target</div>
+        <div>@nhseTarget</div>
+    </LinkBox>
+</LinkBoxes>
+
+@code {
+    private string Title => "Volunteer Activity";
+    private bool isLoading = true;
+    private int nhseTarget = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoading = true;
+        nhseTarget = await HoursService.GetNhseTargetAsync();
+    }
+}

@@ -50,6 +50,28 @@ h2 {
     max-width: fit-content;
 }
 
+h3 > a {
+    color: var(--sja-black);
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+}
+
+    h3 > a:visited {
+        color: var(--sja-black);
+    }
+
+    h3 > a:hover {
+        color: var(--sja-gray);
+    }
+
+    h3 > a > img {
+        height: 1.8rem;
+        filter: grayscale(100%);
+    }
+
 .form-label {
     font-weight: 500;
     display: block;
@@ -118,4 +140,3 @@ a.btn-large {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
-

@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SJAData.Grpc;
-
 namespace SJAData.Client.Services.Interfaces;
 
 /// <summary>
@@ -21,14 +19,14 @@ public interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
-    Task<HoursCountResponse> CountAsync(DateOnly? date, DateType? dateType, bool future);
+    //Task<HoursCountResponse> CountAsync(DateOnly? date, DateType? dateType, bool future);
 
     /// <summary>
     /// Deletes the given hours entry.
     /// </summary>
     /// <param name="id">The ID of the entry to delete.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task DeleteAsync(int id);
+    //Task DeleteAsync(int id);
 
     /// <summary>
     /// Calculates the ETag associated with an hours count.
@@ -42,7 +40,7 @@ public interface IHoursService
     /// <remarks>
     /// This is a weak ETag and should be marked accordingly.
     /// </remarks>
-    Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future);
+    //Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future);
 
     /// <summary>
     /// Gets the date the hours data was last modified.
@@ -50,7 +48,9 @@ public interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the date.
     /// </returns>
-    Task<DateTimeOffset> GetLastModifiedAsync();
+    //Task<DateTimeOffset> GetLastModifiedAsync();
+
+    Task<int> GetNhseTargetAsync();
 
     /// <summary>
     /// Gets the activity trends for a region.
@@ -60,7 +60,7 @@ public interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the trends report.
     /// </returns>
-    Task<HoursTrendsResponse> GetTrendsAsync(Region region, bool nhse);
+    //Task<HoursTrendsResponse> GetTrendsAsync(Region region, bool nhse);
 
     /// <summary>
     /// Calculates the ETag associated with an activity report.
@@ -70,5 +70,5 @@ public interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the ETag.
     /// </returns>
-    Task<string> GetTrendsEtagAsync(Region region, bool nhse);
+    //Task<string> GetTrendsEtagAsync(Region region, bool nhse);
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SJAData.Data;
 
@@ -11,9 +12,11 @@ using SJAData.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240929140042_InitialRoles")]
+    partial class InitialRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,7 +279,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Hours", (string)null);
+                    b.ToTable("Hours");
                 });
 
             modelBuilder.Entity("SJAData.Data.Person", b =>
@@ -324,7 +327,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("People", (string)null);
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
