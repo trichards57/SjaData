@@ -14,6 +14,7 @@ using SjaData.Server.Model;
 using SjaData.Server.Model.People;
 using SjaData.Server.Services.Interfaces;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace SjaData.Server.Controllers;
 
@@ -95,7 +96,8 @@ public partial class PeopleController(IPersonService personService, ILogger<Peop
 
         try
         {
-            var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>());
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>(), userId);
 
             return Ok(new CountResponse { Count = updatedCount });
         }

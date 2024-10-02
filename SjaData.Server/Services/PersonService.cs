@@ -21,7 +21,7 @@ public class PersonService(DataContext context) : IPersonService
     private readonly DataContext context = context;
 
     /// <inheritdoc/>
-    public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people)
+    public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
     {
         var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
         {

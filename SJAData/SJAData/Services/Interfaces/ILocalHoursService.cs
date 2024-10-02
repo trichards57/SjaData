@@ -1,5 +1,6 @@
 ﻿using SJAData.Client.Model;
 using SJAData.Client.Services.Interfaces;
+using SJAData.Model.Hours;
 
 namespace SJAData.Services.Interfaces;
 
@@ -30,4 +31,6 @@ public interface ILocalHoursService : IHoursService
     Task<string> GetNhseTargetEtagAsync();
 
     Task<DateTimeOffset> GetNhseTargetLastModifiedAsync();
+
+    Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId);
 }

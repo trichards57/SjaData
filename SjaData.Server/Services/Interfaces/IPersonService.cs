@@ -20,7 +20,8 @@ public interface IPersonService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the number of people added or updated.
     /// </returns>
-    Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people);
+    /// <param name="userId"></param>
+    Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId);
 
     /// <summary>
     /// Gets the people activity reports for a specific end-date and region.

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
 using SJAData.Data;
+using SJAData.Model.Hours;
 using SJAData.Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,6 +24,109 @@ public partial class HoursService(TimeProvider timeProvider, ApplicationDbContex
     private readonly ApplicationDbContext dataContext = dataContext;
     private readonly ILogger<HoursService> logger = logger;
     private readonly TimeProvider timeProvider = timeProvider;
+
+    /// <inheritdoc/>
+    public async Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId)
+    {
+        var existingPeople = await dataContext.People.ToDictionaryAsync(s => s.Id, s => s);
+
+        var hoursList = await hours.ToListAsync();
+
+        var startDate = hoursList.Min(h => h.ShiftDate);
+        var endDate = hoursList.Max(h => h.ShiftDate);
+
+        var existingItems = await dataContext.Hours.Where(h => h.Date >= startDate && h.Date <= endDate)
+            .ToListAsync();
+
+        foreach (var h in hoursList.Where(h => !string.IsNullOrWhiteSpace(h.IdNumber)).OrderBy(h => h.ShiftDate).ThenBy(d => d.ShiftLength))
+        {
+            var idValid = int.TryParse(h.IdNumber, out var id);
+
+            if (!idValid)
+            {
+                continue;
+            }
+
+            if (!existingPeople.TryGetValue(id, out var person))
+            {
+                var nameParts = h.Name.Split(' ', 2);
+                person = new Person { Id = id, FirstName = nameParts[1], LastName = nameParts[0], Region = Region.Undefined, UpdatedById = userId };
+                dataContext.Add(person);
+                existingPeople.Add(id, person);
+            }
+
+            var existingItem = existingItems.Find(i => i.PersonId == id && i.Date == h.ShiftDate);
+
+            if (existingItem is null)
+            {
+                existingItem = new HoursEntry();
+                existingItems.Add(existingItem);
+                dataContext.Hours.Add(existingItem);
+
+                existingItem.PersonId = id;
+                existingItem.Date = h.ShiftDate;
+                existingItem.DeletedAt = null;
+                existingItem.UpdatedById = userId;
+            }
+
+            var trust = CalculateTrust(h);
+
+            if (existingItem.Trust != trust)
+            {
+                existingItem.Trust = trust;
+                existingItem.DeletedAt = null;
+                existingItem.UpdatedAt = DateTimeOffset.UtcNow;
+                existingItem.UpdatedById = userId;
+            }
+
+            if (Math.Abs(existingItem.Hours - h.ShiftLength.TotalHours) > 0.1)
+            {
+                existingItem.Hours = h.ShiftLength.TotalHours;
+                existingItem.DeletedAt = null;
+                existingItem.UpdatedAt = DateTimeOffset.UtcNow;
+                existingItem.UpdatedById = userId;
+            }
+
+            var region = h.CrewType.Equals("Event Cover Amb", StringComparison.InvariantCultureIgnoreCase) ? person.Region : Region.Undefined;
+
+            if (existingItem.Region != region)
+            {
+                existingItem.Region = region;
+                existingItem.DeletedAt = null;
+                existingItem.UpdatedAt = DateTimeOffset.UtcNow;
+                existingItem.UpdatedById = userId;
+            }
+        }
+
+        foreach (var h in existingItems)
+        {
+            if (!hoursList.Exists(i => i.ShiftDate == h.Date && i.IdNumber == h.PersonId.ToString()))
+            {
+                h.UpdatedAt = DateTimeOffset.UtcNow;
+                h.DeletedAt = h.UpdatedAt;
+                h.UpdatedById = userId;
+            }
+        }
+
+        return await dataContext.SaveChangesAsync();
+    }
+
+    private static Trust CalculateTrust(HoursFileLine hour) => hour.CrewType switch
+    {
+        "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
+        "NHS E EMAS" => Trust.EastMidlandsAmbulanceService,
+        "NHS E IOW" => Trust.IsleOfWightAmbulanceService,
+        "NHS E LAS" => Trust.LondonAmbulanceService,
+        "NHS E NEAS" => Trust.NorthEastAmbulanceService,
+        "NHS E NWAS" => Trust.NorthWestAmbulanceService,
+        "NWAS 365" => Trust.NorthWestAmbulanceService,
+        "NHS E SCAS" => Trust.SouthCentralAmbulanceService,
+        "NHS E SECAmb" => Trust.SouthEastCoastAmbulanceService,
+        "NHS E SWAST" => Trust.SouthWesternAmbulanceService,
+        "NHS E YAS" => Trust.YorkshireAmbulanceService,
+        "YAS" => Trust.YorkshireAmbulanceService,
+        _ => Trust.Undefined,
+    };
 
     /// <inheritdoc/>
     public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false)
@@ -69,6 +173,7 @@ public partial class HoursService(TimeProvider timeProvider, ApplicationDbContex
 
         var result = new HoursCount
         {
+            Counts = [],
             LastUpdate = lastUpdate,
         };
 

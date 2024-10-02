@@ -4,15 +4,16 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SJAData.Client.Services.Interfaces;
 using SJAData.Data;
+using SjaData.Server.Model.People;
+using SJAData.Services.Interfaces;
 
 namespace SJAData.Services;
 
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(ApplicationDbContext context) : IPersonService
+public class PersonService(ApplicationDbContext context) : ILocalPersonService
 {
     private readonly ApplicationDbContext context = context;
 
@@ -23,6 +24,108 @@ public class PersonService(ApplicationDbContext context) : IPersonService
         var peopleLastModified = await context.People.Select(s => s.UpdatedAt).DefaultIfEmpty(DateTimeOffset.MinValue).MaxAsync();
 
         return DateTimeOffset.Compare(hoursLastModified, peopleLastModified) > 0 ? hoursLastModified : peopleLastModified;
+    }
+
+    public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
+    {
+        var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
+        {
+            var name = p.Name.Split(',');
+            return new Person
+            {
+                Id = p.MyDataNumber,
+                FirstName = name[1].Trim(),
+                LastName = name[0].Trim(),
+                District = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation.Substring(10) : p.DistrictStation).Trim(),
+                Role = p.JobRoleTitle,
+                Region = CalculateRegion(p),
+                IsVolunteer = p.IsVolunteer,
+            };
+        }).ToListAsync();
+
+        var existingPeople = await context.People.ToDictionaryAsync(p => p.Id);
+
+        foreach (var p in peopleList)
+        {
+            if (existingPeople.TryGetValue(p.Id, out var existingPerson))
+            {
+                if (existingPerson.FirstName != p.FirstName)
+                {
+                    existingPerson.FirstName = p.FirstName;
+                }
+
+                if (existingPerson.LastName != p.LastName)
+                {
+                    existingPerson.LastName = p.LastName;
+                }
+
+                if (existingPerson.District != p.District)
+                {
+                    existingPerson.District = p.District;
+                }
+
+                if (existingPerson.Role != p.Role)
+                {
+                    existingPerson.Role = p.Role;
+                }
+
+                if (existingPerson.Region != p.Region)
+                {
+                    existingPerson.Region = p.Region;
+                }
+
+                if (existingPerson.IsVolunteer != p.IsVolunteer)
+                {
+                    existingPerson.IsVolunteer = p.IsVolunteer;
+                }
+
+                if (existingPerson.DeletedAt != null)
+                {
+                    existingPerson.DeletedAt = null;
+                }
+
+                if (context.Entry(existingPerson).State == EntityState.Modified)
+                {
+                    existingPerson.UpdatedAt = DateTimeOffset.UtcNow;
+                    existingPerson.UpdatedById = userId;
+                }
+            }
+            else
+            {
+                p.UpdatedAt = DateTimeOffset.UtcNow;
+                p.UpdatedById = userId;
+                context.People.Add(p);
+            }
+        }
+
+        foreach (var p in existingPeople)
+        {
+            if (!peopleList.Exists(q => q.Id == p.Key))
+            {
+                p.Value.UpdatedAt = DateTimeOffset.UtcNow;
+                p.Value.DeletedAt = p.Value.UpdatedAt;
+                p.Value.UpdatedById = userId;
+            }
+        }
+
+        return await context.SaveChangesAsync();
+    }
+
+    private static Region CalculateRegion(PersonFileLine person)
+    {
+        return person.DepartmentRegion.ToLowerInvariant() switch
+        {
+            "london region" => Region.London,
+            "events: london" => Region.London,
+            "east of england region" => Region.EastOfEngland,
+            "north east region" => Region.NorthEast,
+            "south east region" => Region.SouthEast,
+            "west midlands region" => Region.WestMidlands,
+            "east midlands region" => Region.EastMidlands,
+            "south west region" => Region.SouthWest,
+            "north west region" => Region.NorthWest,
+            _ => Region.Undefined,
+        };
     }
 
     /// <inheritdoc/>

@@ -3,13 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
 using SJAData.Controllers.Filters;
+using SJAData.Model.Hours;
+using SjaData.Server.Model;
 using SJAData.Services.Interfaces;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace SJAData.Controllers;
 
@@ -74,5 +79,29 @@ public class HoursController(ILocalHoursService hoursService) : ControllerBase
         var count = await hoursService.CountAsync(date, dateType, future);
 
         return Ok(count);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
+    [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
+    public async Task<IActionResult> ReceiveHoursFile(IFormFile file)
+    {
+        using var reader = new StreamReader(file.OpenReadStream());
+        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
+        csv.Context.RegisterClassMap<HoursFileLineMap>();
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>(), userId);
+
+            return Ok(new CountResponse { Count = updatedCount });
+        }
+        catch (CsvHelperException)
+        {
+            return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
+        }
     }
 }

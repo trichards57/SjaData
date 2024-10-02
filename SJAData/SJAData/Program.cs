@@ -29,6 +29,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAu
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 builder.Services.AddScoped<IHoursService, HoursService>();
 builder.Services.AddScoped<ILocalHoursService, HoursService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<ILocalPersonService, PersonService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -47,7 +49,8 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()));
+    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
