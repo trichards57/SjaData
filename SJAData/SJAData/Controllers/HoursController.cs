@@ -3,27 +3,76 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using SJAData.Client.Model;
-using SJAData.Client.Services.Interfaces;
+using SJAData.Client.Model.Hours;
+using SJAData.Controllers.Filters;
+using SJAData.Services.Interfaces;
 
 namespace SJAData.Controllers;
 
 [ApiController]
 [Route("api/hours")]
-public class HoursController(IHoursService hoursService) : ControllerBase
+public class HoursController(ILocalHoursService hoursService) : ControllerBase
 {
-    private readonly IHoursService hoursService = hoursService;
+    private readonly ILocalHoursService hoursService = hoursService;
 
     [HttpGet("target")]
-    public async Task<IActionResult> GetTargetAsync()
+    [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]
+    [RevalidateCache]
+    [Authorize(Policy = "Approved")]
+    public async Task<IActionResult> GetTargetAsync([FromHeader(Name = "If-None-Match")] string? etag)
     {
         var target = await hoursService.GetNhseTargetAsync();
+        var actualEtagValue = await hoursService.GetNhseTargetEtagAsync();
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+        var lastModified = await hoursService.GetNhseTargetLastModifiedAsync();
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastModified;
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
 
         return Ok(new HoursTarget
         {
             Target = target,
             Date = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1),
         });
+    }
+
+    [HttpGet("count")]
+    [ProducesResponseType<HoursCount>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [RevalidateCache]
+    [Authorize(Policy = "Approved")]
+    public async Task<IActionResult> GetHoursCount(
+        [FromHeader(Name = "If-None-Match")] string? etag,
+        [FromQuery(Name = "date")] DateOnly date,
+        [FromQuery(Name = "date-type")] DateType dateType = DateType.Month,
+        [FromQuery(Name = "future")] bool future = false)
+    {
+        var actualEtagValue = await hoursService.GetHoursCountEtagAsync(date, dateType, future);
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = await hoursService.GetLastModifiedAsync();
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        var count = await hoursService.CountAsync(date, dateType, future);
+
+        return Ok(count);
     }
 }

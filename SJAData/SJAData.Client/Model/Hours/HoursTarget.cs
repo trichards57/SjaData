@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SJAData.Client.Model;
+namespace SJAData.Client.Model.Hours;
 
 public readonly record struct HoursTarget
 {

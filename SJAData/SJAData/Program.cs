@@ -6,16 +6,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SJAData.Authorization;
 using SJAData.Client.Services.Interfaces;
 using SJAData.Components;
 using SJAData.Components.Account;
-using SJAData.Controllers;
 using SJAData.Data;
 using SJAData.Services;
+using SJAData.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +28,7 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 builder.Services.AddScoped<IHoursService, HoursService>();
+builder.Services.AddScoped<ILocalHoursService, HoursService>();
 
 builder.Services.AddAuthentication(options =>
     {

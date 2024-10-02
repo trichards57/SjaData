@@ -3,6 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SJAData.Client.Model;
+using SJAData.Client.Model.Hours;
+
 namespace SJAData.Client.Services.Interfaces;
 
 /// <summary>
@@ -19,7 +22,7 @@ public interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
-    //Task<HoursCountResponse> CountAsync(DateOnly? date, DateType? dateType, bool future);
+    Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
 
     /// <summary>
     /// Deletes the given hours entry.
@@ -27,28 +30,6 @@ public interface IHoursService
     /// <param name="id">The ID of the entry to delete.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     //Task DeleteAsync(int id);
-
-    /// <summary>
-    /// Calculates the ETag associated with an hours count.
-    /// </summary>
-    /// <param name="date">The date of the report.</param>
-    /// <param name="dateType">The date type for the report.</param>
-    /// <param name="future">Indicates if only future information should be included.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the ETag.
-    /// </returns>
-    /// <remarks>
-    /// This is a weak ETag and should be marked accordingly.
-    /// </remarks>
-    //Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future);
-
-    /// <summary>
-    /// Gets the date the hours data was last modified.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the date.
-    /// </returns>
-    //Task<DateTimeOffset> GetLastModifiedAsync();
 
     Task<int> GetNhseTargetAsync();
 

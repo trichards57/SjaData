@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using SJAData.Client.Model
+@using SJAData.Client.Model.Hours
 @using SJAData.Client.Services.Interfaces
 
 @rendermode InteractiveAuto
@@ -43,10 +45,16 @@
     private string Title => "Volunteer Activity";
     private bool isLoading = true;
     private int nhseTarget = 0;
+    private HoursCount lastMonth = default;
+    private HoursCount thisMonth = default;
+    private HoursCount yearToDate = default;
 
     protected async override Task OnInitializedAsync()
     {
         isLoading = true;
         nhseTarget = await HoursService.GetNhseTargetAsync();
+        lastMonth = await HoursService.CountAsync(new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1));
+        thisMonth = await HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today));
+        yearToDate = await HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), DateType.Year);
     }
 }

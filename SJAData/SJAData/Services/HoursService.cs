@@ -3,9 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SJAData.Client.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using SJAData.Client.Model;
+using SJAData.Client.Model.Hours;
 using SJAData.Data;
-
+using SJAData.Services.Interfaces;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SJAData.Services;
 
@@ -14,67 +18,67 @@ namespace SJAData.Services;
 /// </summary>
 /// <param name="dataContext">The data context containing the hours data.</param>
 /// <param name="logger">The logger to write to.</param>
-public partial class HoursService(TimeProvider timeProvider, ApplicationDbContext dataContext, ILogger<HoursService> logger) : IHoursService
+public partial class HoursService(TimeProvider timeProvider, ApplicationDbContext dataContext, ILogger<HoursService> logger) : ILocalHoursService
 {
     private readonly ApplicationDbContext dataContext = dataContext;
     private readonly ILogger<HoursService> logger = logger;
     private readonly TimeProvider timeProvider = timeProvider;
 
     /// <inheritdoc/>
-    //public async Task<HoursCountResponse> CountAsync(DateOnly? date, DateType? dateType, bool future)
-    //{
-    //    var items = dataContext.Hours.AsNoTracking()
-    //        .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Data.Region.Undefined || i.Trust != Trust.Undefined));
+    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false)
+    {
+        var items = dataContext.Hours.AsNoTracking()
+            .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Data.Region.Undefined || i.Trust != Trust.Undefined));
 
-    //    if (!date.HasValue)
-    //    {
-    //        date = DateOnly.FromDateTime(DateTime.Today);
-    //        dateType = DateType.Year;
-    //    }
+        if (!date.HasValue)
+        {
+            date = DateOnly.FromDateTime(DateTime.Today);
+            dateType = DateType.Year;
+        }
 
-    //    items = dateType switch
-    //    {
-    //        DateType.Day => items.Where(h => h.Date == date.Value),
-    //        DateType.Month => items.Where(h => h.Date.Month == date.Value.Month && h.Date.Year == date.Value.Year),
-    //        _ => items.Where(h => h.Date.Year == date.Value.Year),
-    //    };
+        items = dateType switch
+        {
+            DateType.Day => items.Where(h => h.Date == date.Value),
+            DateType.Month => items.Where(h => h.Date.Month == date.Value.Month && h.Date.Year == date.Value.Year),
+            _ => items.Where(h => h.Date.Year == date.Value.Year),
+        };
 
-    //    if (future)
-    //    {
-    //        items = items.Where(d => d.Date > date);
-    //    }
-    //    else
-    //    {
-    //        items = items.Where(d => d.Date <= date);
-    //    }
+        if (future)
+        {
+            items = items.Where(d => d.Date > date);
+        }
+        else
+        {
+            items = items.Where(d => d.Date <= date);
+        }
 
-    //    var hoursCount = (await items.Select(h => new
-    //    {
-    //        h.Region,
-    //        h.Trust,
-    //        h.Hours,
-    //    }).ToListAsync()).Select(h => new
-    //    {
-    //        Label = h.Trust == Trust.Undefined ? RegionConverter.ToString(h.Region) : TrustConverter.ToString(h.Trust),
-    //        h.Hours,
-    //    })
-    //    .Where(c => !string.IsNullOrEmpty(c.Label))
-    //    .GroupBy(h => h.Label)
-    //    .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours)));
-    //    var lastUpdate = await GetLastModifiedAsync();
+        var hoursCount = (await items.Select(h => new
+        {
+            h.Region,
+            h.Trust,
+            h.Hours,
+        }).ToListAsync()).Select(h => new
+        {
+            Label = h.Trust == Trust.Undefined ? h.Region.ToString() : h.Trust.ToString(),
+            h.Hours,
+        })
+        .Where(c => !string.IsNullOrEmpty(c.Label))
+        .GroupBy(h => h.Label)
+        .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours)));
+        var lastUpdate = await GetLastModifiedAsync();
 
-    //    var result = new HoursCountResponse
-    //    {
-    //        LastUpdate = Timestamp.FromDateTimeOffset(lastUpdate),
-    //    };
+        var result = new HoursCount
+        {
+            LastUpdate = lastUpdate,
+        };
 
-    //    foreach (var kvp in hoursCount)
-    //    {
-    //        result.Counts.Add(kvp.Key, (uint)kvp.Value.TotalHours);
-    //    }
+        foreach (var kvp in hoursCount)
+        {
+            result.Counts.Add(kvp.Key, kvp.Value);
+        }
 
-    //    return result;
-    //}
+        return result;
+    }
 
     ///// <inheritdoc/>
     //public async Task DeleteAsync(int id)
@@ -89,26 +93,26 @@ public partial class HoursService(TimeProvider timeProvider, ApplicationDbContex
     //    }
     //}
 
-    ///// <inheritdoc/>
-    //public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
-    //{
-    //    var lastModified = await GetLastModifiedAsync();
+    /// <inheritdoc/>
+    public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
+    {
+        var lastModified = await GetLastModifiedAsync();
 
-    //    var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
 
-    //    return $"\"{Convert.ToBase64String(hash)}\"";
-    //}
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
 
-    ///// <inheritdoc/>
-    //public async Task<DateTimeOffset> GetLastModifiedAsync()
-    //{
-    //    if (await dataContext.Hours.AnyAsync())
-    //    {
-    //        return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
-    //    }
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        if (await dataContext.Hours.AnyAsync())
+        {
+            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
+        }
 
-    //    return DateTimeOffset.MinValue;
-    //}
+        return DateTimeOffset.MinValue;
+    }
 
     ///// <inheritdoc/>
     //public async Task<HoursTrendsResponse> GetTrendsAsync(Grpc.Region region, bool nhse)
@@ -196,6 +200,21 @@ public partial class HoursService(TimeProvider timeProvider, ApplicationDbContex
     public Task<int> GetNhseTargetAsync()
     {
         return Task.FromResult(4000);
+    }
+
+    public async Task<string> GetNhseTargetEtagAsync()
+    {
+        var lastModified = await GetNhseTargetLastModifiedAsync();
+        var date = new DateOnly(timeProvider.GetLocalNow().Year, timeProvider.GetLocalNow().Month, 1);
+        var marker = $"{date}-{lastModified}";
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(marker));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    public Task<DateTimeOffset> GetNhseTargetLastModifiedAsync()
+    {
+        return Task.FromResult(DateTimeOffset.UtcNow);
     }
 
     //private static Task<Averages> GetAverages(IQueryable<HoursEntry> hours, DateOnly startDate)
