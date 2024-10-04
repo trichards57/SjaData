@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using SJAData.Client.Converters
 @using SJAData.Client.Model
 @using SJAData.Client.Model.Hours
 @using SJAData.Client.Services.Interfaces
@@ -15,46 +16,120 @@
 <h2>Hours</h2>
 <h3>
     <a href="/">
-        <img src="/img/home.svg" /> Go Home
+        <img class="icon" src="/img/icons/house.svg" /> Go Home
     </a>
 </h3>
-<h3>
-    @Title
-</h3>
-<LinkBoxes Size="LinkBoxSize.Large">
-    <LinkBox Colour="LinkBoxColour.LightGray">
-        <div>Last Month</div>
-        <div>0</div>
-    </LinkBox>
-    <LinkBox Colour="LinkBoxColour.Black">
-        <div>This Month</div>
-        <div>0</div>
-        <div class="planned">0 Planned</div>
-    </LinkBox>
-    <LinkBox Colour="LinkBoxColour.DarkGreen">
-        <div>Year to Date</div>
-        <div>0</div>
-    </LinkBox>
-    <LinkBox Colour="LinkBoxColour.DarkGreen">
-        <div>Target</div>
-        <div>@nhseTarget</div>
-    </LinkBox>
-</LinkBoxes>
+<section>
+    <h3>
+        @Title
+    </h3>
+    <LinkBoxes Size="LinkBoxSize.Large">
+        <LinkBox Colour="LinkBoxColour.LightGray">
+            <div>Last Month</div>
+            <div>@CalculateSum(lastMonth.Counts, selectedAreas)</div>
+        </LinkBox>
+        <LinkBox Colour="LinkBoxColour.Black">
+            <div>This Month</div>
+            <div>@CalculateSum(thisMonth.Counts, selectedAreas)</div>
+            <div class="planned">@CalculateSum(thisMonthFuture.Counts, selectedAreas) Planned</div>
+        </LinkBox>
+        @if (!NhseSelected || RegionSelected)
+        {
+            <LinkBox Colour="LinkBoxColour.DarkGreen">
+                <div>Year to Date</div>
+                <div>@CalculateSum(yearToDate.Counts, selectedAreas)</div>
+            </LinkBox>
+        }
+        @if (NhseSelected && !RegionSelected)
+        {
+            <LinkBox Colour="LinkBoxColour.DarkGreen">
+                <div>Target</div>
+                <div>@nhseTarget</div>
+            </LinkBox>
+        }
+    </LinkBoxes>
+</section>
+<AreaSelector ActualAreas="@ActualAreas" SelectedAreasChanged="SelectedAreasChanged" />
+<footer>
+    <p>
+        Hours are all shown as people-hours, not crew-hours (and so are
+        double what we bill to NHSE).
+    </p>
+    <p className="last-update">
+        Data last updated : @yearToDate.LastUpdate.ToString("f")
+    </p>
+</footer>
 
 @code {
-    private string Title => "Volunteer Activity";
     private bool isLoading = true;
     private int nhseTarget = 0;
     private HoursCount lastMonth = default;
     private HoursCount thisMonth = default;
+    private HoursCount thisMonthFuture = default;
     private HoursCount yearToDate = default;
+    private HashSet<string> selectedAreas = new();
+    private List<string> actualNhseAreas = new();
+    private List<string> actualRegions = new();
+
+    private HashSet<string> ActualAreas => yearToDate.Counts?.Keys.ToHashSet() ?? new();
+    private bool NhseSelected => selectedAreas.Any(s => LabelConverters.IsTrust(s));
+    private bool RegionSelected => selectedAreas.Any(s => LabelConverters.IsRegion(s));
+    private string Title
+    {
+        get
+        {
+            if (NhseSelected && !RegionSelected)
+            {
+                return "Volunteer NHSE Contract Activity";
+            }
+            else if (!NhseSelected && RegionSelected)
+            {
+                return "Volunteer Events Activity";
+            }
+            return "Volunteer Activity";
+        }
+    }
 
     protected async override Task OnInitializedAsync()
     {
         isLoading = true;
-        nhseTarget = await HoursService.GetNhseTargetAsync();
-        lastMonth = await HoursService.CountAsync(new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1));
-        thisMonth = await HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today));
-        yearToDate = await HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), DateType.Year);
+
+        var nhseTargetTask = HoursService.GetNhseTargetAsync();
+        var lastMonthTask = HoursService.CountAsync(new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1));
+        var thisMonthTask = HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today));
+        var thisMonthFutureTask = HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), future: true);
+        var yearToDateTask = HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), DateType.Year);
+
+        await Task.WhenAll(nhseTargetTask, lastMonthTask, thisMonthTask, thisMonthFutureTask, yearToDateTask);
+
+        nhseTarget = nhseTargetTask.Result;
+        lastMonth = lastMonthTask.Result;
+        thisMonth = thisMonthTask.Result;
+        thisMonthFuture = thisMonthFutureTask.Result;
+        yearToDate = yearToDateTask.Result;
+
+        actualNhseAreas = yearToDate.Counts.Keys.Where(s => LabelConverters.IsTrust(s)).ToList();
+        actualRegions = yearToDate.Counts.Keys.Where(s => LabelConverters.IsRegion(s)).ToList();
+    }
+
+    private int CalculateSum(Dictionary<string, TimeSpan> counts, HashSet<string> areas)
+    {
+        if (counts == null)
+        {
+            return 0;
+        }
+
+        if (areas.Count == 0)
+        {
+            return (int)Math.Round(counts.Values.Sum(ts => ts.TotalHours));
+        }
+
+        return (int)Math.Round(counts.Where(kvp => areas.Contains(kvp.Key)).Sum(kvp => kvp.Value.TotalHours));
+    }
+
+    private void SelectedAreasChanged(HashSet<string> newAreas)
+    {
+        selectedAreas = newAreas;
+        StateHasChanged();
     }
 }

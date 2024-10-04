@@ -40,4 +40,8 @@
 	  <None Include="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\img\icons\" />
+	</ItemGroup>
+
 </Project>
