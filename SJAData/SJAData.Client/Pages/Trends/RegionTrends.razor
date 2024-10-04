@@ -1,0 +1,88 @@
+﻿@page "/trends/{Region}"
+
+@using SJAData.Client.Converters
+@using SJAData.Client.Data
+
+@inject NavigationManager NavigationManager
+
+<h2>Trends</h2>
+<section>
+    <h3>All Activity</h3>
+    <table className={styles['activity-trends']}>
+        <thead>
+            <tr>
+                <th>Area</th>
+                <th>12 Month Avg</th>
+                <th>6 Month Avg</th>
+                <th>3 Month Avg</th>
+                <th>Last 12 Months</th>
+            </tr>
+        </thead>
+        <tbody>
+            <TrendRow trends={trends} keyValue="national" label="National" />
+            <TrendRow trends={trends}
+                      keyValue="region"
+                      label={regionToString(region)} />
+            {districts.map((district) => (
+            <TrendRow key={district}
+                      trends={trends}
+                      keyValue={district}
+                      label={district} />
+            ))}
+        </tbody>
+    </table>
+    <h3>NHSE Activity</h3>
+    <table className={styles['activity-trends']}>
+        <thead>
+            <tr>
+                <th>Area</th>
+                <th>12 Month Avg</th>
+                <th>6 Month Avg</th>
+                <th>3 Month Avg</th>
+                <th>Last 12 Months</th>
+            </tr>
+        </thead>
+        <tbody>
+            <TrendRow trends={nhseTrends}
+                      keyValue="national"
+                      label="National" />
+            <TrendRow trends={nhseTrends}
+                      keyValue="region"
+                      label={regionToString(region)} />
+            {nhseDistricts.map((district) => (
+            <TrendRow key={district}
+                      trends={nhseTrends}
+                      keyValue={district}
+                      label={district} />
+            ))}
+        </tbody>
+    </table>
+</section>
+<footer>
+    <p>
+        Hours are all shown as people-hours, to two-significant figures. A
+        change of less than{' '}
+        {significantChange.toLocaleString(undefined, { style: 'percent' })} or{' '}
+        {significantHours} hours (whichever is greater) is considered
+        insignificant.
+    </p>
+    <p className="last-update">
+        Data up until {format(trends.thresholdDate, 'PP')}
+    </p>
+</footer>
+
+@code {
+    [Parameter]
+    public string Region { get; set; } = "";
+
+    private Region parsedRegion;
+
+    protected override void OnParametersSet()
+    {
+        if (!Enum.TryParse<Region>(Region, out parsedRegion))
+        {
+            NavigationManager.NavigateTo("/NotFound", replace: true);
+            return;
+        }
+    }
+}

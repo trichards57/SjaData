@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SJAData.Data;
 using SjaData.Server.Model.People;
 using SJAData.Services.Interfaces;
+using SJAData.Client.Data;
 
 namespace SJAData.Services;
 

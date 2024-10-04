@@ -4,6 +4,7 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using SJAData.Client.Data;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
 using SJAData.Data;
@@ -119,7 +120,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         var dataContext = await dataContextFactory.CreateDbContextAsync();
 
         var items = dataContext.Hours.AsNoTracking()
-            .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Data.Region.Undefined || i.Trust != Trust.Undefined));
+            .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Region.Undefined || i.Trust != Trust.Undefined));
 
         if (!date.HasValue)
         {
