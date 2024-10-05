@@ -50,7 +50,8 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()));
+    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>

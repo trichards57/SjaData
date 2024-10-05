@@ -2,13 +2,17 @@
 
 @using SJAData.Client.Converters
 @using SJAData.Client.Data
+@using SJAData.Client.Services.Interfaces
 
+@rendermode InteractiveAuto
+
+@inject IHoursService HoursService
 @inject NavigationManager NavigationManager
 
 <h2>Trends</h2>
 <section>
     <h3>All Activity</h3>
-    <table className={styles['activity-trends']}>
+    <table class="activity-trends">
         <thead>
             <tr>
                 <th>Area</th>
@@ -19,20 +23,16 @@
             </tr>
         </thead>
         <tbody>
-            <TrendRow trends={trends} keyValue="national" label="National" />
-            <TrendRow trends={trends}
-                      keyValue="region"
-                      label={regionToString(region)} />
-            {districts.map((district) => (
-            <TrendRow key={district}
-                      trends={trends}
-                      keyValue={district}
-                      label={district} />
-            ))}
+            <TrendRow Trends="@trends" KeyValue="national" Label="National" />
+            <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+            @foreach (var district in districts)
+            {
+                <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+            }
         </tbody>
     </table>
     <h3>NHSE Activity</h3>
-    <table className={styles['activity-trends']}>
+    <table class="activity-trends">
         <thead>
             <tr>
                 <th>Area</th>
@@ -43,46 +43,56 @@
             </tr>
         </thead>
         <tbody>
-            <TrendRow trends={nhseTrends}
-                      keyValue="national"
-                      label="National" />
-            <TrendRow trends={nhseTrends}
-                      keyValue="region"
-                      label={regionToString(region)} />
-            {nhseDistricts.map((district) => (
-            <TrendRow key={district}
-                      trends={nhseTrends}
-                      keyValue={district}
-                      label={district} />
-            ))}
+            <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
+            <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+            @foreach (var district in nhseDistricts)
+            {
+                <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+            }
         </tbody>
     </table>
 </section>
 <footer>
     <p>
         Hours are all shown as people-hours, to two-significant figures. A
-        change of less than{' '}
-        {significantChange.toLocaleString(undefined, { style: 'percent' })} or{' '}
-        {significantHours} hours (whichever is greater) is considered
+        change of less than @TrendArrow.SignificantChange.ToString("P0") or
+        @TrendArrow.SignificantHours hours (whichever is greater) is considered
         insignificant.
     </p>
-    <p className="last-update">
-        Data up until {format(trends.thresholdDate, 'PP')}
+    <p class="last-update">
+        Data up until @trends.ReportDate.ToLongDateString()
     </p>
 </footer>
 
 @code {
+    private Model.Trends.Trends trends = default;
+    private Model.Trends.Trends nhseTrends = default;
+    private Region parsedRegion;
+    private IEnumerable<string> districts = new List<string>();
+    private IEnumerable<string> nhseDistricts = new List<string>();
+
     [Parameter]
     public string Region { get; set; } = "";
 
-    private Region parsedRegion;
-
-    protected override void OnParametersSet()
+    protected override async void OnParametersSet()
     {
         if (!Enum.TryParse<Region>(Region, out parsedRegion))
         {
             NavigationManager.NavigateTo("/NotFound", replace: true);
             return;
         }
+
+        var trendsTask = HoursService.GetTrendsAsync(parsedRegion, false);
+        var nhseTrendsTask = HoursService.GetTrendsAsync(parsedRegion, true);
+
+        await Task.WhenAll(trendsTask, nhseTrendsTask);
+
+        trends = trendsTask.Result;
+        nhseTrends = nhseTrendsTask.Result;
+
+        districts = trends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+        nhseDistricts = nhseTrends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+
+        StateHasChanged();
     }
 }

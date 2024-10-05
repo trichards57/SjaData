@@ -7,8 +7,10 @@ using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using SJAData.Client.Data;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
+using SJAData.Client.Model.Trends;
 using SJAData.Controllers.Filters;
 using SJAData.Model.Hours;
 using SjaData.Server.Model;
@@ -103,5 +105,37 @@ public class HoursController(ILocalHoursService hoursService) : ControllerBase
         {
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
+    }
+
+    [HttpGet("trends")]
+    [ProducesResponseType(typeof(Trends), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [Authorize(Policy = "Lead")]
+    [RevalidateCache]
+    public async Task<IActionResult> GetTrends([FromHeader(Name = "If-None-Match")] string? etag, Region region, bool nhse = false)
+    {
+        if (!Enum.IsDefined(region) || region == Region.Undefined)
+        {
+            return BadRequest("The region was not recognised.");
+        }
+
+        var actualEtagValue = await hoursService.GetTrendsEtagAsync(region, nhse);
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+
+        var lastUpdate = await hoursService.GetLastModifiedAsync();
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastUpdate;
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        var trends = await hoursService.GetTrendsAsync(region, nhse);
+
+        return Ok(trends);
     }
 }

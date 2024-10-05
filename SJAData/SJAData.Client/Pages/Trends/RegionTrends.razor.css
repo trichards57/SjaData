@@ -1,0 +1,14 @@
+﻿.activity-trends tbody td div {
+    width: 100%;
+    display: inline-flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.activity-trends thead th {
+    font-family: var(--sja-header-font);
+    font-weight: normal;
+    font-size: 1.2rem;
+    padding: 0 5px;
+    text-align: left;
+}

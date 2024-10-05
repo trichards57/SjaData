@@ -1,4 +1,5 @@
-﻿using SJAData.Client.Model;
+﻿using SJAData.Client.Data;
+using SJAData.Client.Model;
 using SJAData.Client.Services.Interfaces;
 using SJAData.Model.Hours;
 
@@ -33,4 +34,14 @@ public interface ILocalHoursService : IHoursService
     Task<DateTimeOffset> GetNhseTargetLastModifiedAsync();
 
     Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId);
+
+    /// <summary>
+    /// Calculates the ETag associated with an activity report.
+    /// </summary>
+    /// <param name="region">The region to query for.</param>
+    /// <param name="nhse">Indicates that only NSHE data should be returned.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the ETag.
+    /// </returns>
+    Task<string> GetTrendsEtagAsync(Region region, bool nhse);
 }

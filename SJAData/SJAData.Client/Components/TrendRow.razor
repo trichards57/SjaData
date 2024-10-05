@@ -1,0 +1,63 @@
+﻿@using SJAData.Client.Model.Trends
+
+@if (Trends.TwelveMonthAverage != null)
+{
+    <tr>
+        <td class="area-label">@Label</td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.TwelveMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.TwelveMonthAverage[KeyValue]" PreviousValue="@Trends.TwelveMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.SixMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.SixMonthAverage[KeyValue]" PreviousValue="@Trends.SixMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.ThreeMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.ThreeMonthAverage[KeyValue]" PreviousValue="@Trends.ThreeMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td>
+            @* <ResponsiveContainer width={100}
+        height={40}
+        className={styles['line-chart']}>
+        <LineChart width={300}
+        height={100}
+        data={trends.hours[keyValue].map((h) =>
+        ({
+        hours: h,
+        }))}
+        >
+        <Line dataKey="hours" stroke="black" strokeWidth={2} dot={false} />
+        </LineChart>
+        </ResponsiveContainer> *@
+        </td>
+    </tr>
+}
+
+@code {
+    [Parameter]
+    public Trends Trends { get; set; }
+
+    [Parameter]
+    public string KeyValue { get; set; }
+
+    [Parameter]
+    public string Label { get; set; }
+
+    private int Round(double value)
+    {
+        if (value == 0)
+        {
+            return 0;
+        }
+
+        double scale = Math.Pow(10, Math.Floor(Math.Log10(Math.Abs(value))) + 1);
+        return (int)(Math.Round(value / scale, 2) * scale);
+    }
+}

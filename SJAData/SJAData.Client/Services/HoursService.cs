@@ -4,10 +4,13 @@
 // </copyright>
 
 using Microsoft.AspNetCore.WebUtilities;
+using SJAData.Client.Data;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
+using SJAData.Client.Model.Trends;
 using SJAData.Client.Services.Interfaces;
 using System.Net.Http.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SJAData.Client.Services;
 
@@ -51,10 +54,18 @@ internal class HoursService(HttpClient httpClient) : IHoursService
         return response.Target;
     }
 
-    //public Task<HoursTrendsResponse> GetTrendsAsync(Region region, bool nhse)
-    //{
-    //    throw new NotImplementedException();
-    //}
+    public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
+    {
+        var uri = QueryHelpers.AddQueryString(
+            "/api/hours/trends",
+            new Dictionary<string, string?>()
+            {
+                { "region", region.ToString() },
+                { "nhse", nhse.ToString() },
+            });
+
+        return await httpClient.GetFromJsonAsync<Trends>(uri);
+    }
 
     //public Task<string> GetTrendsEtagAsync(Region region, bool nhse)
     //{

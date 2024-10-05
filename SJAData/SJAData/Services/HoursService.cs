@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using SJAData.Client.Data;
 using SJAData.Client.Model;
 using SJAData.Client.Model.Hours;
+using SJAData.Client.Model.Trends;
 using SJAData.Data;
+using SJAData.Helpers;
 using SJAData.Model.Hours;
 using SJAData.Services.Interfaces;
 using System.Security.Cryptography;
@@ -218,6 +220,119 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         return Task.FromResult(DateTimeOffset.UtcNow);
     }
 
+    public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
+    {
+        var dataContext = await dataContextFactory.CreateDbContextAsync();
+
+        var districts = await dataContext.People.Where(p => p.Region == region).Select(p => p.District).Distinct().ToListAsync();
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var reportDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+
+        IQueryable<HoursEntry> hours = dataContext.Hours.AsNoTracking();
+
+        if (nhse)
+        {
+            hours = hours.Where(h => h.Trust != Trust.Undefined);
+        }
+        else
+        {
+            hours = hours.Where(h => h.Region != Region.Undefined || h.Trust != Trust.Undefined);
+        }
+
+        var nationalAverages = await GetAverages(hours, reportDate);
+        var nationalAveragesMinusOne = await GetAverages(hours, reportDate.AddMonths(-1));
+        var regionAverages = await GetAverages(hours.Where(h => h.Person.Region == region), reportDate);
+        var regionAveragesMinusOne = await GetAverages(hours.Where(h => h.Person.Region == region), reportDate.AddMonths(-1));
+
+        var twelveMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.TwelveMonthAverage },
+            { "region", regionAverages.TwelveMonthAverage },
+        };
+        var twelveMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.TwelveMonthAverage },
+            { "region", regionAveragesMinusOne.TwelveMonthAverage },
+        };
+        var sixMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.SixMonthAverage },
+            { "region", regionAverages.SixMonthAverage },
+        };
+        var sixMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.SixMonthAverage },
+            { "region", regionAveragesMinusOne.SixMonthAverage },
+        };
+        var threeMonthAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAverages.ThreeMonthAverage },
+            { "region", regionAverages.ThreeMonthAverage },
+        };
+        var threeMonthMinusOneAverages = new Dictionary<string, double>
+        {
+            { "national", nationalAveragesMinusOne.ThreeMonthAverage },
+            { "region", regionAveragesMinusOne.ThreeMonthAverage },
+        };
+        var hoursResult = new Dictionary<string, double[]>
+        {
+            { "national", await GetOverTime(hours, reportDate) },
+            { "region", await GetOverTime(hours.Where(h => h.Person.Region == region), reportDate) },
+        };
+
+        foreach (var d in districts)
+        {
+            try
+            {
+                var districtAverages = await GetAverages(hours.Where(h => h.Person.District == d), reportDate);
+                var districtAverageMinusOne = await GetAverages(hours.Where(h => h.Person.District == d), reportDate.AddMonths(-1));
+
+                twelveMonthAverages[d] = districtAverages.TwelveMonthAverage;
+                twelveMonthMinusOneAverages[d] = districtAverageMinusOne.TwelveMonthAverage;
+                sixMonthAverages[d] = districtAverages.SixMonthAverage;
+                sixMonthMinusOneAverages[d] = districtAverageMinusOne.SixMonthAverage;
+                threeMonthAverages[d] = districtAverages.ThreeMonthAverage;
+                threeMonthMinusOneAverages[d] = districtAverageMinusOne.ThreeMonthAverage;
+                hoursResult[d] = await GetOverTime(hours.Where(h => h.Person.District == d), reportDate);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing district {District}", d);
+            }
+        }
+
+        var trends = new Trends()
+        {
+            ReportDate = reportDate,
+            TwelveMonthAverage = twelveMonthAverages,
+            TwelveMonthMinusOneAverage = twelveMonthMinusOneAverages,
+            SixMonthAverage = sixMonthAverages,
+            SixMonthMinusOneAverage = sixMonthMinusOneAverages,
+            ThreeMonthAverage = threeMonthAverages,
+            ThreeMonthMinusOneAverage = threeMonthMinusOneAverages,
+            Hours = hoursResult,
+        };
+
+        return trends;
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetTrendsEtagAsync(Region region, bool nhse)
+    {
+        ExceptionHelpers.ThrowIfUndefined(region);
+
+        var lastModified = await GetLastModifiedAsync();
+
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().Date);
+        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+
+        var marker = $"{region}-{nhse}-{startDate}-{lastModified}";
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(marker));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
     private static Trust CalculateTrust(HoursFileLine hour) => hour.CrewType switch
     {
         "NHS E EEAST" => Trust.EastOfEnglandAmbulanceService,
@@ -234,4 +349,57 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         "YAS" => Trust.YorkshireAmbulanceService,
         _ => Trust.Undefined,
     };
+
+    private static Task<Averages> GetAverages(IQueryable<HoursEntry> hours, DateOnly startDate)
+    {
+        var endDate = startDate.AddMonths(-12);
+
+        return hours
+            .Where(h => h.DeletedAt == null && h.Person.IsVolunteer)
+            .Where(h => h.Date <= startDate && h.Date >= endDate)
+            .GroupBy(h => 1)
+            .Select(h => new Averages
+            {
+                TwelveMonthAverage = h.Select(s => s.Hours).Sum() / 12,
+                SixMonthAverage = h.Where(i => i.Date >= startDate.AddMonths(-6)).Select(s => s.Hours).Sum() / 6,
+                ThreeMonthAverage = h.Where(i => i.Date >= startDate.AddMonths(-3)).Select(s => s.Hours).Sum(s => s) / 3,
+            }).FirstAsync();
+    }
+
+    private static async Task<double[]> GetOverTime(IQueryable<HoursEntry> hours, DateOnly startDate)
+    {
+        var endDate = startDate.AddMonths(-12);
+
+        // Create an array to hold 12 months of data
+        double[] monthlyHours = new double[12];
+
+        // Fetch the relevant data, grouped by year and month
+        var details = await hours
+            .Where(h => h.DeletedAt == null && h.Person.IsVolunteer)
+            .Where(h => h.Date <= startDate && h.Date >= endDate)
+            .GroupBy(h => new { h.Date.Year, h.Date.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) })
+            .ToListAsync();
+
+        // Iterate over the details and map them to the correct months
+        foreach (var detail in details)
+        {
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
+            if (index >= 0 && index < 12)
+            {
+                monthlyHours[index] = detail.HoursSum;
+            }
+        }
+
+        return monthlyHours;
+    }
+
+    private readonly record struct Averages
+    {
+        public double TwelveMonthAverage { get; init; }
+
+        public double SixMonthAverage { get; init; }
+
+        public double ThreeMonthAverage { get; init; }
+    }
 }

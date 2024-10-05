@@ -1,0 +1,41 @@
+﻿@if (HoursChange > SignificantHours && PercentChange > SignificantChange)
+{
+    <i class="drop" title="@GetChangeString(-HoursChange, -PercentChange)">
+        <img class="icon" src="/img/icons/arrow-down.svg" />
+    </i>
+}
+else if (HoursChange < SignificantHours && PercentChange < -SignificantChange)
+{
+    <i class="increase" title="@GetChangeString(-HoursChange, -PercentChange)">
+        <img class="icon" src="/img/icons/arrow-up.svg" />
+    </i>
+}
+else
+{
+    <i class="no-change" title="@GetChangeString(-HoursChange, -PercentChange)">
+        <img class="icon" src="/img/icons/equals.svg" />
+    </i>
+}
+
+@code {
+    public const double SignificantChange = 0.05; // 5%
+    public const int SignificantHours = 24;
+
+    [Parameter]
+    public double Value { get; set; }
+
+    [Parameter]
+    public double PreviousValue { get; set; }
+
+    private double HoursChange => PreviousValue - Value;
+    private double PercentChange => HoursChange / PreviousValue;
+
+    private string GetChangeString(double hours, double percent)
+    {
+        if (Math.Abs(hours) > SignificantHours)
+        {
+            return percent.ToString("P1");
+        }
+        return $"{Math.Round(hours)} hours";
+    }
+}
