@@ -15,6 +15,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 builder.Services.AddTransient<IHoursService, HoursService>();
+builder.Services.AddTransient<IPersonService, PersonService>();
 builder.Services.AddTransient(s =>
     new HttpClient() { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }
 );

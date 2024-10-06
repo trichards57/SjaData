@@ -4,31 +4,27 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using SJAData.Client.Data;
+using SJAData.Client.Model.People;
 using SJAData.Data;
 using SjaData.Server.Model.People;
 using SJAData.Services.Interfaces;
-using SJAData.Client.Data;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SJAData.Services;
 
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(ApplicationDbContext context) : ILocalPersonService
+public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFactory) : ILocalPersonService
 {
-    private readonly ApplicationDbContext context = context;
-
-    /// <inheritdoc/>
-    public async Task<DateTimeOffset> GetLastModifiedAsync()
-    {
-        var hoursLastModified = await context.Hours.Select(s => s.UpdatedAt).DefaultIfEmpty(DateTimeOffset.MinValue).MaxAsync();
-        var peopleLastModified = await context.People.Select(s => s.UpdatedAt).DefaultIfEmpty(DateTimeOffset.MinValue).MaxAsync();
-
-        return DateTimeOffset.Compare(hoursLastModified, peopleLastModified) > 0 ? hoursLastModified : peopleLastModified;
-    }
+    private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
 
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
     {
+        var context = await dataContextFactory.CreateDbContextAsync();
+
         var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
         {
             var name = p.Name.Split(',');
@@ -37,7 +33,7 @@ public class PersonService(ApplicationDbContext context) : ILocalPersonService
                 Id = p.MyDataNumber,
                 FirstName = name[1].Trim(),
                 LastName = name[0].Trim(),
-                District = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation.Substring(10) : p.DistrictStation).Trim(),
+                District = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation[10..] : p.DistrictStation).Trim(),
                 Role = p.JobRoleTitle,
                 Region = CalculateRegion(p),
                 IsVolunteer = p.IsVolunteer,
@@ -112,6 +108,63 @@ public class PersonService(ApplicationDbContext context) : ILocalPersonService
         return await context.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset?> GetLastModifiedAsync()
+    {
+        var context = await dataContextFactory.CreateDbContextAsync();
+
+        var dataContext = await dataContextFactory.CreateDbContextAsync();
+
+        if (await dataContext.Hours.AnyAsync())
+        {
+            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
+        }
+
+        var hoursLastModified = await context.Hours.AnyAsync() ? await context.Hours.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
+        var peopleLastModified = await context.People.AnyAsync() ? await context.People.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
+
+        return DateTimeOffset.Compare(hoursLastModified, peopleLastModified) > 0 ? hoursLastModified : peopleLastModified;
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region)
+    {
+        var context = await dataContextFactory.CreateDbContextAsync();
+
+        var people = context.People
+            .AsNoTracking()
+            .Where(p => p.Region == region && p.DeletedAt == null)
+            .Include(p => p.Hours)
+            .Select(p => new
+            {
+                Name = $"{p.FirstName} {p.LastName}",
+                Hours = p.Hours.Where(h => h.DeletedAt == null && h.Date <= date && Math.Abs(EF.Functions.DateDiffMonth(date, h.Date)) < 13).ToList(),
+            }).AsAsyncEnumerable();
+
+        await foreach (var p in people)
+        {
+            var report = new PersonReport
+            {
+                Name = p.Name,
+                HoursThisYear = (uint)Math.Round(p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum()),
+                MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
+                Hours = GetOverTime(p.Hours),
+            };
+
+            yield return report;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{date}-{region}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
     private static Region CalculateRegion(PersonFileLine person)
     {
         return person.DepartmentRegion.ToLowerInvariant() switch
@@ -129,69 +182,30 @@ public class PersonService(ApplicationDbContext context) : ILocalPersonService
         };
     }
 
-    /// <inheritdoc/>
-    //public Task<PeopleReportsResponse> GetPeopleReportsAsync(DateOnly date, Grpc.Region region)
-    //{
-    //    var people = context.People
-    //        .AsNoTracking()
-    //        .Where(p => p.Region == (Data.Region)region && p.DeletedAt == null)
-    //        .Include(p => p.Hours)
-    //        .Select(p => new
-    //        {
-    //            Name = $"{p.FirstName} {p.LastName}",
-    //            Hours = p.Hours.Where(h => h.DeletedAt == null && h.Date <= date && Math.Abs(EF.Functions.DateDiffMonth(date, h.Date)) < 13).ToList(),
-    //        });
+    private static double[] GetOverTime(IEnumerable<HoursEntry> hours)
+    {
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var endDate = startDate.AddMonths(-12);
 
-    //    var result = new PeopleReportsResponse();
+        // Create an array to hold 12 months of data
+        double[] monthlyHours = new double[12];
 
-    //    foreach (var p in people)
-    //    {
-    //        var report = new PersonReport
-    //        {
-    //            Name = p.Name,
-    //            HoursThisYear = (uint)Math.Round(p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum()),
-    //            MonthsSinceLastActive = (uint)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
-    //        };
-    //        report.Hours.AddRange(GetOverTime(p.Hours));
-    //    }
+        // Fetch the relevant data, grouped by year and month
+        var details = hours
+            .Where(h => h.Date <= startDate && h.Date >= endDate)
+            .GroupBy(h => new { h.Date.Year, h.Date.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });
 
-    //    return Task.FromResult(result);
-    //}
+        // Iterate over the details and map them to the correct months
+        foreach (var detail in details)
+        {
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
+            if (index >= 0 && index < 12)
+            {
+                monthlyHours[index] = detail.HoursSum;
+            }
+        }
 
-    /// <inheritdoc/>
-    //public async Task<string> GetPeopleReportsEtagAsync(DateOnly date, Grpc.Region region)
-    //{
-    //    var lastModified = await GetLastModifiedAsync();
-
-    //    var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{date}-{region}-{lastModified}"));
-
-    //    return $"\"{Convert.ToBase64String(hash)}\"";
-    //}
-
-    //private static uint[] GetOverTime(IEnumerable<HoursEntry> hours)
-    //{
-    //    var startDate = DateOnly.FromDateTime(DateTime.Now);
-    //    var endDate = startDate.AddMonths(-12);
-
-    //    // Create an array to hold 12 months of data
-    //    uint[] monthlyHours = new uint[12];
-
-    //    // Fetch the relevant data, grouped by year and month
-    //    var details = hours
-    //        .Where(h => h.Date <= startDate && h.Date >= endDate)
-    //        .GroupBy(h => new { h.Date.Year, h.Date.Month })
-    //        .Select(g => new { g.Key.Year, g.Key.Month, HoursSum = g.Sum(h => h.Hours) });
-
-    //    // Iterate over the details and map them to the correct months
-    //    foreach (var detail in details)
-    //    {
-    //        var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
-    //        if (index >= 0 && index < 12)
-    //        {
-    //            monthlyHours[index] = (uint)Math.Round(detail.HoursSum);
-    //        }
-    //    }
-
-    //    return monthlyHours;
-    //}
+        return monthlyHours;
+    }
 }

@@ -10,7 +10,6 @@ using SJAData.Client.Model.Hours;
 using SJAData.Client.Model.Trends;
 using SJAData.Client.Services.Interfaces;
 using System.Net.Http.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SJAData.Client.Services;
 
