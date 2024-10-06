@@ -9,7 +9,15 @@
 @inject IHoursService HoursService
 @inject NavigationManager NavigationManager
 
-<h2>Trends</h2>
+<PageTitle>SJA In Numbers - Trends - @LabelConverters.LabelToDisplay(Region)</PageTitle>
+<h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
+
+<h3>
+    <a href="/">
+        <img class="icon" src="/img/icons/backward.svg" /> Go Back
+    </a>
+</h3>
+
 <section>
     <h3>All Activity</h3>
     <table class="activity-trends">
