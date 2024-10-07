@@ -27,10 +27,11 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
-builder.Services.AddScoped<IHoursService, HoursService>();
+builder.Services.AddScoped<IHoursService>(c => c.GetRequiredService<ILocalHoursService>());
 builder.Services.AddScoped<ILocalHoursService, HoursService>();
-builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IPersonService>(c => c.GetRequiredService<ILocalPersonService>());
 builder.Services.AddScoped<ILocalPersonService, PersonService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthentication(options =>
     {
