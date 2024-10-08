@@ -5,10 +5,10 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IHttpContextAccessor ContextAccessor
 
-<PageTitle>Access denied</PageTitle>
+<PageTitle>SJA in Numbers - Access Denied</PageTitle>
 
 <header>
-    <h2 class="text-danger">Access denied</h2>
+    <h2>Access Denied</h2>
     @if (isApproved)
     {
         <p>You do not have access to this item.</p>
@@ -18,9 +18,6 @@
         <p>Your account has not been approved yet. Please contact the administrator.</p>
     }
 </header>
-
-
-
 
 @code {
     private bool isApproved;
