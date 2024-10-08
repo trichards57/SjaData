@@ -5,26 +5,28 @@
 
 <PageTitle>SJA In Numbers - Home</PageTitle>
 
-<h2>Home</h2>
+<GeneralErrorHandler>
+    <h2>Home</h2>
 
-<LinkBoxes Size="LinkBoxSize.Small">
-    <LinkBox IsLink="true" Link="/hours">
-        Hours
-    </LinkBox>
-    <AuthorizeView Roles="Lead,Admin">
-        <LinkBox IsLink="true" Link="/trends">
-            Trends
+    <LinkBoxes Size="LinkBoxSize.Small">
+        <LinkBox IsLink="true" Link="/hours">
+            Hours
         </LinkBox>
-        <LinkBox IsLink="true" Link="/people">
-            People
-        </LinkBox>
-    </AuthorizeView>
-    <AuthorizeView Roles="Admin">
-        <LinkBox Colour="LinkBoxColour.DarkGreen" IsLink="true" Link="/update">
-            Update
-        </LinkBox>
-        <LinkBox Colour="LinkBoxColour.Yellow" IsLink="true" Link="/access">
-            Access
-        </LinkBox>
-    </AuthorizeView>
-</LinkBoxes>
+        <AuthorizeView Roles="Lead,Admin">
+            <LinkBox IsLink="true" Link="/trends">
+                Trends
+            </LinkBox>
+            <LinkBox IsLink="true" Link="/people">
+                People
+            </LinkBox>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <LinkBox Colour="LinkBoxColour.DarkGreen" IsLink="true" Link="/update">
+                Update
+            </LinkBox>
+            <LinkBox Colour="LinkBoxColour.Yellow" IsLink="true" Link="/access">
+                Access
+            </LinkBox>
+        </AuthorizeView>
+    </LinkBoxes>
+</GeneralErrorHandler>

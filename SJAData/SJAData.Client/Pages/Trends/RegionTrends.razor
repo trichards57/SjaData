@@ -10,67 +10,70 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>SJA In Numbers - Trends - @LabelConverters.LabelToDisplay(Region)</PageTitle>
-<h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
 
-<h3>
-    <a href="/trends">
-        <img class="icon" src="/img/icons/backward.svg" /> Go Back
-    </a>
-</h3>
+<GeneralErrorHandler>
+    <h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
 
-<section>
-    <h3>All Activity</h3>
-    <table class="activity-trends">
-        <thead>
-            <tr>
-                <th>Area</th>
-                <th>12 Month Avg</th>
-                <th>6 Month Avg</th>
-                <th>3 Month Avg</th>
-                <th>Last 12 Months</th>
-            </tr>
-        </thead>
-        <tbody>
-            <TrendRow Trends="@trends" KeyValue="national" Label="National" />
-            <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-            @foreach (var district in districts)
-            {
-                <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
-            }
-        </tbody>
-    </table>
-    <h3>NHSE Activity</h3>
-    <table class="activity-trends">
-        <thead>
-            <tr>
-                <th>Area</th>
-                <th>12 Month Avg</th>
-                <th>6 Month Avg</th>
-                <th>3 Month Avg</th>
-                <th>Last 12 Months</th>
-            </tr>
-        </thead>
-        <tbody>
-            <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
-            <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-            @foreach (var district in nhseDistricts)
-            {
-                <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
-            }
-        </tbody>
-    </table>
-</section>
-<footer>
-    <p>
-        Hours are all shown as people-hours, to two-significant figures. A
-        change of less than @TrendArrow.SignificantChange.ToString("P0") or
-        @TrendArrow.SignificantHours hours (whichever is greater) is considered
-        insignificant.
-    </p>
-    <p class="last-update">
-        Data up until @trends.ReportDate.ToLongDateString()
-    </p>
-</footer>
+    <h3>
+        <a href="/trends">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
+
+    <section>
+        <h3>All Activity</h3>
+        <table class="activity-trends">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>12 Month Avg</th>
+                    <th>6 Month Avg</th>
+                    <th>3 Month Avg</th>
+                    <th>Last 12 Months</th>
+                </tr>
+            </thead>
+            <tbody>
+                <TrendRow Trends="@trends" KeyValue="national" Label="National" />
+                <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                @foreach (var district in districts)
+                {
+                    <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+                }
+            </tbody>
+        </table>
+        <h3>NHSE Activity</h3>
+        <table class="activity-trends">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>12 Month Avg</th>
+                    <th>6 Month Avg</th>
+                    <th>3 Month Avg</th>
+                    <th>Last 12 Months</th>
+                </tr>
+            </thead>
+            <tbody>
+                <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
+                <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                @foreach (var district in nhseDistricts)
+                {
+                    <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+                }
+            </tbody>
+        </table>
+    </section>
+    <footer>
+        <p>
+            Hours are all shown as people-hours, to two-significant figures. A
+            change of less than @TrendArrow.SignificantChange.ToString("P0") or
+            @TrendArrow.SignificantHours hours (whichever is greater) is considered
+            insignificant.
+        </p>
+        <p class="last-update">
+            Data up until @trends.ReportDate.ToLongDateString()
+        </p>
+    </footer>
+</GeneralErrorHandler>
 
 @code {
     private Model.Trends.Trends trends = default;

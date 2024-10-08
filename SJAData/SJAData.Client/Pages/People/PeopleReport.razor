@@ -11,18 +11,21 @@
 @inject IPersonService PersonService
 
 <PageTitle>SJA In Numbers - People - @LabelConverters.LabelToDisplay(Region)</PageTitle>
-<h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
 
-<h3>
-    <a href="/people">
-        <img class="icon" src="/img/icons/backward.svg" /> Go Back
-    </a>
-</h3>
+<GeneralErrorHandler>
+    <h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
 
-<PersonGroup Title="@ActivePeopleTitle" Reports="@activePeople" />
-<PersonGroup Title="@DormantPeopleTitle" Reports="@dormantPeople" />
-<PersonGroup Title="@InactivePeopleTitle" Reports="@inactivePeople" />
-<PersonGroup Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+    <h3>
+        <a href="/people">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
+
+    <PersonGroup Title="@ActivePeopleTitle" Reports="@activePeople" />
+    <PersonGroup Title="@DormantPeopleTitle" Reports="@dormantPeople" />
+    <PersonGroup Title="@InactivePeopleTitle" Reports="@inactivePeople" />
+    <PersonGroup Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+</GeneralErrorHandler>
 
 @code {
     private Region parsedRegion;
