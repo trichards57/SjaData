@@ -15,7 +15,7 @@ internal class HoursFileLineMap : ClassMap<HoursFileLine>
     public HoursFileLineMap()
     {
         Map(h => h.Location).Name("Location");
-        Map(h => h.ShiftDate).Name("Shift Date");
+        Map(h => h.ShiftDate).Name("Shift Date").TypeConverter<DateOnlyConverter>();
         Map(h => h.Shift).Name("Shift");
         Map(h => h.Post).Name("Post");
         Map(h => h.Name).Name("Name");
@@ -27,6 +27,24 @@ internal class HoursFileLineMap : ClassMap<HoursFileLine>
         Map(h => h.ShiftLength).Name("Shift Length").TypeConverter<TimeSpanConverter>();
         Map(h => h.CrewName).Name("Crew Name");
         Map(h => h.Remarks).Name("Remarks");
+    }
+
+    private sealed class DateOnlyConverter : DefaultTypeConverter
+    {
+        public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
+        {
+            if (text == null)
+            {
+                return DateOnly.MinValue;
+            }
+
+            if (text.Equals("24:00"))
+            {
+                return TimeSpan.FromDays(1);
+            }
+
+            return DateOnly.Parse(text, CultureInfo.GetCultureInfo("en-GB"));
+        }
     }
 
     private sealed class TimeSpanConverter : DefaultTypeConverter
