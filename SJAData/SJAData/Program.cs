@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SJAData.Authorization;
 using SJAData.Client.Services.Interfaces;
 using SJAData.Components;
@@ -66,6 +67,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddControllers();
+
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddApplicationInsightsTelemetry(new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions
+    {
+        ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+    });
+
+    builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+}
 
 var app = builder.Build();
 

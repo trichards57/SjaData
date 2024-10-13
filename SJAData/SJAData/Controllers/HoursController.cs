@@ -22,8 +22,9 @@ namespace SJAData.Controllers;
 
 [ApiController]
 [Route("api/hours")]
-public class HoursController(ILocalHoursService hoursService) : ControllerBase
+public class HoursController(ILocalHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
+    private readonly ILogger logger = logger;
     private readonly ILocalHoursService hoursService = hoursService;
 
     [HttpGet("target")]
@@ -101,9 +102,18 @@ public class HoursController(ILocalHoursService hoursService) : ControllerBase
 
             return Ok(new CountResponse { Count = updatedCount });
         }
-        catch (CsvHelperException)
+        catch (CsvHelperException ex)
         {
-            return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
+            logger.LogError(ex, "There was an error reading the CSV file.");
+
+            var problemDetails = new ProblemDetails()
+            {
+                Detail = ex.Message,
+                Title = "The uploaded CSV data was invalid.",
+                Status = StatusCodes.Status400BadRequest,
+            };
+
+            return BadRequest(problemDetails);
         }
     }
 
