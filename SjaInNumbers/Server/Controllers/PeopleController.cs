@@ -14,9 +14,9 @@ namespace SjaInNumbers.Server.Controllers;
 
 [ApiController]
 [Route("api/people")]
-public class PeopleController(ILocalPersonService personService) : ControllerBase
+public class PeopleController(IPersonService personService) : ControllerBase
 {
-    private readonly ILocalPersonService personService = personService;
+    private readonly IPersonService personService = personService;
 
     [HttpPost]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

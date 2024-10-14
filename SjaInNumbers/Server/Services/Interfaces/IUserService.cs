@@ -1,12 +1,12 @@
 ﻿using SjaInNumbers.Shared.Model.Users;
 
-namespace SjaInNumbers.Client.Services.Interfaces;
+namespace SjaInNumbers.Server.Services.Interfaces;
 
-internal interface IUserService
+public interface IUserService
 {
     Task<bool> ApproveUserAsync(string userId);
     Task DeleteUserAsync(string userId);
     IAsyncEnumerable<UserDetails> GetAll();
-    Task<UserDetails> GetCurrentUserAsync(string userId);
+    Task<UserDetails?> GetUserAsync(string userId);
     Task<bool> UpdateUserAsync(UserRoleChange userDetails);
 }

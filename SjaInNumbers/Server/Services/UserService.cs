@@ -5,8 +5,8 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Server.Data;
+using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Users;
 
 namespace SjaInNumbers.Server.Services;
@@ -69,6 +69,26 @@ public class UserService(IDbContextFactory<ApplicationDbContext> contextFactory,
                 IsApproved = item.IsApproved,
             };
         }
+    }
+
+    public async Task<UserDetails?> GetUserAsync(string userId)
+    {
+        using var context = await contextFactory.CreateDbContextAsync();
+
+        var user = await context.Users.FindAsync(userId);
+
+        if (user == null || user.Email == null)
+        {
+            return null;
+        }
+
+        return new UserDetails
+        {
+            Email = user.Email,
+            Id = user.Id,
+            Roles = await userManager.GetRolesAsync(user),
+            IsApproved = user.IsApproved,
+        };
     }
 
     /// <inheritdoc/>

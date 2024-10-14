@@ -21,10 +21,10 @@ namespace SjaInNumbers.Server.Controllers;
 
 [ApiController]
 [Route("api/hours")]
-public class HoursController(ILocalHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
+public class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly ILogger logger = logger;
-    private readonly ILocalHoursService hoursService = hoursService;
+    private readonly IHoursService hoursService = hoursService;
 
     [HttpGet("target")]
     [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]

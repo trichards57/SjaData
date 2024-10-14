@@ -17,7 +17,7 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFactory) : ILocalPersonService
+public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFactory) : IPersonService
 {
     private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
 

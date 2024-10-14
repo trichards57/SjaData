@@ -21,7 +21,7 @@ namespace SjaInNumbers.Server.Services;
 /// </summary>
 /// <param name="dataContextFactory">The data context containing the hours data.</param>
 /// <param name="logger">The logger to write to.</param>
-public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<ApplicationDbContext> dataContextFactory, ILogger<HoursService> logger) : ILocalHoursService
+public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<ApplicationDbContext> dataContextFactory, ILogger<HoursService> logger) : IHoursService
 {
     private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
     private readonly ILogger<HoursService> logger = logger;

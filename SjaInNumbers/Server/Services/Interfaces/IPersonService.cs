@@ -3,15 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers.Server.Model.People;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.People;
 
-namespace SjaInNumbers.Client.Services.Interfaces;
+namespace SjaInNumbers.Server.Services.Interfaces;
 
 /// <summary>
 /// Represents a service for managing people.
 /// </summary>
-internal interface IPersonService
+public interface IPersonService
 {
     /// <summary>
     /// Gets the people activity reports for a specific end-date and region.
@@ -22,4 +23,9 @@ internal interface IPersonService
     /// The people activity reports.
     /// </returns>
     IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region);
+
+    Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId);
+    Task<DateTimeOffset?> GetLastModifiedAsync();
+    Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region);
+
 }

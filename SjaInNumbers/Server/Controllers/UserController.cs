@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Server.Controllers.Filters;
+using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Users;
 using System.Security.Claims;
 
@@ -12,6 +12,24 @@ namespace SjaInNumbers.Server.Controllers;
 public class UserController(IUserService userService) : ControllerBase
 {
     private readonly IUserService userService = userService;
+
+    [HttpGet("me")]
+    [Authorize]
+    [NotCachedFilter]
+    [ProducesResponseType(typeof(UserDetails), StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserDetails>> GetCurrentUser()
+    {
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Could not current user ID.");
+
+        var user = await userService.GetUserAsync(userId);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        return user;
+    }
 
     [HttpGet]
     [Authorize(Policy = "Admin")]
