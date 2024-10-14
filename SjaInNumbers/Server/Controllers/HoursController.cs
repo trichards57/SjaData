@@ -96,7 +96,7 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
 
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Could not get the current user.");
             var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>(), userId);
 
             return Ok(new CountResponse { Count = updatedCount });
