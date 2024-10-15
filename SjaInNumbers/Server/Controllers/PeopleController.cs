@@ -30,7 +30,7 @@ public class PeopleController(IPersonService personService) : ControllerBase
 
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Unable to get user details.");
             var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>(), userId);
 
             return Ok(new CountResponse { Count = updatedCount });

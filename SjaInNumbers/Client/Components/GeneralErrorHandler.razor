@@ -1,0 +1,16 @@
+﻿<ErrorBoundary>
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <ErrorContent>
+        <PageTitle>SJA in Numbers - Error</PageTitle>
+
+        <h2>Error</h2>
+        <p>An error occurred while processing your request.</p>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

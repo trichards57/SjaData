@@ -1,0 +1,47 @@
+﻿@using SJAData.Client.Components
+@if (IsLink == true)
+{
+    <a class="@StyleClasses" href="@Link">
+        @ChildContent
+    </a>
+}
+else
+{
+    <div class="@StyleClasses">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public LinkBoxColour Colour { get; set; }
+
+    [Parameter]
+    public bool? IsLink { get; set; }
+
+    [Parameter]
+    public string? Link { get; set; }
+
+    private string ColourToClass(LinkBoxColour colour)
+    {
+        switch (colour)
+        {
+            case LinkBoxColour.DarkGreen:
+                return "link-box-dark-green";
+            case LinkBoxColour.Yellow:
+                return "link-box-yellow";
+            case LinkBoxColour.Black:
+                return "link-box-black";
+            case LinkBoxColour.LightGray:
+                return "link-box-light-gray";
+            case LinkBoxColour.Green:
+            default:
+                return "link-box-green";
+        }
+    }
+
+    private string StyleClasses => "link-box " + ColourToClass(Colour);
+}

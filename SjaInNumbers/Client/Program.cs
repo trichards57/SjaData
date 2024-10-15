@@ -1,31 +1,25 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SjaInNumbers.Client;
+using SjaInNumbers.Client.Authentication;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddMsalAuthentication(options =>
+builder.Services.AddAuthorizationCore(c =>
 {
-    builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-    options.ProviderOptions.DefaultAccessTokenScopes
-            .Add("https://graph.microsoft.com/User.Read");
+    c.AddPolicy("Approved", o => o.RequireAuthenticatedUser().RequireClaim("Approved", "Yes"));
 });
 
-builder.Services.AddScoped(sp =>
-{
-    var authorizationMessageHandler =
-        sp.GetRequiredService<AuthorizationMessageHandler>();
-    authorizationMessageHandler.InnerHandler = new HttpClientHandler();
-    authorizationMessageHandler.ConfigureHandler(
-        authorizedUrls: ["https://graph.microsoft.com/v1.0"],
-        scopes: ["User.Read"]);
+//builder.Services.AddAuthorizationBuilder()
+//    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
+//    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
+//    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()));
 
-    return new HttpClient(authorizationMessageHandler) { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
-});
 
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddHttpClient("SjaInNumbers.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
 // Supply HttpClient instances that include access tokens when making requests to the server project

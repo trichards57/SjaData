@@ -1,0 +1,154 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Components
+
+@inject IJSRuntime JS
+
+@page "/update"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>SJA In Numbers - Update</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Update</h2>
+    <HomeLink />
+
+    @if (showUploading)
+    {
+        <div class="working-message">One moment please...</div>
+    }
+    @if (showInvalidFile)
+    {
+        <div class="error-message">
+            That is not a recognised file.
+        </div>
+    }
+    @if (showUploadFailed)
+    {
+        <div class="error-message">
+            Unable to upload that file.
+        </div>
+    }
+    @if (showUploadSuccess)
+    {
+        <div class="success-message">
+            Uploaded @uploadCount @uploadItem.
+        </div>
+    }
+    <div class="@dropSiteClass" id="drop-site"
+         @ondragover="DragOver" @ondragover:stopPropagation="true" @ondragover:preventDefault="true"
+         @ondragleave="DragLeave" @ondragleave:stopPropagation="true" @ondragleave:preventDefault="true"
+         @ondrop="FileDrop" @ondrop:stopPropagation="true" @ondrop:preventDefault="true">
+        <div class="drop-message">Drop Your File Here</div>
+        <button onClick={pickFile} class="file-button">
+            Choose File
+        </button>
+    </div>
+</GeneralErrorHandler>
+
+@code {
+    private bool showUploading = false;
+    private bool showInvalidFile = false;
+    private bool showUploadFailed = false;
+    private bool showUploadSuccess = false;
+    private bool showDragOver = false;
+    private string uploadItem = "";
+    private int uploadCount = 0;
+    private DotNetObjectReference<Update>? objRef;
+    private IJSObjectReference? module;
+
+    private string dropSiteClass => showDragOver ? "drop-site drag-over" : "drop-site";
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "./Pages/Update.razor.js");
+
+            await module.InvokeVoidAsync("setup", objRef);
+        }
+    }
+
+    private void FileDrop(DragEventArgs e)
+    {
+        showDragOver = false;
+    }
+
+    private void DragOver(DragEventArgs e)
+    {
+        showDragOver = true;
+
+        e.DataTransfer.DropEffect = e.DataTransfer.Items.Length == 1 ? "copy" : "none";
+    }
+
+    private void DragLeave(DragEventArgs e)
+    {
+        showDragOver = false;
+    }
+
+    [JSInvokable]
+    public void ShowUploading()
+    {
+        showUploading = true;
+        showInvalidFile = false;
+        showUploadFailed = false;
+        showUploadSuccess = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void ShowInvalidFile()
+    {
+        showUploading = false;
+        showInvalidFile = true;
+        showUploadFailed = false;
+        showUploadSuccess = false;
+        StateHasChanged();
+
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            showInvalidFile = false;
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void ShowUploadFailed()
+    {
+        showUploading = false;
+        showInvalidFile = false;
+        showUploadFailed = true;
+        showUploadSuccess = false;
+        StateHasChanged();
+
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            showUploadFailed = false;
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void ShowUploadSuccess(int count, string item)
+    {
+        showUploading = false;
+        showInvalidFile = false;
+        showUploadFailed = false;
+        showUploadSuccess = true;
+
+        uploadCount = count;
+        uploadItem = item;
+        StateHasChanged();
+
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            showUploadSuccess = false;
+            StateHasChanged();
+        });
+    }
+}

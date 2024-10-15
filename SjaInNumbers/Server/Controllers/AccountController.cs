@@ -14,12 +14,12 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
     private readonly SignInManager<ApplicationUser> signInManager = signInManager;
     private readonly IUserStore<ApplicationUser> userStore = userStore;
 
-    [HttpPost("login")]
+    [HttpGet("login")]
     public IActionResult Login(string provider, string returnUrl)
     {
         IEnumerable<KeyValuePair<string, StringValues>> query = [new("ReturnUrl", returnUrl)];
 
-        var redirectUrl = UriHelper.BuildRelative(HttpContext.Request.PathBase, "/Account/ExternalLogin", QueryString.Create(query));
+        var redirectUrl = UriHelper.BuildRelative(HttpContext.Request.PathBase, "/api/account/externalLogin", QueryString.Create(query));
 
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, [provider]);
@@ -32,7 +32,7 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
         return LocalRedirect($"~/{returnUrl}");
     }
 
-    [HttpPost("externalLogin")]
+    [HttpGet("externalLogin")]
     public async Task<IActionResult> ExternalLogin(string returnUrl)
     {
         var info = await signInManager.GetExternalLoginInfoAsync() ?? throw new InvalidOperationException("Error loading external login information.");
@@ -46,7 +46,7 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
 
         if (result.Succeeded)
         {
-            return LocalRedirect(returnUrl);
+            return Redirect(returnUrl);
         }
         else if (result.IsLockedOut)
         {
@@ -74,7 +74,7 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
             if (createResult.Succeeded)
             {
                 await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
-                return LocalRedirect(returnUrl);
+                return Redirect(returnUrl);
             }
         }
 

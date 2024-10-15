@@ -1,0 +1,62 @@
+﻿@page "/people/{Region}"
+
+@using SJAData.Client.Converters
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.People
+
+@inject NavigationManager NavigationManager
+@inject IPersonService PersonService
+
+<PageTitle>SJA In Numbers - People - @LabelConverters.LabelToDisplay(Region)</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
+
+    <h3>
+        <a href="/people">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
+
+    <PersonGroup Title="@ActivePeopleTitle" Reports="@activePeople" />
+    <PersonGroup Title="@DormantPeopleTitle" Reports="@dormantPeople" />
+    <PersonGroup Title="@InactivePeopleTitle" Reports="@inactivePeople" />
+    <PersonGroup Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+</GeneralErrorHandler>
+
+@code {
+    private Region parsedRegion;
+    private IList<PersonReport> activePeople = [];
+    private IList<PersonReport> dormantPeople = [];
+    private IList<PersonReport> inactivePeople = [];
+    private IList<PersonReport> retiredPeople = [];
+
+    private string ActivePeopleTitle => $"Active People ({activePeople.Count}) (<3 months inactive)";
+    private string DormantPeopleTitle => $"Dormant People ({dormantPeople.Count}) (4-6 months inactive)";
+    private string InactivePeopleTitle => $"Inactive People ({inactivePeople.Count}) (7-9 months inactive)";
+    private string RetiredPeopleTitle => $"Retired People ({retiredPeople.Count}) (>9 months inactive)";
+
+    [Parameter]
+    public string Region { get; set; } = "";
+
+    protected override async void OnParametersSet()
+    {
+        if (!Enum.TryParse<Region>(Region, out parsedRegion))
+        {
+            NavigationManager.NavigateTo("/NotFound", replace: true);
+            return;
+        }
+
+        var peopleData = await PersonService.GetPeopleReportsAsync(DateOnly.FromDateTime(DateTime.Today), parsedRegion)
+            .ToListAsync();
+
+        activePeople = peopleData.Where(p => p.MonthsSinceLastActive is <= 3).OrderByDescending(p => p.HoursThisYear).ToList();
+        dormantPeople = peopleData.Where(p => p.MonthsSinceLastActive is > 3 and <= 6).OrderByDescending(p => p.HoursThisYear).ToList();
+        inactivePeople = peopleData.Where(p => p.MonthsSinceLastActive is > 6 and <= 9).OrderByDescending(p => p.HoursThisYear).ToList();
+        retiredPeople = peopleData.Where(p => p.MonthsSinceLastActive is > 9).OrderByDescending(p => p.HoursThisYear).ToList();
+
+        StateHasChanged();
+    }
+}
