@@ -24,25 +24,56 @@
         <LinkBoxes Size="LinkBoxSize.Large">
             <LinkBox Colour="LinkBoxColour.LightGray">
                 <div>Last Month</div>
-                <div>@CalculateSum(lastMonth.Counts, selectedAreas)</div>
+                <div>
+                    @if (isLoading)
+                    {
+                        <span class="loading-control" />
+                    }
+                    else
+                    {
+                        @CalculateSum(lastMonth.Counts, selectedAreas)
+                    }
+                </div>
             </LinkBox>
             <LinkBox Colour="LinkBoxColour.Black">
                 <div>This Month</div>
-                <div>@CalculateSum(thisMonth.Counts, selectedAreas)</div>
-                <div class="planned">@CalculateSum(thisMonthFuture.Counts, selectedAreas) Planned</div>
+                @if (isLoading)
+                {
+                    <span class="loading-control light" />
+                    <span class="planned loading-control light" />
+                }
+                else
+                {
+                    <div>@CalculateSum(thisMonth.Counts, selectedAreas)</div>
+                    <div class="planned">@CalculateSum(thisMonthFuture.Counts, selectedAreas) Planned</div>
+                }
             </LinkBox>
             @if (!NhseSelected || RegionSelected)
             {
                 <LinkBox Colour="LinkBoxColour.DarkGreen">
                     <div>Year to Date</div>
-                    <div>@CalculateSum(yearToDate.Counts, selectedAreas)</div>
+                    @if (isLoading)
+                    {
+                        <span class="loading-control" />
+                    }
+                    else
+                    {
+                        <div>@CalculateSum(yearToDate.Counts, selectedAreas)</div>
+                    }
                 </LinkBox>
             }
             @if (NhseSelected && !RegionSelected)
             {
                 <LinkBox Colour="LinkBoxColour.DarkGreen">
                     <div>Target</div>
-                    <div>@nhseTarget</div>
+                    @if (isLoading)
+                    {
+                        <span class="loading-control" />
+                    }
+                    else
+                    {
+                        <div>@nhseTarget</div>
+                    }
                 </LinkBox>
             }
         </LinkBoxes>

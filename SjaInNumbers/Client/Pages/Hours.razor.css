@@ -4,3 +4,7 @@
     font-family: var(--sja-body-font);
     font-weight: normal;
 }
+
+.loading-control.planned {
+    height: 1.5rem;
+}

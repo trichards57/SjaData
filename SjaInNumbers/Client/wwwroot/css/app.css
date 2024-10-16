@@ -164,3 +164,31 @@ a.btn-large {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+.loading-control {
+    display: block;
+    width: 100px;
+    height: 2rem;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.1) 25%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.1) 75%);
+    background-size: 200% 100%; /* Makes the gradient twice the width */
+    animation: wave 4s infinite ease-in-out;
+    border-radius: 4px; /* Slightly rounded corners */
+}
+
+    .loading-control.light {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+        background-size: 200% 100%; /* Makes the gradient twice the width */
+        animation: wave 4s infinite ease-in-out;
+    }
+
+    
+
+@keyframes wave {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
