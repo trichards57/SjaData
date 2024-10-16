@@ -30,21 +30,6 @@ internal class HoursService(HttpClient httpClient) : IHoursService
         return await httpClient.GetFromJsonAsync<HoursCount>(uri);
     }
 
-    //public Task DeleteAsync(int id)
-    //{
-    //    throw new NotImplementedException();
-    //}
-
-    //public Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
-    //{
-    //    throw new NotImplementedException();
-    //}
-
-    //public Task<DateTimeOffset> GetLastModifiedAsync()    
-    //{
-    //    throw new NotImplementedException();
-    //}
-
     public async Task<int> GetNhseTargetAsync()
     {
         var response = await httpClient.GetFromJsonAsync<HoursTarget>("/api/hours/target");
@@ -64,9 +49,4 @@ internal class HoursService(HttpClient httpClient) : IHoursService
 
         return await httpClient.GetFromJsonAsync<Trends>(uri);
     }
-
-    //public Task<string> GetTrendsEtagAsync(Region region, bool nhse)
-    //{
-    //    throw new NotImplementedException();
-    //}
 }

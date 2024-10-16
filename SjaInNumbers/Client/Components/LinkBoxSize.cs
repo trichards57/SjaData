@@ -1,4 +1,4 @@
-﻿namespace SJAData.Client.Components;
+﻿namespace SjaInNumbers.Client.Components;
 
 public enum LinkBoxSize
 {
