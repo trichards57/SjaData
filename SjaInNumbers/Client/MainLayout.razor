@@ -1,5 +1,31 @@
-﻿@inherits LayoutComponentBase
+﻿﻿@using System.Diagnostics
+@inherits LayoutComponentBase
 
-<main>
-    @Body
-</main>
+<div class="container">
+    <h1>SJA In Numbers</h1>
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <PageTitle>SJA in Numbers - Error</PageTitle>
+
+            <h2>Error</h2>
+            <p>An error occurred while processing your request.</p>
+
+            @if (ShowRequestId)
+            {
+                <p>
+                    <strong>Request ID:</strong> <code>@RequestId</code>
+                </p>
+            }
+        </ErrorContent>
+    </ErrorBoundary>
+</div>
+
+@code {
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() => RequestId = Activity.Current?.Id;
+}

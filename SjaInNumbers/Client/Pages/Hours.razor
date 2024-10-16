@@ -7,6 +7,7 @@
 @using SjaInNumbers.Shared.Model.Hours
 
 @inject IHoursService HoursService
+@inject NavigationManager NavigationManager
 
 @page "/hours"
 @attribute [Authorize(Policy = "Approved")]
@@ -98,16 +99,38 @@
         var thisMonthFutureTask = HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), future: true);
         var yearToDateTask = HoursService.CountAsync(DateOnly.FromDateTime(DateTime.Today), DateType.Year);
 
-        await Task.WhenAll(nhseTargetTask, lastMonthTask, thisMonthTask, thisMonthFutureTask, yearToDateTask);
+        try
+        {
+            await Task.WhenAll(nhseTargetTask, lastMonthTask, thisMonthTask, thisMonthFutureTask, yearToDateTask);
 
-        nhseTarget = nhseTargetTask.Result;
-        lastMonth = lastMonthTask.Result;
-        thisMonth = thisMonthTask.Result;
-        thisMonthFuture = thisMonthFutureTask.Result;
-        yearToDate = yearToDateTask.Result;
+            nhseTarget = nhseTargetTask.Result;
+            lastMonth = lastMonthTask.Result;
+            thisMonth = thisMonthTask.Result;
+            thisMonthFuture = thisMonthFutureTask.Result;
+            yearToDate = yearToDateTask.Result;
 
-        actualNhseAreas = yearToDate.Counts.Keys.Where(s => LabelConverters.IsTrust(s)).ToList();
-        actualRegions = yearToDate.Counts.Keys.Where(s => LabelConverters.IsRegion(s)).ToList();
+            actualNhseAreas = yearToDate.Counts.Keys.Where(s => LabelConverters.IsTrust(s)).ToList();
+            actualRegions = yearToDate.Counts.Keys.Where(s => LabelConverters.IsRegion(s)).ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                NavigationManager.NavigateTo($"api/account/login?provider=Microsoft&returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                NavigationManager.NavigateTo("/accessDenied");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/offline");
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private int CalculateSum(Dictionary<string, TimeSpan> counts, HashSet<string> areas)
