@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Authorization;
@@ -23,6 +24,11 @@ builder.Services.ConfigureApplicationCookie(o =>
         c.Response.StatusCode = StatusCodes.Status401Unauthorized;
         return Task.CompletedTask;
     };
+    o.Events.OnRedirectToAccessDenied = c =>
+    {
+        c.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
@@ -42,7 +48,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IHoursService, HoursService>();
-
+builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
 builder.Services.AddSwaggerGen();
 
@@ -76,6 +82,8 @@ else
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+
+app.UseMiddleware<RequireApprovalFailureMiddleware>();
 
 app.UseRouting();
 
