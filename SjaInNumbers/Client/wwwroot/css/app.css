@@ -181,6 +181,10 @@ a.btn-large {
         animation: wave 4s infinite ease-in-out;
     }
 
+    .loading-control.wide {
+        width: 300px;
+    }
+
     
 
 @keyframes wave {

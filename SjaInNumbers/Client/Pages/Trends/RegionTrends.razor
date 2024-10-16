@@ -33,12 +33,29 @@
                 </tr>
             </thead>
             <tbody>
-                <TrendRow Trends="@trends" KeyValue="national" Label="National" />
-                <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-                @foreach (var district in districts)
+                @if (isLoading)
                 {
-                    <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+                    @for (var i = 0; i < 6; i++)
+                    {
+                        <tr>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                        </tr>
+                    }
                 }
+                else
+                {
+                    <TrendRow Trends="@trends" KeyValue="national" Label="National" />
+                    <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                    @foreach (var district in districts)
+                    {
+                        <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+                    }
+                }
+
             </tbody>
         </table>
         <h3>NHSE Activity</h3>
@@ -53,11 +70,27 @@
                 </tr>
             </thead>
             <tbody>
-                <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
-                <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-                @foreach (var district in nhseDistricts)
+                @if (isLoading)
                 {
-                    <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+                    @for (var i = 0; i < 6; i++)
+                    {
+                        <tr>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
+                    <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                    @foreach (var district in nhseDistricts)
+                    {
+                        <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+                    }
                 }
             </tbody>
         </table>
@@ -76,6 +109,7 @@
 </GeneralErrorHandler>
 
 @code {
+    private bool isLoading = true;
     private SjaInNumbers.Shared.Model.Trends.Trends trends = default;
     private SjaInNumbers.Shared.Model.Trends.Trends nhseTrends = default;
     private Region parsedRegion;
@@ -87,6 +121,8 @@
 
     protected override async void OnParametersSet()
     {
+        isLoading = true;
+
         if (!Enum.TryParse<Region>(Region, out parsedRegion))
         {
             NavigationManager.NavigateTo("/NotFound", replace: true);
@@ -96,13 +132,38 @@
         var trendsTask = HoursService.GetTrendsAsync(parsedRegion, false);
         var nhseTrendsTask = HoursService.GetTrendsAsync(parsedRegion, true);
 
-        await Task.WhenAll(trendsTask, nhseTrendsTask);
+        StateHasChanged();
 
-        trends = trendsTask.Result;
-        nhseTrends = nhseTrendsTask.Result;
+        try
+        {
+            await Task.WhenAll(trendsTask, nhseTrendsTask);
 
-        districts = trends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
-        nhseDistricts = nhseTrends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+            trends = trendsTask.Result;
+            nhseTrends = nhseTrendsTask.Result;
+
+            districts = trends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+            nhseDistricts = nhseTrends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                NavigationManager.NavigateTo($"api/account/login?provider=Microsoft&returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                NavigationManager.NavigateTo("/accessDenied");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/offline");
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
 
         StateHasChanged();
     }
