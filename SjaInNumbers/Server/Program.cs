@@ -81,7 +81,30 @@ else
 
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+
+if (app.Environment.IsProduction())
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            if (ctx.File.Name.EndsWith(".svg"))
+            {
+                ctx.Context.Response.GetTypedHeaders()
+                .CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+                {
+                    Public = true,
+                    MaxAge = TimeSpan.FromDays(365),
+                    Extensions = { new Microsoft.Net.Http.Headers.NameValueHeaderValue("immutable", "") }
+                };
+            }
+        }
+    });
+}
+else
+{
+    app.UseStaticFiles();
+}
 
 app.UseMiddleware<RequireApprovalFailureMiddleware>();
 
