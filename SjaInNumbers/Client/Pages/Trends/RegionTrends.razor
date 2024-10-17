@@ -1,0 +1,170 @@
+﻿@page "/trends/{Region}"
+
+@using Microsoft.AspNetCore.Components.Web
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+
+@inject IHoursService HoursService
+@inject NavigationManager NavigationManager
+
+<PageTitle>SJA In Numbers - Trends - @LabelConverters.LabelToDisplay(Region)</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
+
+    <h3>
+        <a href="/trends">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
+
+    <section>
+        <h3>All Activity</h3>
+        <table class="activity-trends">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>12 Month Avg</th>
+                    <th>6 Month Avg</th>
+                    <th>3 Month Avg</th>
+                    <th>Last 12 Months</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (isLoading)
+                {
+                    @for (var i = 0; i < 6; i++)
+                    {
+                        <tr>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <TrendRow Trends="@trends" KeyValue="national" Label="National" />
+                    <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                    @foreach (var district in districts)
+                    {
+                        <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+                    }
+                }
+
+            </tbody>
+        </table>
+        <h3>NHSE Activity</h3>
+        <table class="activity-trends">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>12 Month Avg</th>
+                    <th>6 Month Avg</th>
+                    <th>3 Month Avg</th>
+                    <th>Last 12 Months</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (isLoading)
+                {
+                    @for (var i = 0; i < 6; i++)
+                    {
+                        <tr>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                            <td><span class="loading-control" /></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
+                    <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+                    @foreach (var district in nhseDistricts)
+                    {
+                        <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+                    }
+                }
+            </tbody>
+        </table>
+    </section>
+    <footer>
+        <p>
+            Hours are all shown as people-hours, to two-significant figures. A
+            change of less than @TrendArrow.SignificantChange.ToString("P0") or
+            @TrendArrow.SignificantHours hours (whichever is greater) is considered
+            insignificant.
+        </p>
+        <p class="last-update">
+            Data up until @trends.ReportDate.ToLongDateString()
+        </p>
+    </footer>
+</GeneralErrorHandler>
+
+@code {
+    private bool isLoading = true;
+    private SjaInNumbers.Shared.Model.Trends.Trends trends = default;
+    private SjaInNumbers.Shared.Model.Trends.Trends nhseTrends = default;
+    private Region parsedRegion;
+    private IEnumerable<string> districts = new List<string>();
+    private IEnumerable<string> nhseDistricts = new List<string>();
+
+    [Parameter]
+    public string Region { get; set; } = "";
+
+    protected override async void OnParametersSet()
+    {
+        isLoading = true;
+
+        if (!Enum.TryParse<Region>(Region, out parsedRegion))
+        {
+            NavigationManager.NavigateTo("/NotFound", replace: true);
+            return;
+        }
+
+        var trendsTask = HoursService.GetTrendsAsync(parsedRegion, false);
+        var nhseTrendsTask = HoursService.GetTrendsAsync(parsedRegion, true);
+
+        StateHasChanged();
+
+        try
+        {
+            await Task.WhenAll(trendsTask, nhseTrendsTask);
+
+            trends = trendsTask.Result;
+            nhseTrends = nhseTrendsTask.Result;
+
+            districts = trends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+            nhseDistricts = nhseTrends.TwelveMonthAverage.Keys.Where(s => s is not "national" and not "region");
+
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                NavigationManager.NavigateTo($"api/account/login?provider=Microsoft&returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                NavigationManager.NavigateTo("/accessDenied");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/offline");
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,26 @@
+﻿@page "/trends"
+
+@using Microsoft.AspNetCore.Components.Web
+@using SjaInNumbers.Client.Components
+
+<PageTitle>SJA In Numbers - Trends</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Trends</h2>
+    <HomeLink />
+
+    <LinkBoxes Size="LinkBoxSize.Small">
+        <LinkBox IsLink="true" Link="/trends/NorthEast">North East</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/NorthWest">North West</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/EastMidlands">East Midlands</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/WestMidlands">West Midlands</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/EastOfEngland">East of England</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/London">London</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/SouthEast">South East</LinkBox>
+        <LinkBox IsLink="true" Link="/trends/SouthWest">South West</LinkBox>
+    </LinkBoxes>
+</GeneralErrorHandler>
+
+@code {
+
+}
