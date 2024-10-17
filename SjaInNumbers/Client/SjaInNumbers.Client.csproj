@@ -6,7 +6,13 @@
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />
+	  <Content Remove="wwwroot\img\sja-back.svg" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="wwwroot\img\sja-back.svg" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Blazor-ApexCharts" Version="3.4.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.10" />

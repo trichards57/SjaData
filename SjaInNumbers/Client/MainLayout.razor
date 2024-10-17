@@ -1,10 +1,26 @@
 ﻿﻿@using System.Diagnostics
+@using Microsoft.AspNetCore.Components.Authorization
+@using SjaInNumbers.Shared.Model
 @inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="container">
     <h1>SJA In Numbers</h1>
     <ErrorBoundary>
         <ChildContent>
+            @if (preloading)
+            {
+                <div class="preload-alert">
+                    Loading Data...
+                    <div class="progress-bar"></div>
+                </div>
+            }
+            else if (preloadingComplete)
+            {
+                <div class="preload-alert done">Offline Data Loaded</div>
+            }
+
             @Body
         </ChildContent>
         <ErrorContent>
@@ -24,8 +40,76 @@
 </div>
 
 @code {
+    private bool preloading;
+    private bool preloadingComplete;
+    private DotNetObjectReference<MainLayout>? objRef;
+    private IJSObjectReference? module;
+
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() => RequestId = Activity.Current?.Id;
+    protected override void OnInitialized()
+    {
+        RequestId = Activity.Current?.Id;
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (firstRender && authState.User.Identity?.IsAuthenticated == true)
+        {
+            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./MainLayout.razor.js");
+            await module.InvokeVoidAsync("setup", objRef);
+
+            var date = DateTime.Today.ToString("yyyy-MM-dd");
+            var lastMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1).ToString("yyyy-MM-dd");
+
+            Region[] regions = [Region.London, Region.SouthWest, Region.SouthEast, Region.WestMidlands, Region.EastMidlands, Region.EastOfEngland, Region.NorthWest, Region.NorthEast];
+
+            // Define the list of API endpoints you want to preload
+            IList<string> apiEndpoints = [
+                "/api/hours/target",
+    $"/api/hours/count?date={lastMonth}&date-type=Month&future=False",
+    $"/api/hours/count?date={date}&date-type=Month&future=False",
+    $"/api/hours/count?date={date}&date-type=Month&future=True",
+    $"/api/hours/count?date={date}&date-type=Year&future=False",
+    ];
+
+            if (authState.User.IsInRole("Lead") || authState.User.IsInRole("Admin"))
+            {
+                apiEndpoints = [..apiEndpoints,
+    ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=False"),
+    ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=True"),
+    ..regions.Select(r => $"/api/people/reports?date={date}&region={r}"),
+    ];
+            }
+
+            if (authState.User.IsInRole("Admin"))
+            {
+                apiEndpoints = [.. apiEndpoints, "/api/user"];
+            }
+
+            preloading = true;
+
+            StateHasChanged();
+
+            // Call the JavaScript function to preload the API endpoints when idle
+            await module.InvokeVoidAsync("preloadApiEndpoints", apiEndpoints);
+        }
+    }
+
+    [JSInvokable]
+    public async void OnPreloadComplete()
+    {
+        preloading = false;
+        preloadingComplete = true;
+        StateHasChanged();
+
+        await Task.Delay(5000);
+
+        preloadingComplete = false;
+        StateHasChanged();
+    }
 }
