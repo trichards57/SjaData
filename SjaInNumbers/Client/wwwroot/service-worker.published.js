@@ -86,7 +86,7 @@ async function onFetch(event) {
             cachedResponse = await cache.match(event.request);
 
             // Fetch from the network to revalidate the cache
-            fetch(event.request).then(async (networkResponse) => {
+            const networkResponsePromise = fetch(event.request).then(async (networkResponse) => {
                 // Check if the data has changed (i.e., not a 304 response)
                 if (networkResponse.status === 200) {
                     // Update the cache with the fresh data
