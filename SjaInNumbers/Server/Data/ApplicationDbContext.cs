@@ -21,6 +21,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     /// </summary>
     public DbSet<Person> People { get; set; }
 
+    /// <summary>
+    /// Gets or sets the vehicles.
+    /// </summary>
+    public DbSet<Vehicle> Vehicles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the incidents associated with vehicles.
+    /// </summary>
+    public DbSet<VehicleIncident> VehicleIncidents { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
