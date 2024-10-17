@@ -26,12 +26,11 @@ internal interface IHoursService
     Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
 
     /// <summary>
-    /// Deletes the given hours entry.
+    /// Gets the current NHSE target.
     /// </summary>
-    /// <param name="id">The ID of the entry to delete.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    //Task DeleteAsync(int id);
-
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the target.
+    /// </returns>
     Task<int> GetNhseTargetAsync();
 
     /// <summary>
@@ -43,6 +42,4 @@ internal interface IHoursService
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the trends report.
     /// </returns>
     Task<Trends> GetTrendsAsync(Region region, bool nhse);
-
-
 }

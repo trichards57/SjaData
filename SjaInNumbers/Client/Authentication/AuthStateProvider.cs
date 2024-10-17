@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿// <copyright file="AuthStateProvider.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.Components.Authorization;
 using SjaInNumbers.Shared.Model.Users;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -20,7 +25,10 @@ public class AuthStateProvider(HttpClient client) : AuthenticationStateProvider
                  new(ClaimTypes.Email, authState.Email),
                  new("Approved", authState.IsApproved ? "Yes" : "No"),
                  ..authState.Roles.Select(r => new Claim(ClaimTypes.Role, string.Join(",", r)))
-                 ], "Microsoft", ClaimTypes.Email, ClaimTypes.Role)));
+                 ],
+                "Microsoft",
+                ClaimTypes.Email,
+                ClaimTypes.Role)));
         }
         catch (HttpRequestException ex)
         {

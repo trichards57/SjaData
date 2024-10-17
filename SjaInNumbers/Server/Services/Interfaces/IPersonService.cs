@@ -25,7 +25,8 @@ public interface IPersonService
     IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region);
 
     Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId);
-    Task<DateTimeOffset?> GetLastModifiedAsync();
-    Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region);
 
+    Task<DateTimeOffset?> GetLastModifiedAsync();
+
+    Task<string> GetPeopleReportsEtagAsync(DateOnly date, Region region);
 }

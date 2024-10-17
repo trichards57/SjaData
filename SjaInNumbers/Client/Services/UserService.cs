@@ -1,4 +1,9 @@
-﻿using SjaInNumbers.Client.Services.Interfaces;
+﻿// <copyright file="UserService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Users;
 using System.Net.Http.Json;
 
@@ -32,7 +37,7 @@ public class UserService(HttpClient client) : IUserService
         await client.DeleteAsync($"api/user/{userId}");
     }
 
-    public async Task<UserDetails> GetCurrentUserAsync(string userId)
+    public async Task<UserDetails> GetCurrentUserAsync()
     {
         return await client.GetFromJsonAsync<UserDetails>($"api/user/me");
     }

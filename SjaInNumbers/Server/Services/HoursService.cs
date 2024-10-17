@@ -383,7 +383,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         // Iterate over the details and map them to the correct months
         foreach (var detail in details)
         {
-            var index = 11 - ((startDate.Year - detail.Year) * 12 + startDate.Month - detail.Month);
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
             if (index >= 0 && index < 12)
             {
                 monthlyHours[index] = detail.HoursSum;

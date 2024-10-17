@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// <copyright file="RequireApprovalHandler.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using SjaInNumbers.Server.Data;
 
 namespace SjaInNumbers.Server.Authorization;
 
-public class RequireApprovalHandler : AuthorizationHandler<RequireApprovalRequirement>
+public class RequireApprovalHandler(UserManager<ApplicationUser> userManager) : AuthorizationHandler<RequireApprovalRequirement>
 {
-    private readonly UserManager<ApplicationUser> userManager;
-
-    public RequireApprovalHandler(UserManager<ApplicationUser> userManager)
-    {
-        this.userManager = userManager;
-    }
+    private readonly UserManager<ApplicationUser> userManager = userManager;
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RequireApprovalRequirement requirement)
     {

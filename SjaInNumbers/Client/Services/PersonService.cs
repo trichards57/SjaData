@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿// <copyright file="PersonService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.WebUtilities;
 using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.People;

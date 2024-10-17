@@ -7,15 +7,15 @@ using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using System.Globalization;
-using System.Security.Claims;
-using SjaInNumbers.Shared.Model.Trends;
-using SjaInNumbers.Shared.Model.Hours;
-using SjaInNumbers.Shared.Model;
+using SjaInNumbers.Server.Controllers.Filters;
+using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Model.Hours;
 using SjaInNumbers.Server.Services.Interfaces;
-using SjaInNumbers.Server.Model;
-using SjaInNumbers.Server.Controllers.Filters;
+using SjaInNumbers.Shared.Model;
+using SjaInNumbers.Shared.Model.Hours;
+using SjaInNumbers.Shared.Model.Trends;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
 

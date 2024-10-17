@@ -26,13 +26,6 @@ public interface IHoursService
     /// </returns>
     Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
 
-    /// <summary>
-    /// Deletes the given hours entry.
-    /// </summary>
-    /// <param name="id">The ID of the entry to delete.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    //Task DeleteAsync(int id);
-
     Task<int> GetNhseTargetAsync();
 
     /// <summary>

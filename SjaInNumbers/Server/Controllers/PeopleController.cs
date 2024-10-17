@@ -1,14 +1,19 @@
-﻿using CsvHelper;
+﻿// <copyright file="PeopleController.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using System.Globalization;
-using System.Security.Claims;
-using SjaInNumbers.Shared.Model.People;
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Model.People;
+using SjaInNumbers.Server.Services.Interfaces;
+using SjaInNumbers.Shared.Model;
+using SjaInNumbers.Shared.Model.People;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
 

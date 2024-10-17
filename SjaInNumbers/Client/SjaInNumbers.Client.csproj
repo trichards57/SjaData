@@ -6,18 +6,30 @@
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Content Remove="stylecop.json" />
 	  <Content Remove="wwwroot\img\sja-back.svg" />
+	</ItemGroup>
+	<ItemGroup>
+	  <AdditionalFiles Include="stylecop.json" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Include="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Blazor-ApexCharts" Version="3.4.0" />
+		<PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.10" />
 		<PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="8.0.10" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
