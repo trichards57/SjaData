@@ -88,8 +88,8 @@ The following configuration values will be required:
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Hours Statistics
-- [ ] People Reports
+- [x] Hours Statistics
+- [x] People Reports
 - [ ] Vehicle VOR Information
 - [ ] Hub Mananagement Information
 
