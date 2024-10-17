@@ -1,3 +1,8 @@
+// <copyright file="Program.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -95,18 +100,16 @@ if (app.Environment.IsProduction())
                 {
                     Public = true,
                     MaxAge = TimeSpan.FromDays(365),
-                    Extensions = { new Microsoft.Net.Http.Headers.NameValueHeaderValue("immutable", "") }
+                    Extensions = { new Microsoft.Net.Http.Headers.NameValueHeaderValue("immutable", string.Empty) },
                 };
             }
-        }
+        },
     });
 }
 else
 {
     app.UseStaticFiles();
 }
-
-app.UseMiddleware<RequireApprovalFailureMiddleware>();
 
 app.UseRouting();
 
@@ -116,4 +119,4 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
-app.Run();
+await app.RunAsync();

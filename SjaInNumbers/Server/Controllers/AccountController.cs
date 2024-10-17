@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿// <copyright file="AccountController.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -22,7 +27,7 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
         var redirectUrl = UriHelper.BuildRelative(HttpContext.Request.PathBase, "/api/account/externalLogin", QueryString.Create(query));
 
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-        return Challenge(properties, [provider]);
+        return Challenge(properties, provider);
     }
 
     [HttpPost("logout")]

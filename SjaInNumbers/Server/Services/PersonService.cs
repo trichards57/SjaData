@@ -4,13 +4,13 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using SjaInNumbers.Server.Data;
+using SjaInNumbers.Server.Model.People;
+using SjaInNumbers.Server.Services.Interfaces;
+using SjaInNumbers.Shared.Model;
+using SjaInNumbers.Shared.Model.People;
 using System.Security.Cryptography;
 using System.Text;
-using SjaInNumbers.Shared.Model.People;
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Server.Data;
-using SjaInNumbers.Server.Services.Interfaces;
-using SjaInNumbers.Server.Model.People;
 
 namespace SjaInNumbers.Server.Services;
 
@@ -199,7 +199,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
         // Iterate over the details and map them to the correct months
         foreach (var detail in details)
         {
-            var index = 11 - ((startDate.Year - detail.Year) * 12 + startDate.Month - detail.Month);
+            var index = 11 - (((startDate.Year - detail.Year) * 12) + startDate.Month - detail.Month);
             if (index >= 0 && index < 12)
             {
                 monthlyHours[index] = detail.HoursSum;
