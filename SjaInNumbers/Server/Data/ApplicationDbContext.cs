@@ -27,6 +27,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Vehicle> Vehicles { get; set; }
 
     /// <summary>
+    /// Gets or sets the key dates.
+    /// </summary>
+    public DbSet<KeyDates> KeyDates { get; set; }
+
+    /// <summary>
     /// Gets or sets the incidents associated with vehicles.
     /// </summary>
     public DbSet<VehicleIncident> VehicleIncidents { get; set; }
@@ -48,5 +53,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 Name = "Lead",
                 NormalizedName = "LEAD",
             });
+
+        builder.Entity<KeyDates>().HasData(new KeyDates { Id = 1, LastUpdateFile = DateOnly.MinValue });
     }
 }

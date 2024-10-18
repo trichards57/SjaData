@@ -54,4 +54,9 @@ public enum Region : byte
     /// The South West region.
     /// </summary>
     SouthWest = 8,
+
+    /// <summary>
+    /// All regions.
+    /// </summary>
+    All = 10,
 }

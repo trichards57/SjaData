@@ -30,5 +30,5 @@ public enum VehicleType
     /// <summary>
     /// Any other vehicle.
     /// </summary>
-    Other = 4
+    Other = 4,
 }

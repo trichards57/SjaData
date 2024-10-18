@@ -12,7 +12,7 @@ namespace SjaInNumbers.Server.Data;
 
 [Index(nameof(Registration), IsUnique = true)]
 [Index(nameof(CallSign))]
-public class Vehicle
+public class Vehicle : IDeletableItem
 {
     /// <summary>
     /// Gets or sets the vehicle's body type.
