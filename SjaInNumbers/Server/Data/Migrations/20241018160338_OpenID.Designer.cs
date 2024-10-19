@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SjaInNumbers.Server.Data;
 
@@ -11,9 +12,11 @@ using SjaInNumbers.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241018160338_OpenID")]
+    partial class OpenID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -613,6 +616,10 @@ namespace SjaData.Server.Migrations
                         .HasMaxLength(7)
                         .HasColumnType("nvarchar(7)");
 
+                    b.Property<string>("UpdatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("VehicleType")
                         .HasColumnType("int");
 
@@ -622,6 +629,8 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("Registration")
                         .IsUnique();
+
+                    b.HasIndex("UpdatedById");
 
                     b.ToTable("Vehicles");
                 });
@@ -756,6 +765,17 @@ namespace SjaData.Server.Migrations
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.Person", b =>
+                {
+                    b.HasOne("SjaInNumbers.Server.Data.ApplicationUser", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("SjaInNumbers.Server.Data.Vehicle", b =>
                 {
                     b.HasOne("SjaInNumbers.Server.Data.ApplicationUser", "UpdatedBy")
                         .WithMany()

@@ -91,17 +91,4 @@ public class Vehicle : IDeletableItem
     /// Gets or sets the vehicle's type.
     /// </summary>
     public VehicleType VehicleType { get; set; } = VehicleType.Unknown;
-
-    /// <summary>
-    /// Gets or sets the user who last updated the entry.
-    /// </summary>
-    [ForeignKey(nameof(UpdatedById))]
-    [DeleteBehavior(DeleteBehavior.Restrict)]
-    public ApplicationUser UpdatedBy { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets the user ID of the person who last updated the entry.
-    /// </summary>
-    [Required]
-    public string UpdatedById { get; set; } = string.Empty;
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
+using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
 
@@ -19,7 +20,6 @@ namespace SjaInNumbers.Server.Controllers;
 /// <param name="vehicleService">Service to manage vehicles.</param>
 [Route("api/vor")]
 [ApiController]
-[Authorize(Policy = "CanViewVOR")]
 public class VorController(IVehicleService vehicleService) : ControllerBase
 {
     private readonly IVehicleService vehicleService = vehicleService;
@@ -29,7 +29,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// </summary>
     /// <param name="incidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
-    [Authorize(Policy = "CanEditVOR")]
+    [Authorize(Policy = "Uploader")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] IEnumerable<VorIncident> incidents)
     {
@@ -44,6 +44,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// <param name="place">The place to search.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
     [HttpGet("statistics")]
+    [Authorize(Policy = "Lead")]
     public Task<VorStatistics?> GetStatistics([FromQuery] Place place) => vehicleService.GetVorStatisticsAsync(place);
 
     /// <summary>
@@ -52,5 +53,6 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// <param name="place">The place to search.</param>
     /// <returns>The list of statuses for the given place.</returns>
     [HttpGet]
+    [Authorize(Policy = "Lead")]
     public IAsyncEnumerable<VorStatus> Get([FromQuery] Place place) => vehicleService.GetVorStatusesAsync(place);
 }

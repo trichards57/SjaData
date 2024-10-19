@@ -20,7 +20,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
     {
         var incidents = vorIncidents.ToList();
 
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         using var scope = await context.Database.BeginTransactionAsync();
 
@@ -39,7 +39,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         {
             foreach (var i in incidents)
             {
-                await AddSingleEntryAsync(i, updateVors);
+                await AddSingleEntryAsync(context, i, updateVors);
             }
 
             if (updateVors)
@@ -58,7 +58,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
 
     public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
     {
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles
             .GetNotDeleted()
@@ -82,7 +82,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
 
     public async Task<VehicleSettings?> GetSettingsAsync(int id)
     {
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         return await context.Vehicles
             .GetNotDeleted()
@@ -109,7 +109,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
             throw new ArgumentOutOfRangeException(nameof(place));
         }
 
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         var vehicles = await context.Vehicles
             .GetActive()
@@ -169,7 +169,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
 
     public async Task PutSettingsAsync(UpdateVehicleSettings settings)
     {
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(s => s.Registration == settings.Registration);
 
@@ -191,10 +191,8 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         await context.SaveChangesAsync();
     }
 
-    private async Task AddSingleEntryAsync(VorIncident vorIncident, bool updateVors)
+    private async Task AddSingleEntryAsync(ApplicationDbContext context, VorIncident vorIncident, bool updateVors)
     {
-        var context = await contextFactory.CreateDbContextAsync();
-
         var trimmedReg = vorIncident.Registration.ToUpperInvariant().Trim().Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == trimmedReg);
 
@@ -207,6 +205,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
                 BodyType = vorIncident.BodyType,
                 Make = vorIncident.Make,
                 Model = vorIncident.Model,
+                LastModified = DateTimeOffset.UtcNow,
             };
             context.Vehicles.Add(vehicle);
         }
@@ -214,6 +213,8 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         {
             vehicle.Deleted = null;
         }
+
+        await context.SaveChangesAsync();
 
         var incident = await context.VehicleIncidents.FirstOrDefaultAsync(i => i.VehicleId == vehicle.Id && i.StartDate == vorIncident.StartDate);
 
@@ -253,7 +254,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
 
     private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Place place)
     {
-        var context = await contextFactory.CreateDbContextAsync();
+        using var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles
            .GetActive()

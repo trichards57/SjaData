@@ -23,7 +23,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
 
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
     {
-        var context = await dataContextFactory.CreateDbContextAsync();
+        using var context = await dataContextFactory.CreateDbContextAsync();
 
         var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
         {
@@ -111,7 +111,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     /// <inheritdoc/>
     public async Task<DateTimeOffset?> GetLastModifiedAsync()
     {
-        var context = await dataContextFactory.CreateDbContextAsync();
+        using var context = await dataContextFactory.CreateDbContextAsync();
 
         var dataContext = await dataContextFactory.CreateDbContextAsync();
 
@@ -129,7 +129,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     /// <inheritdoc/>
     public async IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region)
     {
-        var context = await dataContextFactory.CreateDbContextAsync();
+        using var context = await dataContextFactory.CreateDbContextAsync();
 
         var people = context.People
             .AsNoTracking()

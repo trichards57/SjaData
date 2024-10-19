@@ -30,7 +30,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     /// <inheritdoc/>
     public async Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId)
     {
-        var dataContext = await dataContextFactory.CreateDbContextAsync();
+        using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
         var existingPeople = await dataContext.People.ToDictionaryAsync(s => s.Id, s => s);
 
@@ -118,7 +118,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     /// <inheritdoc/>
     public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false)
     {
-        var dataContext = await dataContextFactory.CreateDbContextAsync();
+        using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
         var items = dataContext.Hours.AsNoTracking()
             .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Region.Undefined || i.Trust != Trust.Undefined));
@@ -187,7 +187,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
-        var dataContext = await dataContextFactory.CreateDbContextAsync();
+        using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
         if (await dataContext.Hours.AnyAsync())
         {
@@ -221,7 +221,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
 
     public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
     {
-        var dataContext = await dataContextFactory.CreateDbContextAsync();
+        using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
         var districts = await dataContext.People.Where(p => p.Region == region).Select(p => p.District).Distinct().ToListAsync();
 
