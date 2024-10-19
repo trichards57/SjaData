@@ -31,7 +31,7 @@ public class ConnectController(IOpenIddictApplicationManager applicationManager,
     /// Handles token exchange requests.
     /// </summary>
     /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to an <see cref="IActionResult"/> that represents the result of the action.
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
     /// </returns>
     [HttpPost("token")]
     [IgnoreAntiforgeryToken]

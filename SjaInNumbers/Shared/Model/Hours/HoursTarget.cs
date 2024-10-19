@@ -5,9 +5,18 @@
 
 namespace SjaInNumbers.Shared.Model.Hours;
 
+/// <summary>
+/// Represents an hours target for a specific date.
+/// </summary>
 public readonly record struct HoursTarget
 {
+    /// <summary>
+    /// Gets the hours target.
+    /// </summary>
     public int Target { get; init; }
 
+    /// <summary>
+    /// Gets the identifying date for the target.
+    /// </summary>
     public DateOnly Date { get; init; }
 }

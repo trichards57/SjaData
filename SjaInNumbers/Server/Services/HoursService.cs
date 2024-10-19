@@ -19,7 +19,8 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// Service for managing hours entries.
 /// </summary>
-/// <param name="dataContextFactory">The data context containing the hours data.</param>
+/// <param name="timeProvider">The provider for the current time.</param>
+/// <param name="dataContextFactory">The factory for a data context containing the hours data.</param>
 /// <param name="logger">The logger to write to.</param>
 public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<ApplicationDbContext> dataContextFactory, ILogger<HoursService> logger) : IHoursService
 {
@@ -214,11 +215,13 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
+    /// <inheritdoc/>
     public Task<DateTimeOffset> GetNhseTargetLastModifiedAsync()
     {
         return Task.FromResult(DateTimeOffset.UtcNow);
     }
 
+    /// <inheritdoc/>
     public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
     {
         using var dataContext = await dataContextFactory.CreateDbContextAsync();

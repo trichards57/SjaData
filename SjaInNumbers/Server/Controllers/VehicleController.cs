@@ -10,6 +10,10 @@ using SjaInNumbers.Shared.Model.Vehicles;
 
 namespace SjaInNumbers.Server.Controllers;
 
+/// <summary>
+/// Controller for managing vehicles.
+/// </summary>
+/// <param name="vehicleService">Service used to manage vehicles.</param>
 [Route("api/vehicles")]
 [ApiController]
 public class VehicleController(IVehicleService vehicleService) : ControllerBase
@@ -30,6 +34,8 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     /// <param name="id">The ID of the vehicle.</param>
     /// <returns>The vehicle settings.</returns>
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VehicleSettings>> GetVehicleAsync(int id)
     {
         var vehicle = await vehicleService.GetSettingsAsync(id);
@@ -47,6 +53,7 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     /// </summary>
     /// <param name="settings">The new settings.</param>
     /// <returns>No content.</returns>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost]
     public async Task<IActionResult> PostVehicleAsync([FromBody] UpdateVehicleSettings settings)
     {

@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Main data context for the application.
+/// </summary>
+/// <param name="options">Options for configuring the data context.</param>
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
 {
     /// <summary>
@@ -36,6 +40,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     /// </summary>
     public DbSet<VehicleIncident> VehicleIncidents { get; set; }
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

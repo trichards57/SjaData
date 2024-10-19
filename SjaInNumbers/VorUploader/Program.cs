@@ -45,7 +45,7 @@ internal static class Program
     {
         var builder = new ConfigurationBuilder();
 
-        builder.SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Environment.CurrentDirectory)
+        builder.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? Environment.CurrentDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddUserSecrets<VorIncident>(true)
             .AddEnvironmentVariables();
@@ -134,56 +134,75 @@ internal static class Program
 
         using var graphClient = new GraphServiceClient(interactiveCredential, scopes);
 
-        var emails = await graphClient.Me.MailFolders[InboxId].Messages.GetAsync();
-
-        if (emails?.Value != null)
-        {
-            foreach (var e in emails.Value.Where(e => e.Subject?.Equals("Daily VOR Report", StringComparison.OrdinalIgnoreCase) == true))
+        var emailResponse = await graphClient.Me.MailFolders[InboxId]
+            .Messages
+            .GetAsync(r =>
             {
-                var attachments = await graphClient.Me.Messages[e.Id].Attachments.GetAsync();
-                var attachment = attachments?.Value?.Find(a => a.Name?.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) == true);
+                r.QueryParameters.Top = 100;
+            });
 
-                if (attachment == null
-                    || e.ReceivedDateTime == null
-                    || attachment is not FileAttachment fa
-                    || fa.ContentBytes == null)
+        var emails = new List<Message>();
+
+        if (emailResponse != null)
+        {
+            var pageIterator = PageIterator<Message, MessageCollectionResponse>.CreatePageIterator(graphClient, emailResponse, e =>
+            {
+                if (e.Subject?.Equals("Daily VOR Report", StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    continue;
+                    emails.Add(e);
                 }
 
-                var fileDate = DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
-                Console.WriteLine($"Found File - Date: {e.ReceivedDateTime}");
+                return true;
+            });
 
-                var tempFile = Path.GetRandomFileName();
-                await File.WriteAllBytesAsync(tempFile, fa.ContentBytes);
+            await pageIterator.IterateAsync();
+        }
 
-                var items = FileParser.ParseFile(tempFile, fileDate);
+        foreach (var e in emails)
+        {
+            var attachments = await graphClient.Me.Messages[e.Id].Attachments.GetAsync();
+            var attachment = attachments?.Value?.Find(a => a.Name?.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) == true);
 
-                var count = 0;
-                HttpResponseMessage result;
+            if (attachment == null
+                || e.ReceivedDateTime == null
+                || attachment is not FileAttachment fa
+                || fa.ContentBytes == null)
+            {
+                continue;
+            }
 
-                do
+            var fileDate = DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
+            Console.WriteLine($"Found File - Date: {e.ReceivedDateTime}");
+
+            var tempFile = Path.GetRandomFileName();
+            await File.WriteAllBytesAsync(tempFile, fa.ContentBytes);
+
+            var items = FileParser.ParseFile(tempFile, fileDate);
+
+            var count = 0;
+            HttpResponseMessage result;
+
+            do
+            {
+                if (count > 0)
                 {
-                    if (count > 0)
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(5));
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
 
-                    result = await httpClient.PostAsJsonAsync(vorUris, items);
-                    count++;
-                }
-                while (count < 3 && !result.IsSuccessStatusCode);
+                result = await httpClient.PostAsJsonAsync(vorUris, items);
+                count++;
+            }
+            while (count < 3 && !result.IsSuccessStatusCode);
 
-                if (!result.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Received Error : {result.StatusCode}");
-                }
-                else
-                {
-                    Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
-                    File.Move(tempFile, Path.Combine(Environment.CurrentDirectory, "Uploaded", $"{fileDate:o} VOR Report.xls"), true);
-                    await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
-                }
+            if (!result.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Received Error : {result.StatusCode}");
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
+                File.Move(tempFile, Path.Combine(Environment.CurrentDirectory, "Uploaded", $"{fileDate:o} VOR Report.xls"), true);
+                await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
             }
         }
 

@@ -7,6 +7,9 @@
 
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
+/// <summary>
+/// Represents the statistics for vehicles that are VOR.
+/// </summary>
 public readonly record struct VorStatistics
 {
     /// <summary>

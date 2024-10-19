@@ -7,6 +7,7 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<UserSecretsId>b59e2c3a-e2e2-4c09-9678-2288854349e9</UserSecretsId>
+		<PublishAot>True</PublishAot>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,18 +19,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity" Version="1.12.0" />
+		<PackageReference Include="Azure.Identity" Version="1.13.0" />
 		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Graph" Version="5.56.0" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
-		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.62.0" />
-		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.62.0" />
-		<PackageReference Include="OpenIddict.Client.SystemNetHttp" Version="5.7.0" />
-		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.30.0.95878">
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Graph" Version="5.61.0" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.66.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.66.0" />
+		<PackageReference Include="OpenIddict.Client.SystemNetHttp" Version="5.8.0" />
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -37,7 +38,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="26.2.8" />
+		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="27.1.53" />
 	</ItemGroup>
 
 	<ItemGroup>

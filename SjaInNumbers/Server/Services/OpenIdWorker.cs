@@ -11,11 +11,17 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SjaInNumbers.Server.Services;
 
+/// <summary>
+/// A worker that sets up the Open ID server.
+/// </summary>
+/// <param name="serviceProvider">The core service provider.</param>
+/// <param name="options">The options for the worker.</param>
 public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorkerSettings> options) : IHostedService
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly OpenIdWorkerSettings options = options.Value;
 
+    /// <inheritdoc/>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
@@ -42,5 +48,6 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
         }
     }
 
+    /// <inheritdoc/>
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

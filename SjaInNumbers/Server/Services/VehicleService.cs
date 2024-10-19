@@ -11,11 +11,16 @@ using SjaInNumbers.Shared.Model.Vehicles;
 
 namespace SjaInNumbers.Server.Services;
 
+/// <summary>
+/// A service for managing vehicles.
+/// </summary>
+/// <param name="contextFactory">The factory for a data context containing the hours data.</param>
 public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFactory) : IVehicleService
 {
     private readonly IDbContextFactory<ApplicationDbContext> contextFactory = contextFactory;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
 
+    /// <inheritdoc/>
     public async Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents)
     {
         var incidents = vorIncidents.ToList();
@@ -56,6 +61,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         }
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
     {
         using var context = await contextFactory.CreateDbContextAsync();
@@ -80,6 +86,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         }
     }
 
+    /// <inheritdoc/>
     public async Task<VehicleSettings?> GetSettingsAsync(int id)
     {
         using var context = await contextFactory.CreateDbContextAsync();
@@ -102,6 +109,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
             .FirstOrDefaultAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<VorStatistics?> GetVorStatisticsAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
@@ -157,6 +165,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         };
     }
 
+    /// <inheritdoc/>
     public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
@@ -167,6 +176,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         return GetVorStatusesPrivateAsync(place);
     }
 
+    /// <inheritdoc/>
     public async Task PutSettingsAsync(UpdateVehicleSettings settings)
     {
         using var context = await contextFactory.CreateDbContextAsync();

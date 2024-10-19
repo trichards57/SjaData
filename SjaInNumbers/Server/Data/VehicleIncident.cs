@@ -10,6 +10,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Represents an incident involving a vehicle.
+/// </summary>
 public class VehicleIncident
 {
     /// <summary>

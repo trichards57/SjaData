@@ -5,6 +5,9 @@
 
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
+/// <summary>
+/// Represents the settings for a vehicle.
+/// </summary>
 public readonly record struct VehicleSettings
 {
     /// <summary>

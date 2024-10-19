@@ -43,19 +43,19 @@ internal static class FileParser
                 yield break;
             }
 
-            columns[c.Text.Replace(" ", "", StringComparison.OrdinalIgnoreCase)] = c.Column;
+            columns[c.Text.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase)] = c.Column;
         }
 
         foreach (var cols in sheet.Rows.Skip(1).Select(r => r.Columns))
         {
             var reg = cols[columns["VehicleReg"] - 1].Text.Trim().ToUpperInvariant();
-            var fleetNum = cols[columns["FleetNumber"] - 1].Text?.Trim() ?? "";
-            var bodyType = cols[columns["BodyType"] - 1].Text?.Trim() ?? "";
-            var make = cols[columns["Make"] - 1].Text?.Trim() ?? "";
-            var model = cols[columns["Model"] - 1].Text?.Trim() ?? "";
-            var comments = cols[columns["Comments"] - 1].Text?.Trim() ?? "";
+            var fleetNum = cols[columns["FleetNumber"] - 1].Text?.Trim() ?? string.Empty;
+            var bodyType = cols[columns["BodyType"] - 1].Text?.Trim() ?? string.Empty;
+            var make = cols[columns["Make"] - 1].Text?.Trim() ?? string.Empty;
+            var model = cols[columns["Model"] - 1].Text?.Trim() ?? string.Empty;
+            var comments = cols[columns["Comments"] - 1].Text?.Trim() ?? string.Empty;
             var startDate = DateOnly.FromDateTime(cols[columns["StartDate"] - 1].DateTime);
-            var description = cols[columns["Description"] - 1].Text?.Trim() ?? "";
+            var description = cols[columns["Description"] - 1].Text?.Trim() ?? string.Empty;
             var estimatedReturnCol = columns.GetValueOrDefault("EstimatedRepairDate");
             if (estimatedReturnCol == default)
             {

@@ -5,6 +5,9 @@
 
 namespace SjaInNumbers.Shared.Model;
 
+/// <summary>
+/// Represents the type of vehicle.
+/// </summary>
 public enum VehicleType
 {
     /// <summary>

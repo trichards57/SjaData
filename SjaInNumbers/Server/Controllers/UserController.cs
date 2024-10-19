@@ -12,16 +12,27 @@ using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
 
+/// <summary>
+/// Controller for managing user information.
+/// </summary>
+/// <param name="userService">Service to manage users.</param>
 [Route("api/user")]
 [ApiController]
 public class UserController(IUserService userService) : ControllerBase
 {
     private readonly IUserService userService = userService;
 
+    /// <summary>
+    /// Gets the details of the currently logged in user.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpGet("me")]
     [Authorize]
     [NotCachedFilter]
     [ProducesResponseType(typeof(UserDetails), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<UserDetails>> GetCurrentUser()
     {
         var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Could not current user ID.");
@@ -36,12 +47,25 @@ public class UserController(IUserService userService) : ControllerBase
         return user;
     }
 
+    /// <summary>
+    /// Gets all users in the system.
+    /// </summary>
+    /// <returns>
+    /// The list of users in the system.
+    /// </returns>
     [HttpGet]
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]
     [ProducesResponseType(typeof(IAsyncEnumerable<UserDetails>), StatusCodes.Status200OK)]
     public IAsyncEnumerable<UserDetails> GetAll() => userService.GetAll();
 
+    /// <summary>
+    /// Approves a user in the system.
+    /// </summary>
+    /// <param name="userId">The ID of the user to be approved.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpPost("{userId}/approve")]
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]
@@ -67,6 +91,13 @@ public class UserController(IUserService userService) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Updates the role of a user.
+    /// </summary>
+    /// <param name="userChange">The user change to apply.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpPost]
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]
@@ -106,6 +137,13 @@ public class UserController(IUserService userService) : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Deletes the specified user.
+    /// </summary>
+    /// <param name="userId">The user to delete.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpDelete("{userId}")]
     [Authorize(Policy = "Admin")]
     [NotCachedFilter]

@@ -7,6 +7,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
+/// <summary>
+/// Represents a settings update for a vehicle.
+/// </summary>
 public readonly record struct UpdateVehicleSettings
 {
     /// <summary>

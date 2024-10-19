@@ -10,6 +10,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Represents a vehicle.
+/// </summary>
 [Index(nameof(Registration), IsUnique = true)]
 [Index(nameof(CallSign))]
 public class Vehicle : IDeletableItem

@@ -5,6 +5,9 @@
 
 namespace SjaInNumbers.Shared.Model;
 
+/// <summary>
+/// Represents a place in the SJA.
+/// </summary>
 public readonly record struct Place
 {
     /// <summary>

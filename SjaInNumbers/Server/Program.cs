@@ -7,7 +7,9 @@ using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
 using SjaInNumbers.Server.Authorization;
@@ -61,7 +63,30 @@ builder.Services.AddScoped<IHoursService, HoursService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "SJA In Numbers API",
+        Description = "API to provide data for the SJA In Numbers application.",
+        TermsOfService = new Uri("https://dashboard.tr-toolbox.me.uk/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Tony Richards",
+            Email = "tony.richards@sja.org.uk",
+            Url = new Uri("https://dashboard.tr-toolbox.me.uk/api"),
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/licenses/MIT"),
+        },
+    });
+
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Server.xml"));
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Shared.xml"));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -147,6 +172,8 @@ builder.Logging.AddApplicationInsights(
     configureApplicationInsightsLoggerOptions: (options) => { });
 
 var app = builder.Build();
+
+app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

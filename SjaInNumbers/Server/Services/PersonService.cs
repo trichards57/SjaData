@@ -109,7 +109,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     }
 
     /// <inheritdoc/>
-    public async Task<DateTimeOffset?> GetLastModifiedAsync()
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
         using var context = await dataContextFactory.CreateDbContextAsync();
 

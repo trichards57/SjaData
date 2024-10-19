@@ -7,6 +7,9 @@
 
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
+/// <summary>
+/// Represents the VOR status of a vehicle.
+/// </summary>
 public readonly record struct VorStatus
 {
     /// <summary>
