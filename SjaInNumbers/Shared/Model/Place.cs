@@ -13,12 +13,12 @@ public readonly record struct Place
     /// <summary>
     /// Gets the name of the district the place is in.
     /// </summary>
-    public string District { get; init; }
+    public int? DistrictId { get; init; }
 
     /// <summary>
     /// Gets the name of the hub the place is in.
     /// </summary>
-    public string Hub { get; init; }
+    public int? HubId { get; init; }
 
     /// <summary>
     /// Gets the name of the region the place is in.
@@ -36,16 +36,16 @@ public readonly record struct Place
             return string.Empty;
         }
 
-        if (District.Equals("all", StringComparison.OrdinalIgnoreCase))
+        if (DistrictId == null)
         {
             return $"?region={Region}";
         }
 
-        if (Hub.Equals("all", StringComparison.OrdinalIgnoreCase))
+        if (HubId == null)
         {
-            return $"?region={Region}&district={District}";
+            return $"?region={Region}&districtId={DistrictId}";
         }
 
-        return $"?region={Region}&district={District}&hub={Hub}";
+        return $"?region={Region}&districtId={DistrictId}&hubId={HubId}";
     }
 }

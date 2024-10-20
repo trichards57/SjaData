@@ -73,12 +73,10 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
             .Select(s => new VehicleSettings
             {
                 CallSign = s.CallSign,
-                District = s.District,
                 ForDisposal = s.ForDisposal,
-                Hub = s.Hub,
+                HubId = s.HubId,
                 Id = s.Id,
                 Registration = s.Registration,
-                Region = s.Region,
                 VehicleType = s.VehicleType,
             }))
         {
@@ -97,12 +95,10 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
             .Select(s => new VehicleSettings
             {
                 CallSign = s.CallSign,
-                District = s.District,
                 ForDisposal = s.ForDisposal,
-                Hub = s.Hub,
+                HubId = s.HubId,
                 Id = s.Id,
                 Registration = s.Registration,
-                Region = s.Region,
                 VehicleType = s.VehicleType,
             })
             .Cast<VehicleSettings?>()
@@ -190,11 +186,9 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         }
 
         vehicle.CallSign = settings.CallSign;
-        vehicle.District = settings.District;
         vehicle.ForDisposal = settings.ForDisposal;
-        vehicle.Hub = settings.Hub;
+        vehicle.HubId = settings.HubId;
         vehicle.Registration = settings.Registration;
-        vehicle.Region = settings.Region;
         vehicle.VehicleType = settings.VehicleType;
         vehicle.Deleted = null;
         vehicle.LastModified = DateTimeOffset.UtcNow;
@@ -272,12 +266,10 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
            .Select(s => new VorStatus
            {
                CallSign = s.CallSign,
-               District = s.District,
                DueBack = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate : null,
-               Hub = s.Hub,
+               HubId = s.HubId,
                IsVor = s.IsVor,
                Registration = s.Registration,
-               Region = s.Region,
                Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
                Id = s.Id,
            }))

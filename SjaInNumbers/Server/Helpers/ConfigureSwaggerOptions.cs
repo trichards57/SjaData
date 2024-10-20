@@ -10,12 +10,15 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SjaInNumbers.Server.Helpers;
 
-public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+/// <summary>
+/// Options to configure swagger generation.
+/// </summary>
+/// <param name="provider">API Description Provider service.</param>
+public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : IConfigureOptions<SwaggerGenOptions>
 {
-    private readonly IApiVersionDescriptionProvider provider;
+    private readonly IApiVersionDescriptionProvider provider = provider;
 
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
-
+    /// <inheritdoc/>
     public void Configure(SwaggerGenOptions options)
     {
         foreach (var description in provider.ApiVersionDescriptions)

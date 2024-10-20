@@ -18,19 +18,9 @@ public readonly record struct VorStatus
     public int Id { get; init; }
 
     /// <summary>
-    /// Gets the home region for the vehicle.
-    /// </summary>
-    public Region Region { get; init; }
-
-    /// <summary>
     /// Gets the home hub for the vehicle.
     /// </summary>
-    public string Hub { get; init; }
-
-    /// <summary>
-    /// Gets the home district for the vehicle.
-    /// </summary>
-    public string District { get; init; }
+    public int? HubId { get; init; }
 
     /// <summary>
     /// Gets the registration of the vehicle.

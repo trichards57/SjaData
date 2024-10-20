@@ -28,7 +28,7 @@ public static class Helpers
     /// <param name="district">The district to filter for.</param>
     /// <param name="hub">The hub to filter for.</param>
     /// <returns>The filtered items.</returns>
-    public static IQueryable<VehicleIncident> GetForPlace(this IQueryable<VehicleIncident> incidents, Region region, string? district = null, string? hub = null)
+    public static IQueryable<VehicleIncident> GetForPlace(this IQueryable<VehicleIncident> incidents, Region region, int? district = null, int? hub = null)
     {
         if (region == Region.All)
         {
@@ -36,15 +36,15 @@ public static class Helpers
         }
 
         var filteredIncidents = incidents
-            .Where(v => v.Vehicle.Region == region);
+            .Where(v => v.Vehicle.Hub != null && v.Vehicle.Hub.District.Region == region);
 
-        if (!string.IsNullOrWhiteSpace(district))
+        if (district != null)
         {
-            filteredIncidents = filteredIncidents.Where(v => v.Vehicle.District == district);
+            filteredIncidents = filteredIncidents.Where(v => v.Vehicle.Hub != null && v.Vehicle.Hub.DistrictId == district);
 
-            if (!string.IsNullOrWhiteSpace(hub))
+            if (hub != null)
             {
-                filteredIncidents = filteredIncidents.Where(v => v.Vehicle.Hub == hub);
+                filteredIncidents = filteredIncidents.Where(v => v.Vehicle.HubId == hub);
             }
         }
 
@@ -58,12 +58,7 @@ public static class Helpers
     /// <param name="place">The place to filter for.</param>
     /// <returns>The filtered items.</returns>
     public static IQueryable<VehicleIncident> GetForPlace(this IQueryable<VehicleIncident> incidents, Place place)
-    {
-        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
-        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
-
-        return GetForPlace(incidents, place.Region, district, hub);
-    }
+        => GetForPlace(incidents, place.Region, place.DistrictId, place.HubId);
 
     /// <summary>
     /// Gets all the vehicles in a given place.
@@ -72,22 +67,17 @@ public static class Helpers
     /// <param name="place">The place to filter for.</param>
     /// <returns>The filtered items.</returns>
     public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Place place)
-    {
-        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
-        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
-
-        return GetForPlace(vehicles, place.Region, district, hub);
-    }
+        => GetForPlace(vehicles, place.Region, place.DistrictId, place.HubId);
 
     /// <summary>
     /// Gets all the vehicles in a given place.
     /// </summary>
     /// <param name="vehicles">The vehicles to filter.</param>
     /// <param name="region">The region to filter for.</param>
-    /// <param name="district">The district to filter for.</param>
-    /// <param name="hub">The hub to filter for.</param>
+    /// <param name="districtId">The district to filter for.</param>
+    /// <param name="hubId">The hub to filter for.</param>
     /// <returns>The filtered items.</returns>
-    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Region region, string? district = null, string? hub = null)
+    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Region region, int? districtId = null, int? hubId = null)
     {
         if (region == Region.All)
         {
@@ -95,15 +85,15 @@ public static class Helpers
         }
 
         var filteredVehicles = vehicles
-            .Where(v => v.Region == region);
+            .Where(v => v.Hub != null && v.Hub.District.Region == region);
 
-        if (!string.IsNullOrWhiteSpace(district))
+        if (districtId != null)
         {
-            filteredVehicles = filteredVehicles.Where(v => v.District == district);
+            filteredVehicles = filteredVehicles.Where(v => v.Hub != null && v.Hub.DistrictId == districtId);
 
-            if (!string.IsNullOrWhiteSpace(hub))
+            if (hubId != null)
             {
-                filteredVehicles = filteredVehicles.Where(v => v.Hub == hub);
+                filteredVehicles = filteredVehicles.Where(v => v.HubId == hubId);
             }
         }
 

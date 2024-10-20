@@ -21,27 +21,13 @@ public readonly record struct UpdateVehicleSettings
     /// <summary>
     /// Gets the owning hub.
     /// </summary>
-    [Required]
-    public string Hub { get; init; }
+    public int? HubId { get; init; }
 
     /// <summary>
     /// Gets the radio call sign for the vehicle.
     /// </summary>
     [Required]
     public string CallSign { get; init; }
-
-    /// <summary>
-    /// Gets the owning district.
-    /// </summary>
-    [Required]
-    public string District { get; init; }
-
-    /// <summary>
-    /// Gets the owning region.
-    /// </summary>
-    [EnumDataType(typeof(Region))]
-    [Required]
-    public Region Region { get; init; }
 
     /// <summary>
     /// Gets the vehicle type.

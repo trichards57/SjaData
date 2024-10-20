@@ -16,6 +16,16 @@ namespace SjaInNumbers.Server.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
 {
     /// <summary>
+    /// Gets or sets the hubs.
+    /// </summary>
+    public DbSet<Hub> Hubs { get; set; }
+
+    /// <summary>
+    /// Gets or sets the districts containing hubs.
+    /// </summary>
+    public DbSet<District> Districts { get; set; }
+
+    /// <summary>
     /// Gets or sets the hours entries.
     /// </summary>
     public DbSet<HoursEntry> Hours { get; set; }

@@ -10,8 +10,12 @@ using System.Text.Json;
 
 namespace SjaInNumbers.Server.Helpers;
 
+/// <summary>
+/// Represents the default values used for swagger operations.
+/// </summary>
 public class SwaggerDefaultValues : IOperationFilter
 {
+    /// <inheritdoc/>
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var apiDescription = context.ApiDescription;

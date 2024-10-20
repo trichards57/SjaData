@@ -33,11 +33,6 @@ public class Vehicle : IDeletableItem
     public DateTimeOffset? Deleted { get; set; }
 
     /// <summary>
-    /// Gets or sets the vehicle's home district.
-    /// </summary>
-    public string District { get; set; } = "Unknown";
-
-    /// <summary>
     /// Gets or sets a value indicating whether the vehicle is marked for disposal.
     /// </summary>
     public bool ForDisposal { get; set; }
@@ -45,7 +40,14 @@ public class Vehicle : IDeletableItem
     /// <summary>
     /// Gets or sets the vehicle's home hub.
     /// </summary>
-    public string Hub { get; set; } = "Unknown";
+    [ForeignKey(nameof(HubId))]
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public Hub? Hub { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the vehicle's home hub.
+    /// </summary>
+    public int? HubId { get; set; }
 
     /// <summary>
     /// Gets or sets the vehicle's internal ID.
@@ -78,11 +80,6 @@ public class Vehicle : IDeletableItem
     /// Gets or sets the vehicle's model.
     /// </summary>
     public string Model { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the vehicle's home region.
-    /// </summary>
-    public Region Region { get; set; } = Region.Undefined;
 
     /// <summary>
     /// Gets or sets the vehicle's registration.

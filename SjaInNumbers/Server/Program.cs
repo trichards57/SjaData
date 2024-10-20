@@ -177,11 +177,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(
         options =>
         {
-            foreach (var description in app.DescribeApiVersions())
+            foreach (var groupName in app.DescribeApiVersions().Select(d => d.GroupName))
             {
-                options.SwaggerEndpoint(
-                    $"/swagger/{description.GroupName}/swagger.json",
-                    description.GroupName);
+                options.SwaggerEndpoint($"/swagger/{groupName}/swagger.json", groupName);
             }
         });
 }

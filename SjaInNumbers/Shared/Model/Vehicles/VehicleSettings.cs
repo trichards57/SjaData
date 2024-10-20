@@ -28,17 +28,7 @@ public readonly record struct VehicleSettings
     /// <summary>
     /// Gets the owning hub.
     /// </summary>
-    public string Hub { get; init; }
-
-    /// <summary>
-    /// Gets the owning district.
-    /// </summary>
-    public string District { get; init; }
-
-    /// <summary>
-    /// Gets the owning region.
-    /// </summary>
-    public Region Region { get; init; }
+    public int? HubId { get; init; }
 
     /// <summary>
     /// Gets the vehicle type.

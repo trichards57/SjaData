@@ -21,6 +21,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
 {
     private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
 
+    /// <inheritdoc/>
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
     {
         using var context = await dataContextFactory.CreateDbContextAsync();
