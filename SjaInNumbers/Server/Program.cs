@@ -3,19 +3,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Asp.Versioning;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
 using SjaInNumbers.Server.Authorization;
 using SjaInNumbers.Server.Data;
+using SjaInNumbers.Server.Helpers;
 using SjaInNumbers.Server.Services;
 using SjaInNumbers.Server.Services.Interfaces;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,27 +67,10 @@ builder.Services.AddScoped<IHoursService, HoursService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "SJA In Numbers API",
-        Description = "API to provide data for the SJA In Numbers application.",
-        TermsOfService = new Uri("https://dashboard.tr-toolbox.me.uk/terms"),
-        Contact = new OpenApiContact
-        {
-            Name = "Tony Richards",
-            Email = "tony.richards@sja.org.uk",
-            Url = new Uri("https://dashboard.tr-toolbox.me.uk/api"),
-        },
-        License = new OpenApiLicense
-        {
-            Name = "MIT",
-            Url = new Uri("https://opensource.org/licenses/MIT"),
-        },
-    });
-
+    c.OperationFilter<SwaggerDefaultValues>();
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Server.xml"));
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Shared.xml"));
 });
@@ -167,6 +154,13 @@ builder.Services.AddHealthChecks()
     .AddApplicationStatus()
     .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
 
+builder.Services.AddApiVersioning(o =>
+{
+    o.ApiVersionReader = new MediaTypeApiVersionReader();
+    o.AssumeDefaultVersionWhenUnspecified = true;
+    o.DefaultApiVersion = new ApiVersion(1);
+}).AddApiExplorer();
+
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
     configureApplicationInsightsLoggerOptions: (options) => { });
@@ -180,7 +174,16 @@ if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        options =>
+        {
+            foreach (var description in app.DescribeApiVersions())
+            {
+                options.SwaggerEndpoint(
+                    $"/swagger/{description.GroupName}/swagger.json",
+                    description.GroupName);
+            }
+        });
 }
 else
 {
