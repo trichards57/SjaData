@@ -1,0 +1,8 @@
+﻿.icon {
+    height: 1rem;
+    width: 1rem;
+}
+
+    .icon:hover {
+        filter: grayscale(100%) brightness(70%);
+    }

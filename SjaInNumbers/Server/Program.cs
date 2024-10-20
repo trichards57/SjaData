@@ -64,6 +64,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IHoursService, HoursService>();
+builder.Services.AddScoped<IHubService, HubService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 

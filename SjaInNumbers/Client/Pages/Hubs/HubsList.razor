@@ -3,24 +3,57 @@
 @using Microsoft.AspNetCore.Authorization
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Hubs
 
 @attribute [Authorize(Policy = "Lead")]
+
+@inject IHubService HubService
 
 <GeneralErrorHandler>
     <h2>Hubs</h2>
     <HomeLink />
 
-    @foreach (var r in Enum.GetNames<Region>())
+    @foreach (var r in Enum.GetValues<Region>())
     {
-        <h3>@LabelConverters.LabelToDisplay(r)</h3>
+        if (hubs.Count(h => h.Region == r) == 0)
+        {
+            continue;
+        }
+
+        <h3>@LabelConverters.LabelToDisplay(r.ToString())</h3>
+        <table>
+            <tbody>
+                @foreach (var h in hubs.Where(h => h.Region == r))
+                {
+                    <tr>
+                        <td>
+                            <a href="@($"/hubs/{h.Id}/edit")">
+                                <img class="icon" src="/img/icons/pencil.svg" title="Edit" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href="@($"/hubs/{h.Id}/delete")">
+                                <img class="icon" src="/img/icons/trash-can.svg" title="Delete" />
+                            </a>
+                        </td>
+                        <td>
+                            @h.Name, @h.District
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
 
 </GeneralErrorHandler>
 
 @code {
-    protected override Task OnInitializedAsync()
+    private IList<HubSummary> hubs = [];
+
+    protected override async Task OnInitializedAsync()
     {
-        return base.OnInitializedAsync();
+        hubs = await HubService.GetHubSummariesAsync().ToListAsync();
     }
 }
