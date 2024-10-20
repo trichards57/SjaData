@@ -15,7 +15,7 @@
     <h2>Hubs</h2>
     <HomeLink />
 
-    @foreach (var r in Enum.GetValues<Region>())
+    @foreach (var r in Enum.GetValues<Region>().OrderBy(r => r.ToString()))
     {
         if (hubs.Count(h => h.Region == r) == 0)
         {
@@ -36,6 +36,11 @@
                         <td>
                             <a href="@($"/hubs/{h.Id}/delete")">
                                 <img class="icon" src="/img/icons/trash-can.svg" title="Delete" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href="@($"/hubs/{h.Id}/delete")">
+                                <img class="icon" src="/img/icons/link.svg" title="Merge" />
                             </a>
                         </td>
                         <td>
