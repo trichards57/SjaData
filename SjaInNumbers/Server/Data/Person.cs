@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Shared.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers.Server.Data;
 
@@ -19,12 +20,6 @@ public class Person
     /// Gets or sets the date the person was deleted.
     /// </summary>
     public DateTimeOffset? DeletedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the district for the person.
-    /// </summary>
-    [MaxLength(100)]
-    public string District { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the first name of the person.
@@ -58,11 +53,6 @@ public class Person
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the region for the person.
-    /// </summary>
-    public Region Region { get; set; }
-
-    /// <summary>
     /// Gets or sets the clinical role for the person.
     /// </summary>
     [MaxLength(100)]
@@ -86,4 +76,15 @@ public class Person
     /// </summary>
     [Required]
     public string UpdatedById { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the hub for the person.
+    /// </summary>
+    [ForeignKey(nameof(HubId))]
+    public Hub? Hub { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the hub the person is associated with.
+    /// </summary>
+    public int? HubId { get; set; }
 }

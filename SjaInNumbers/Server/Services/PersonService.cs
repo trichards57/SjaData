@@ -26,20 +26,37 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     {
         using var context = await dataContextFactory.CreateDbContextAsync();
 
-        var peopleList = await people.Where(p => p.JobRoleTitle.Equals("emergency ambulance crew", StringComparison.InvariantCultureIgnoreCase)).Select(p =>
+        var peopleList = new List<Person>();
+
+        await foreach (var p in people)
         {
+            var district = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation[10..] : p.DistrictStation).Trim();
+            var region = CalculateRegion(p);
+
+            var place = await context.Hubs.FirstOrDefaultAsync(h => h.District.Name == district && h.District.Region == region);
+
+            if (place == null)
+            {
+                var newDistrict = new District { Name = district, Region = region };
+                place = new Hub { Name = $"AutoHubFor_{district}", District = newDistrict };
+
+                context.Districts.Add(newDistrict);
+                context.Hubs.Add(place);
+                await context.SaveChangesAsync();
+            }
+
             var name = p.Name.Split(',');
-            return new Person
+
+            peopleList.Add(new Person
             {
                 Id = p.MyDataNumber,
                 FirstName = name[1].Trim(),
                 LastName = name[0].Trim(),
-                District = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation[10..] : p.DistrictStation).Trim(),
+                HubId = place.Id,
                 Role = p.JobRoleTitle,
-                Region = CalculateRegion(p),
                 IsVolunteer = p.IsVolunteer,
-            };
-        }).ToListAsync();
+            });
+        }
 
         var existingPeople = await context.People.ToDictionaryAsync(p => p.Id);
 
@@ -57,19 +74,15 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
                     existingPerson.LastName = p.LastName;
                 }
 
-                if (existingPerson.District != p.District)
+                if (existingPerson.HubId != p.HubId)
                 {
-                    existingPerson.District = p.District;
+                    existingPerson.Hub = p.Hub;
+                    existingPerson.HubId = p.HubId;
                 }
 
                 if (existingPerson.Role != p.Role)
                 {
                     existingPerson.Role = p.Role;
-                }
-
-                if (existingPerson.Region != p.Region)
-                {
-                    existingPerson.Region = p.Region;
                 }
 
                 if (existingPerson.IsVolunteer != p.IsVolunteer)
@@ -134,7 +147,7 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
 
         var people = context.People
             .AsNoTracking()
-            .Where(p => p.Region == region && p.DeletedAt == null)
+            .Where(p => p.Hub != null && p.Hub.District.Region == region && p.DeletedAt == null)
             .Include(p => p.Hours)
             .Select(p => new
             {
