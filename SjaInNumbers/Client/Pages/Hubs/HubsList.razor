@@ -1,0 +1,26 @@
+﻿@page "/hubs"
+
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Shared.Model
+
+@attribute [Authorize(Policy = "Lead")]
+
+<GeneralErrorHandler>
+    <h2>Hubs</h2>
+    <HomeLink />
+
+    @foreach (var r in Enum.GetNames<Region>())
+    {
+        <h3>@LabelConverters.LabelToDisplay(r)</h3>
+    }
+
+</GeneralErrorHandler>
+
+@code {
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

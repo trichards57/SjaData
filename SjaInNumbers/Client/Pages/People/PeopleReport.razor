@@ -1,11 +1,14 @@
 ﻿@page "/people/{Region}"
 
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using SjaInNumbers.Client.Converters
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model
 @using SjaInNumbers.Shared.Model.People
+
+@attribute [Authorize(Policy = "Lead")]
 
 @inject NavigationManager NavigationManager
 @inject IPersonService PersonService

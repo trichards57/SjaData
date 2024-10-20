@@ -1,7 +1,10 @@
 ﻿@page "/trends"
 
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using SjaInNumbers.Client.Components
+
+@attribute [Authorize(Policy = "Lead")]
 
 <PageTitle>SJA In Numbers - Trends</PageTitle>
 
