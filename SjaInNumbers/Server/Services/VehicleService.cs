@@ -64,6 +64,8 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
     /// <inheritdoc/>
     public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
     {
+        Console.WriteLine(place.CreateQuery());
+
         using var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles
@@ -78,6 +80,9 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
                 Id = s.Id,
                 Registration = s.Registration,
                 VehicleType = s.VehicleType,
+                District = s.Hub == null ? "Unknown" : s.Hub.District.Name,
+                Region = s.Hub == null ? Region.Undefined : s.Hub.District.Region,
+                Hub = s.Hub == null ? "Unknown" : s.Hub.Name,
             }))
         {
             yield return v;

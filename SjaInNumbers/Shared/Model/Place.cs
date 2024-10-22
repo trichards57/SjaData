@@ -8,7 +8,7 @@ namespace SjaInNumbers.Shared.Model;
 /// <summary>
 /// Represents a place in the SJA.
 /// </summary>
-public readonly record struct Place
+public class Place
 {
     /// <summary>
     /// Gets the name of the district the place is in.
@@ -23,7 +23,7 @@ public readonly record struct Place
     /// <summary>
     /// Gets the name of the region the place is in.
     /// </summary>
-    public Region Region { get; init; }
+    public Region Region { get; init; } = Region.All;
 
     /// <summary>
     /// Converts the place to a query string.

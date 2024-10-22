@@ -1,0 +1,71 @@
+﻿@page "/vehicles/setup"
+
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model.Vehicles
+
+@inject IVehicleService VehicleService
+
+<GeneralErrorHandler>
+    <h2>Vehicle Setup</h2>
+    <HomeLink />
+
+    <div>
+        <label for="filter">Find:</label>
+        <input @oninput="FilterChanged" id="filter" type="search" />
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th />
+                <th>Call Sign</th>
+                <th>Registration</th>
+                <th>Region</th>
+                <th>District</th>
+                <th>Hub</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehicle in vehicles.Where(v =>
+                v.CallSign.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                v.Registration.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                v.Region.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                v.District.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                v.Hub.Contains(filter, StringComparison.OrdinalIgnoreCase)
+            ).OrderBy(v=>v.CallSign))
+            {
+                <tr>
+                    <td class="edit-col">
+                        <a href="/vehicles/setup/@vehicle.Id">
+                            <img class="fa-img" src="/img/fa/pen.svg" />
+                        </a>
+                    </td>
+                    <td class="call-sign-col">@vehicle.CallSign</td>
+                    <td class="reg-col">@vehicle.Registration</td>
+                    <td class="place-col">@LabelConverters.LabelToDisplay(vehicle.Region.ToString())</td>
+                    <td class="place-col">@vehicle.District</td>
+                    <td class="place-col">@vehicle.Hub</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</GeneralErrorHandler>
+
+@code {
+    private IList<VehicleSettings> vehicles = [];
+
+    private string filter = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehicleService.GetVehicleSettings().ToListAsync();
+    }
+
+    private void FilterChanged(ChangeEventArgs e)
+    {
+        filter = e.Value?.ToString() ?? "";
+    }
+}

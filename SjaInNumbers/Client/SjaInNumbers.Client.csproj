@@ -44,7 +44,4 @@
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </Content>
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Pages\Vehicles\" />
-	</ItemGroup>
 </Project>

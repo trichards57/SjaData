@@ -25,6 +25,12 @@ public readonly record struct VehicleSettings
     /// </summary>
     public string CallSign { get; init; }
 
+    public Region Region { get; init; }
+
+    public string District { get; init; }
+
+    public string Hub { get; init; }
+
     /// <summary>
     /// Gets the owning hub.
     /// </summary>
