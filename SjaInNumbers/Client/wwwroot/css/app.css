@@ -208,7 +208,7 @@ form div {
         margin-top: 1rem;
     }
 
-    form div input {
+    form div input, form div select {
         width: calc(100% - 3 * var(--root-padding));
         display: block;
         padding: var(--root-padding);
@@ -216,6 +216,10 @@ form div {
         margin-bottom: var(--root-padding);
         border-radius: var(--root-padding);
         border: 1px solid var(--sja-gray);
+    }
+
+    form div select {
+        width: calc(100% - 0.5 * var(--root-padding));
     }
 
     form div input.invalid {

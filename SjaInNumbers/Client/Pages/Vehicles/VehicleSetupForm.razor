@@ -1,0 +1,89 @@
+﻿@page "/vehicles/setup/{id:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Hubs
+
+@inject IHubService HubService
+@inject NavigationManager NavigationManager
+
+<GeneralErrorHandler>
+    <h2>Edit Vehicle</h2>
+    <HomeLink />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+
+        <div>
+            <label>Call Sign</label>
+            <InputText @bind-Value="Model.CallSign" id="CallSign" />
+            <ValidationMessage For="@(() => Model.CallSign)" />
+        </div>
+        <div>
+            <label>Registration</label>
+            <input type="text" disabled Value="@registration" id="Registration" />
+        </div>
+        <div>
+            <label>Hub</label>
+            <InputSelect @bind-Value="Model.Hub">
+                <option value="">Unknown</option>
+                @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
+                {
+                    <option value="@h.Id">@h.Name, @h.District, @h.Region</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label>Type</label>
+            <InputSelect @bind-Value="Model.VehicleType">
+                @foreach (var h in Enum.GetValues<VehicleType>())
+                {
+                    <option value="@h">@h.ToString()</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label>For Disposal</label>
+            <InputCheckbox @bind-Value="Model.ForDisposal" />
+        </div>
+
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    private string registration = string.Empty;
+    private IList<HubSummary> hubs = [];
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public EditHubModel Model { get; set; } = new();
+
+    private async Task FormSubmit()
+    {
+        await HubService.PostHubNameAsync(Id, new() { Name = Model.CallSign });
+        NavigationManager.NavigateTo("/vehicles/setup");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubs = await HubService.GetHubSummariesAsync().ToListAsync();
+    }
+
+    public class EditHubModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to enter a callsign for the vehicle.")]
+        public string CallSign { get; set; } = string.Empty;
+
+        public int? Hub { get; set; } = null;
+
+        public VehicleType VehicleType { get; set; }
+
+        public bool ForDisposal { get; set; }
+    }
+}
