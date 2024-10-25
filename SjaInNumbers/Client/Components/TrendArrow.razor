@@ -1,25 +1,31 @@
-﻿@if (HoursChange > SignificantHours && PercentChange > SignificantChange)
+﻿@if (ValueChange > SignificantValue && PercentChange > SignificantChange)
 {
-    <i class="drop" title="@GetChangeString(-HoursChange, -PercentChange)">
+    <i class="drop" title="@GetChangeString(-ValueChange, -PercentChange)">
         <img class="icon" src="/img/icons/arrow-down.svg" />
     </i>
 }
-else if (HoursChange < SignificantHours && PercentChange < -SignificantChange)
+else if (ValueChange < SignificantValue && PercentChange < -SignificantChange)
 {
-    <i class="increase" title="@GetChangeString(-HoursChange, -PercentChange)">
+    <i class="increase" title="@GetChangeString(-ValueChange, -PercentChange)">
         <img class="icon" src="/img/icons/arrow-up.svg" />
     </i>
 }
 else
 {
-    <i class="no-change" title="@GetChangeString(-HoursChange, -PercentChange)">
+    <i class="no-change" title="@GetChangeString(-ValueChange, -PercentChange)">
         <img class="icon" src="/img/icons/equals.svg" />
     </i>
 }
 
 @code {
-    public const double SignificantChange = 0.05; // 5%
-    public const int SignificantHours = 24;
+    public const double DefaultSignificantChange = 0.05; // 5%
+    public const int DefaultSignificantHours = 24;
+
+    [Parameter]
+    public double SignificantChange { get; set; } = DefaultSignificantChange;
+
+    [Parameter]
+    public double SignificantValue { get; set; } = DefaultSignificantHours;
 
     [Parameter]
     public double Value { get; set; }
@@ -27,15 +33,15 @@ else
     [Parameter]
     public double PreviousValue { get; set; }
 
-    private double HoursChange => PreviousValue - Value;
-    private double PercentChange => HoursChange / PreviousValue;
+    private double ValueChange => PreviousValue - Value;
+    private double PercentChange => ValueChange / PreviousValue;
 
     private string GetChangeString(double hours, double percent)
     {
-        if (Math.Abs(hours) > SignificantHours)
+        if (Math.Abs(hours) > SignificantValue)
         {
             return percent.ToString("P1");
         }
-        return $"{Math.Round(hours)} hours";
+        return $"{Math.Round(hours)}";
     }
 }

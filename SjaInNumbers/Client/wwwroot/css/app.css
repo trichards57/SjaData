@@ -20,6 +20,7 @@
     --sja-header-font: "Whitney SemiBold", arial, sans-serif;
     --sja-body-font: "Whitney Book", arial, sans-serif;
     --root-padding: 5px;
+    --button-padding: calc(var(--root-padding) * 3);
     --box-height: 200px;
     --box-padding: 40px;
     --box-spacing: 20px;
@@ -185,7 +186,7 @@ a.btn-large {
         width: 300px;
     }
 
-    
+
 
 @keyframes wave {
     0% {
@@ -195,4 +196,54 @@ a.btn-large {
     100% {
         background-position: -200% 0;
     }
+}
+
+form div {
+    width: 100%;
+}
+
+    form div label {
+        display: block;
+        font-weight: bold;
+        margin-top: 1rem;
+    }
+
+    form div label.checkbox {
+        display: flex;
+        align-items: center;
+    }
+
+    form div input, form div select {
+        width: calc(100% - 3 * var(--root-padding));
+        display: block;
+        padding: var(--root-padding);
+        margin-top: var(--root-padding);
+        margin-bottom: var(--root-padding);
+        border-radius: var(--root-padding);
+        border: 1px solid var(--sja-gray);
+    }
+
+        form div input[type='checkbox'] {
+            display: inline-block;
+            width: unset;
+            margin-left: var(--root-padding);
+        }
+
+    form div select {
+        width: calc(100% - 0.5 * var(--root-padding));
+    }
+
+    form div input.invalid {
+        border-color: darkred;
+    }
+
+form button[type="submit"] {
+    background-color: var(--sja-green);
+    color: var(--sja-green-text);
+    border: none;
+    padding: var(--root-padding) var(--button-padding);
+    margin-top: var(--root-padding);
+    margin-bottom: var(--root-padding);
+    border-radius: var(--root-padding);
+    cursor: pointer;
 }

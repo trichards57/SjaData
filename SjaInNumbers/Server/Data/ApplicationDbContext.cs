@@ -9,8 +9,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Main data context for the application.
+/// </summary>
+/// <param name="options">Options for configuring the data context.</param>
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
 {
+    /// <summary>
+    /// Gets or sets the hubs.
+    /// </summary>
+    public DbSet<Hub> Hubs { get; set; }
+
+    /// <summary>
+    /// Gets or sets the districts containing hubs.
+    /// </summary>
+    public DbSet<District> Districts { get; set; }
+
     /// <summary>
     /// Gets or sets the hours entries.
     /// </summary>
@@ -21,6 +35,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     /// </summary>
     public DbSet<Person> People { get; set; }
 
+    /// <summary>
+    /// Gets or sets the vehicles.
+    /// </summary>
+    public DbSet<Vehicle> Vehicles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the key dates.
+    /// </summary>
+    public DbSet<KeyDates> KeyDates { get; set; }
+
+    /// <summary>
+    /// Gets or sets the incidents associated with vehicles.
+    /// </summary>
+    public DbSet<VehicleIncident> VehicleIncidents { get; set; }
+
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -38,5 +68,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 Name = "Lead",
                 NormalizedName = "LEAD",
             });
+
+        builder.Entity<KeyDates>().HasData(new KeyDates { Id = 1, LastUpdateFile = DateOnly.MinValue });
     }
 }

@@ -3,13 +3,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Asp.Versioning;
+using HealthChecks.ApplicationStatus.DependencyInjection;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
+using OpenIddict.Validation.AspNetCore;
+using Quartz;
 using SjaInNumbers.Server.Authorization;
 using SjaInNumbers.Server.Data;
+using SjaInNumbers.Server.Helpers;
 using SjaInNumbers.Server.Services;
 using SjaInNumbers.Server.Services.Interfaces;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,19 +58,31 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
     .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()));
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IHoursService, HoursService>();
+builder.Services.AddScoped<IHubService, HubService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.OperationFilter<SwaggerDefaultValues>();
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Server.xml"));
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Shared.xml"));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    options.UseSqlServer(connectionString);
+    options.UseOpenIddict();
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>()
@@ -69,14 +91,98 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+const string LocalScheme = "LocalScheme";
+
+builder.Services.AddAuthentication(LocalScheme)
+    .AddPolicyScheme(LocalScheme, "Either Authorization bearer Header or Auth Cookie", o =>
+    {
+        o.ForwardDefaultSelector = c =>
+        {
+            var authHeader = c.Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader?.StartsWith("Bearer ") == true)
+            {
+                return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            }
+
+            return IdentityConstants.ApplicationScheme;
+        };
+    });
+
+builder.Services.AddOpenIddict()
+    .AddCore(o =>
+    {
+        o.UseEntityFrameworkCore().UseDbContext<ApplicationDbContext>();
+        o.UseQuartz();
+    })
+    .AddServer(o =>
+    {
+        o.SetTokenEndpointUris("/connect/token");
+        o.SetRevocationEndpointUris("/connect/revoke");
+        o.AllowClientCredentialsFlow();
+        o.AddEphemeralEncryptionKey();
+        o.AddEphemeralSigningKey();
+        o.UseAspNetCore().EnableTokenEndpointPassthrough();
+    })
+    .AddValidation(o =>
+    {
+        o.UseLocalServer();
+        o.UseAspNetCore();
+    });
+
+builder.Services.AddHostedService<OpenIdWorker>();
+builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+
+builder.Services.AddQuartz(o =>
+{
+    o.UseSimpleTypeLoader();
+    o.UseInMemoryStore();
+}).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
+
+builder.Services.AddApplicationInsightsTelemetry(o =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        o.DeveloperMode = true;
+    }
+
+    o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString)
+    .AddApplicationStatus()
+    .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
+builder.Services.AddApiVersioning(o =>
+{
+    o.ApiVersionReader = new MediaTypeApiVersionReader("api-v");
+    o.AssumeDefaultVersionWhenUnspecified = true;
+    o.DefaultApiVersion = new ApiVersion(1);
+}).AddApiExplorer();
+
+builder.Logging.AddApplicationInsights(
+    configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
+    configureApplicationInsightsLoggerOptions: (options) => { });
+
 var app = builder.Build();
+
+app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        options =>
+        {
+            foreach (var groupName in app.DescribeApiVersions().Select(d => d.GroupName))
+            {
+                options.SwaggerEndpoint($"/swagger/{groupName}/swagger.json", groupName);
+            }
+        });
 }
 else
 {
@@ -111,7 +217,7 @@ else
     app.UseStaticFiles();
 }
 
-app.UseRouting();
+app.MapHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();

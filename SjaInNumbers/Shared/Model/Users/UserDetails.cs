@@ -25,5 +25,8 @@ public readonly record struct UserDetails
     /// </summary>
     public IList<string> Roles { get; init; }
 
+    /// <summary>
+    /// Gets a value indicating whether the user's access has been approved by an administrator.
+    /// </summary>
     public bool IsApproved { get; init; }
 }

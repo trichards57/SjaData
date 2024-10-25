@@ -1,0 +1,61 @@
+﻿@page "/setup/hubs/{id:int}/edit"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Services.Interfaces
+@using System.Net
+@using System.ComponentModel.DataAnnotations
+
+@inject IHubService HubService
+@inject NavigationManager NavigationManager
+
+<GeneralErrorHandler>
+    <h2>Edit Hub</h2>
+    <HomeLink />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+
+        <div>
+            <label>Name</label>
+            <InputText @bind-Value="Model.Name" id="Name" />
+            <ValidationMessage For="@(() => Model.Name)" />
+        </div>
+
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public EditHubModel Model { get; set; } = new();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        try
+        {
+            var item = await HubService.GetHubNameAsync(Id);
+
+            Model.Name = item.Name;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            NavigationManager.NavigateTo("/hubs");
+        }
+    }
+
+    private async Task FormSubmit()
+    {
+        await HubService.PostHubNameAsync(Id, new() { Name = Model.Name });
+        NavigationManager.NavigateTo("/hubs");
+    }
+
+    public class EditHubModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to enter a name for the hub.")]
+        public string Name { get; set; } = string.Empty;
+    }
+}

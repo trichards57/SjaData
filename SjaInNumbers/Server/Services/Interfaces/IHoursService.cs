@@ -26,6 +26,12 @@ public interface IHoursService
     /// </returns>
     Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
 
+    /// <summary>
+    /// Gets the current NHSE target.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the target.
+    /// </returns>
     Task<int> GetNhseTargetAsync();
 
     /// <summary>
@@ -60,10 +66,31 @@ public interface IHoursService
     /// </returns>
     Task<DateTimeOffset> GetLastModifiedAsync();
 
+    /// <summary>
+    /// Gets the current Etag for the NHSE data.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the Etag.
+    /// </returns>
     Task<string> GetNhseTargetEtagAsync();
 
+    /// <summary>
+    /// Gets the last modified date for the NHSE data.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the date.
+    /// </returns>
     Task<DateTimeOffset> GetNhseTargetLastModifiedAsync();
 
+    /// <summary>
+    /// Adds hours data to the database.
+    /// </summary>
+    /// <param name="hours">The hours data to add.</param>
+    /// <param name="userId">The ID of the user adding the data.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the
+    /// number of entries added.
+    /// </returns>
     Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId);
 
     /// <summary>

@@ -1,6 +1,9 @@
 ﻿@page "/people"
 
+@using Microsoft.AspNetCore.Authorization
 @using SjaInNumbers.Client.Components
+
+@attribute [Authorize(Policy = "Lead")]
 
 <PageTitle>SJA In Numbers - People</PageTitle>
 

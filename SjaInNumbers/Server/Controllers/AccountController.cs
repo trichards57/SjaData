@@ -12,13 +12,25 @@ using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
 
+/// <summary>
+/// Controller that manages user account actions.
+/// </summary>
+/// <param name="signInManager">Manager for authentication actions.</param>
+/// <param name="userManager">Manager for user account actions.</param>
+/// <param name="userStore">Store for user data.</param>
 [Route("api/account")]
 [ApiController]
-public class AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserStore<ApplicationUser> userStore) : ControllerBase
+public sealed partial class AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserStore<ApplicationUser> userStore) : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> signInManager = signInManager;
     private readonly IUserStore<ApplicationUser> userStore = userStore;
 
+    /// <summary>
+    /// Handles requests to sign in.  Redirects the user to the external authentication.
+    /// </summary>
+    /// <param name="provider">The log in provider.</param>
+    /// <param name="returnUrl">The URL to return to afterwards.</param>
+    /// <returns>The result of the action.</returns>
     [HttpGet("login")]
     public IActionResult Login(string provider, string returnUrl)
     {
@@ -30,6 +42,13 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
         return Challenge(properties, provider);
     }
 
+    /// <summary>
+    /// Handles requests to sign out.
+    /// </summary>
+    /// <param name="returnUrl">The URL to return to afterwards.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(string returnUrl)
     {
@@ -37,6 +56,13 @@ public class AccountController(SignInManager<ApplicationUser> signInManager, Use
         return LocalRedirect($"~/{returnUrl}");
     }
 
+    /// <summary>
+    /// Handles requests to sign in with an external login provider.
+    /// </summary>
+    /// <param name="returnUrl">The URL to return to.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpGet("externalLogin")]
     public async Task<IActionResult> ExternalLogin(string returnUrl)
     {

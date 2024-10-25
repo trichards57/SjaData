@@ -67,7 +67,7 @@
             var lastMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1).ToString("yyyy-MM-dd");
 
             Region[] regions = [Region.London, Region.SouthWest, Region.SouthEast, Region.WestMidlands, Region.EastMidlands, Region.EastOfEngland, Region.NorthWest, Region.NorthEast];
-
+            /*
             // Define the list of API endpoints you want to preload
             IList<string> apiEndpoints = [
                 "/api/hours/target",
@@ -97,6 +97,7 @@
 
             // Call the JavaScript function to preload the API endpoints when idle
             await module.InvokeVoidAsync("preloadApiEndpoints", apiEndpoints);
+            */
         }
     }
 

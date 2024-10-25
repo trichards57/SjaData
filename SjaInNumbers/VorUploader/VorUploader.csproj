@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<UserSecretsId>b59e2c3a-e2e2-4c09-9678-2288854349e9</UserSecretsId>
+		<PublishAot>True</PublishAot>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Identity" Version="1.13.0" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Graph" Version="5.61.0" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.66.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.66.0" />
+		<PackageReference Include="OpenIddict.Client.SystemNetHttp" Version="5.8.0" />
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="27.1.53" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

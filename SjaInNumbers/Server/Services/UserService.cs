@@ -14,12 +14,14 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// Service for managing user information.
 /// </summary>
-/// <param name="context">The data context containing the information.</param>
+/// <param name="contextFactory">The factory to create a data context containing the information.</param>
+/// <param name="userManager">A manager to handle user operations.</param>
 public class UserService(IDbContextFactory<ApplicationDbContext> contextFactory, UserManager<ApplicationUser> userManager) : IUserService
 {
     private readonly IDbContextFactory<ApplicationDbContext> contextFactory = contextFactory;
     private readonly UserManager<ApplicationUser> userManager = userManager;
 
+    /// <inheritdoc/>
     public async Task<bool> ApproveUserAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -36,6 +38,7 @@ public class UserService(IDbContextFactory<ApplicationDbContext> contextFactory,
         return true;
     }
 
+    /// <inheritdoc/>
     public async Task DeleteUserAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -71,6 +74,7 @@ public class UserService(IDbContextFactory<ApplicationDbContext> contextFactory,
         }
     }
 
+    /// <inheritdoc/>
     public async Task<UserDetails?> GetUserAsync(string userId)
     {
         using var context = await contextFactory.CreateDbContextAsync();

@@ -1,0 +1,82 @@
+﻿@page "/vehicles/{Region}"
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Vehicles
+
+@inject IVehicleService VehicleService
+@inject NavigationManager NavigationManager
+
+<GeneralErrorHandler>
+    <h2>Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</h2>
+    <h3>
+        <a href="/vehicles">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
+
+    @foreach (var district in vehicles.GroupBy(v => v.District))
+    {
+        <h3>@district.Key</h3>
+
+        foreach (var hub in district.GroupBy(d => d.Hub))
+        {
+            <h4>@hub.Key</h4>
+
+            <table class="vehicle-status">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Status</th>
+                        <th>Due Back</th>
+                        <th>12 Month Availability</th>
+                        <th>6 Month Availability</th>
+                        <th>3 Month Availability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var vehicle in hub)
+                    {
+                        <tr>
+                            <td>@vehicle.Registration (@vehicle.CallSign)</td>
+                            <td>@(vehicle.IsVor ? "VOR" : "Operational")</td>
+                            <td>@(vehicle.IsVor ? vehicle.DueBack : "")</td>
+                            <td>
+                                @($"{1.0 - vehicle.TwelveMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.TwelveMonthVorCount)" PreviousValue="@(1 - vehicle.TwelveMonthMinusOneVorCount)" />
+                            </td>
+                            <td>
+                                @($"{1.0 - vehicle.SixMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.SixMonthVorCount)" PreviousValue="@(1 - vehicle.SixMonthMinusOneVorCount)" />
+                            </td>
+                            <td>
+                                @($"{1.0 - vehicle.ThreeMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.ThreeMonthVorCount)" PreviousValue="@(1 - vehicle.ThreeMonthMinusOneVorCount)" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</GeneralErrorHandler>
+
+@code {
+    private IList<VorStatus> vehicles = [];
+    private Region parsedRegion;
+
+    [Parameter]
+    public string Region { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Enum.TryParse<Region>(Region, out parsedRegion))
+        {
+            NavigationManager.NavigateTo("/NotFound", replace: true);
+            return;
+        }
+
+        vehicles = await VehicleService.GetVorStatus(parsedRegion).ToListAsync();
+    }
+}

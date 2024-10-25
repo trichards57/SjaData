@@ -1,10 +1,13 @@
 ﻿@page "/trends/{Region}"
 
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using SjaInNumbers.Client.Converters
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model
+
+@attribute [Authorize(Policy = "Lead")]
 
 @inject IHoursService HoursService
 @inject NavigationManager NavigationManager
@@ -98,8 +101,8 @@
     <footer>
         <p>
             Hours are all shown as people-hours, to two-significant figures. A
-            change of less than @TrendArrow.SignificantChange.ToString("P0") or
-            @TrendArrow.SignificantHours hours (whichever is greater) is considered
+            change of less than @TrendArrow.DefaultSignificantChange.ToString("P0") or
+            @TrendArrow.DefaultSignificantHours hours (whichever is greater) is considered
             insignificant.
         </p>
         <p class="last-update">

@@ -1,0 +1,132 @@
+﻿@page "/vehicles/setup/{id:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Hubs
+
+@inject IHubService HubService
+@inject IVehicleService VehicleService
+@inject NavigationManager NavigationManager
+
+<GeneralErrorHandler>
+    <h2>Edit Vehicle</h2>
+    <HomeLink />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label>Call Sign</label>
+            <InputText @bind-Value="Model.CallSign" id="CallSign" />
+            <ValidationMessage For="@(() => Model.CallSign)" />
+        </div>
+        <div>
+            <label>Registration</label>
+            <input type="text" disabled Value="@registration" id="Registration" />
+        </div>
+        <div>
+            <label>Make</label>
+            <InputText @bind-Value="Model.Make" id="Make" />
+            <ValidationMessage For="@(() => Model.Make)" />
+        </div>
+        <div>
+            <label>Model</label>
+            <InputText @bind-Value="Model.Model" id="Model" />
+            <ValidationMessage For="@(() => Model.Model)" />
+        </div>
+        <div>
+            <label>Body Type</label>
+            <InputText @bind-Value="Model.BodyType" id="BodyType" />
+            <ValidationMessage For="@(() => Model.BodyType)" />
+        </div>
+        <div>
+            <label>Hub</label>
+            <InputSelect @bind-Value="Model.Hub">
+                <option value="">Unknown</option>
+                @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
+                {
+                    <option value="@h.Id">@h.Name, @h.District, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label>Type</label>
+            <InputSelect @bind-Value="Model.VehicleType">
+                @foreach (var h in Enum.GetValues<VehicleType>())
+                {
+                    <option value="@h">@Converters.LabelConverters.LabelToDisplay(h)</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label class="checkbox">
+                For Disposal
+                <InputCheckbox @bind-Value="Model.ForDisposal" />
+            </label>
+        </div>
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    private string registration = string.Empty;
+    private IList<HubSummary> hubs = [];
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public EditHubModel Model { get; set; } = new();
+
+    private async Task FormSubmit()
+    {
+        await VehicleService.PostVehicleSettingsAsync(new()
+        {
+            CallSign = Model.CallSign,
+            ForDisposal = Model.ForDisposal,
+            HubId = Model.Hub,
+            Registration = registration,
+            VehicleType = Model.VehicleType,
+            Make = Model.Make,
+            Model = Model.Model,
+            BodyType = Model.BodyType
+        });
+        NavigationManager.NavigateTo("/vehicles/setup");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubs = await HubService.GetHubSummariesAsync().ToListAsync();
+
+        var vehicle = await VehicleService.GetVehicleSettingsAsync(Id);
+
+        registration = vehicle.Registration;
+        Model.CallSign = vehicle.CallSign;
+        Model.Hub = vehicle.HubId;
+        Model.VehicleType = vehicle.VehicleType;
+        Model.ForDisposal = vehicle.ForDisposal;
+        Model.Make = vehicle.Make;
+        Model.Model = vehicle.Model;
+        Model.BodyType = vehicle.BodyType;
+    }
+
+    public class EditHubModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to enter a callsign for the vehicle.")]
+        public string CallSign { get; set; } = string.Empty;
+
+        public int? Hub { get; set; } = null;
+
+        public VehicleType VehicleType { get; set; }
+
+        public bool ForDisposal { get; set; }
+
+        public string BodyType { get; set; } = string.Empty;
+
+        public string Make { get; set; } = string.Empty;
+
+        public string Model { get; set; } = string.Empty;
+    }
+}

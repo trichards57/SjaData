@@ -7,7 +7,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Represents a user in the application.
+/// </summary>
 public class ApplicationUser : IdentityUser
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the user has been approved.
+    /// </summary>
     public bool IsApproved { get; set; }
 }
