@@ -17,7 +17,6 @@
 
     <EditForm Model="@Model" OnValidSubmit="FormSubmit">
         <DataAnnotationsValidator />
-
         <div>
             <label>Call Sign</label>
             <InputText @bind-Value="Model.CallSign" id="CallSign" />
@@ -26,6 +25,21 @@
         <div>
             <label>Registration</label>
             <input type="text" disabled Value="@registration" id="Registration" />
+        </div>
+        <div>
+            <label>Make</label>
+            <InputText @bind-Value="Model.Make" id="Make" />
+            <ValidationMessage For="@(() => Model.Make)" />
+        </div>
+        <div>
+            <label>Model</label>
+            <InputText @bind-Value="Model.Model" id="Model" />
+            <ValidationMessage For="@(() => Model.Model)" />
+        </div>
+        <div>
+            <label>Body Type</label>
+            <InputText @bind-Value="Model.BodyType" id="BodyType" />
+            <ValidationMessage For="@(() => Model.BodyType)" />
         </div>
         <div>
             <label>Hub</label>
@@ -51,9 +65,7 @@
                 For Disposal
                 <InputCheckbox @bind-Value="Model.ForDisposal" />
             </label>
-
         </div>
-
         <button type="submit">Save</button>
     </EditForm>
 </GeneralErrorHandler>
@@ -76,7 +88,10 @@
             ForDisposal = Model.ForDisposal,
             HubId = Model.Hub,
             Registration = registration,
-            VehicleType = Model.VehicleType
+            VehicleType = Model.VehicleType,
+            Make = Model.Make,
+            Model = Model.Model,
+            BodyType = Model.BodyType
         });
         NavigationManager.NavigateTo("/vehicles/setup");
     }
@@ -92,6 +107,9 @@
         Model.Hub = vehicle.HubId;
         Model.VehicleType = vehicle.VehicleType;
         Model.ForDisposal = vehicle.ForDisposal;
+        Model.Make = vehicle.Make;
+        Model.Model = vehicle.Model;
+        Model.BodyType = vehicle.BodyType;
     }
 
     public class EditHubModel
@@ -104,5 +122,11 @@
         public VehicleType VehicleType { get; set; }
 
         public bool ForDisposal { get; set; }
+
+        public string BodyType { get; set; } = string.Empty;
+
+        public string Make { get; set; } = string.Empty;
+
+        public string Model { get; set; } = string.Empty;
     }
 }

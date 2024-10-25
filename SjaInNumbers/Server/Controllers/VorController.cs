@@ -55,4 +55,8 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     [HttpGet]
     [Authorize(Policy = "Lead")]
     public IAsyncEnumerable<VorStatus> Get([FromQuery] Place place) => vehicleService.GetVorStatusesAsync(place);
+
+    [HttpGet("national")]
+    [Authorize(Policy = "Lead")]
+    public IAsyncEnumerable<VehicleTypeStatus> GetNationalStatus() => vehicleService.GetNationalVorStatusesAsync();
 }

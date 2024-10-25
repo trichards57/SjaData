@@ -23,4 +23,7 @@ public class VehicleService(HttpClient client) : IVehicleService
 
     public IAsyncEnumerable<VorStatus> GetVorStatus(Region region)
         => client.GetFromJsonAsAsyncEnumerable<VorStatus>($"/api/vor?region={region}");
+
+    public IAsyncEnumerable<VehicleTypeStatus> GetNationalStatus()
+        => client.GetFromJsonAsAsyncEnumerable<VehicleTypeStatus>("/api/vor/national");
 }

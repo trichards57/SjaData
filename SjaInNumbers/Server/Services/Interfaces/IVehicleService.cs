@@ -19,6 +19,7 @@ public interface IVehicleService
     /// <param name="vorIncidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents);
+    IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync();
 
     /// <summary>
     /// Gets the settings for all vehicles at the provided place.

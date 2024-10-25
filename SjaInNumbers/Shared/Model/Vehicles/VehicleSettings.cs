@@ -45,4 +45,10 @@ public readonly record struct VehicleSettings
     /// Gets a value indicating whether the vehicle is marked for disposal.
     /// </summary>
     public bool ForDisposal { get; init; }
+
+    public string BodyType { get; init; }
+
+    public string Make { get; init; }
+
+    public string Model { get; init; }
 }
