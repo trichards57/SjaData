@@ -368,10 +368,10 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
                         CurrentlyAvailable = bodyType.Count(v => !v.IsVor),
                         AverageTwelveMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
                         AverageTwelveMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(twelveMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
-                        AverageSixMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sevenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
-                        AverageSixMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sixMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
-                        AverageThreeMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(fourMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
-                        AverageThreeMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
+                        AverageSixMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sevenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / sevenMonthDays,
+                        AverageSixMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sixMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / sixMonthDays,
+                        AverageThreeMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(fourMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / fourMonthDays,
+                        AverageThreeMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / threeMonthDays,
                     };
                 }
             }

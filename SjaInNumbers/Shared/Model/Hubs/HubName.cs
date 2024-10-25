@@ -5,7 +5,13 @@
 
 namespace SjaInNumbers.Shared.Model.Hubs;
 
+/// <summary>
+/// Represents the name of a hub.
+/// </summary>
 public readonly record struct HubName
 {
+    /// <summary>
+    /// Gets the name.
+    /// </summary>
     public string Name { get; init; }
 }

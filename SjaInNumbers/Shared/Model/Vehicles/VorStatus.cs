@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
 /// <summary>
@@ -63,17 +62,38 @@ public readonly record struct VorStatus
     /// </summary>
     public DateOnly? DueBack { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 12 months.
+    /// </summary>
     public double TwelveMonthVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 6 months.
+    /// </summary>
     public double SixMonthVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 3 months.
+    /// </summary>
     public double ThreeMonthVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 13 months, excluding the last month.
+    /// </summary>
     public double TwelveMonthMinusOneVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 7 months, excluding the last month.
+    /// </summary>
     public double SixMonthMinusOneVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the percent of the time the vehicle has been VOR in the last 4 months, excluding the last month.
+    /// </summary>
     public double ThreeMonthMinusOneVorCount { get; init; }
 
+    /// <summary>
+    /// Gets the list of dates the vehicle has been VOR.
+    /// </summary>
     public List<DateOnly> VorDates { get; init; }
 }

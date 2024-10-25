@@ -41,9 +41,18 @@ public readonly record struct UpdateVehicleSettings
     /// </summary>
     public bool ForDisposal { get; init; }
 
+    /// <summary>
+    /// Gets the body type of the vehicle.
+    /// </summary>
     public string BodyType { get; init; }
 
+    /// <summary>
+    /// Gets the make of the vehicle.
+    /// </summary>
     public string Make { get; init; }
 
+    /// <summary>
+    /// Gets the model of the vehicle.
+    /// </summary>
     public string Model { get; init; }
 }

@@ -25,10 +25,19 @@ public readonly record struct VehicleSettings
     /// </summary>
     public string CallSign { get; init; }
 
+    /// <summary>
+    /// Gets the home region of the vehicle.
+    /// </summary>
     public Region Region { get; init; }
 
+    /// <summary>
+    /// Gets the home district of the region.
+    /// </summary>
     public string District { get; init; }
 
+    /// <summary>
+    /// Gets the name of the owning hub.
+    /// </summary>
     public string Hub { get; init; }
 
     /// <summary>
@@ -46,9 +55,18 @@ public readonly record struct VehicleSettings
     /// </summary>
     public bool ForDisposal { get; init; }
 
+    /// <summary>
+    /// Gets the vehicle's body-type.
+    /// </summary>
     public string BodyType { get; init; }
 
+    /// <summary>
+    /// Gets the vehicle's make.
+    /// </summary>
     public string Make { get; init; }
 
+    /// <summary>
+    /// Gets the vehicle's model.
+    /// </summary>
     public string Model { get; init; }
 }
