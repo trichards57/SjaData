@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+
 namespace SjaInNumbers.Shared.Model.Vehicles;
 
 /// <summary>
@@ -21,6 +22,21 @@ public readonly record struct VorStatus
     /// Gets the home hub for the vehicle.
     /// </summary>
     public int? HubId { get; init; }
+
+    /// <summary>
+    /// Gets the home region for the vehicle.
+    /// </summary>
+    public Region Region { get; init; }
+
+    /// <summary>
+    /// Gets the home district for the vehicle.
+    /// </summary>
+    public string District { get; init; }
+
+    /// <summary>
+    /// Gets the home hub for the vehicle.
+    /// </summary>
+    public string Hub { get; init; }
 
     /// <summary>
     /// Gets the registration of the vehicle.
@@ -46,4 +62,18 @@ public readonly record struct VorStatus
     /// Gets the date the vehicle is expected back.
     /// </summary>
     public DateOnly? DueBack { get; init; }
+
+    public double TwelveMonthVorCount { get; init; }
+
+    public double SixMonthVorCount { get; init; }
+
+    public double ThreeMonthVorCount { get; init; }
+
+    public double TwelveMonthMinusOneVorCount { get; init; }
+
+    public double SixMonthMinusOneVorCount { get; init; }
+
+    public double ThreeMonthMinusOneVorCount { get; init; }
+
+    public List<DateOnly> VorDates { get; init; }
 }

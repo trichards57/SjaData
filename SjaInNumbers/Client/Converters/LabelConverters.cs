@@ -3,10 +3,34 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers.Shared.Model;
+
 namespace SjaInNumbers.Client.Converters;
 
 public static class LabelConverters
 {
+    public static string LabelToDisplay(Region region) => region switch
+    {
+        Region.EastMidlands => "East Midlands",
+        Region.EastOfEngland => "East of England",
+        Region.NorthEast => "North East",
+        Region.NorthWest => "North West",
+        Region.SouthEast => "South East",
+        Region.SouthWest => "South West",
+        Region.WestMidlands => "West Midlands",
+        Region.London => "London",
+        _ => region.ToString(),
+    };
+
+    public static string LabelToDisplay(VehicleType vehicleType) => vehicleType switch
+    {
+        VehicleType.Other => "Other",
+        VehicleType.FrontLineAmbulance => "Front Line Ambulance",
+        VehicleType.OffRoadAmbulance => "Off Road Ambulance",
+        VehicleType.AllWheelDrive => "All Wheel Drive Ambulance",
+        _ => vehicleType.ToString(),
+    };
+
     public static string LabelToDisplay(string label) => label switch
     {
         "EastMidlands" => "East Midlands",

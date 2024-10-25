@@ -208,6 +208,11 @@ form div {
         margin-top: 1rem;
     }
 
+    form div label.checkbox {
+        display: flex;
+        align-items: center;
+    }
+
     form div input, form div select {
         width: calc(100% - 3 * var(--root-padding));
         display: block;
@@ -217,6 +222,12 @@ form div {
         border-radius: var(--root-padding);
         border: 1px solid var(--sja-gray);
     }
+
+        form div input[type='checkbox'] {
+            display: inline-block;
+            width: unset;
+            margin-left: var(--root-padding);
+        }
 
     form div select {
         width: calc(100% - 0.5 * var(--root-padding));

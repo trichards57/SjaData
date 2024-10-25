@@ -14,18 +14,16 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// A service for managing vehicles.
 /// </summary>
-/// <param name="contextFactory">The factory for a data context containing the hours data.</param>
-public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFactory) : IVehicleService
+/// <param name="context">The data context containing the hours data.</param>
+public class VehicleService(ApplicationDbContext context) : IVehicleService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> contextFactory = contextFactory;
+    private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
 
     /// <inheritdoc/>
     public async Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents)
     {
         var incidents = vorIncidents.ToList();
-
-        using var context = await contextFactory.CreateDbContextAsync();
 
         using var scope = await context.Database.BeginTransactionAsync();
 
@@ -44,7 +42,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         {
             foreach (var i in incidents)
             {
-                await AddSingleEntryAsync(context, i, updateVors);
+                await AddSingleEntryAsync(i, updateVors);
             }
 
             if (updateVors)
@@ -65,8 +63,6 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
     public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
     {
         Console.WriteLine(place.CreateQuery());
-
-        using var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles
             .GetNotDeleted()
@@ -92,8 +88,6 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
     /// <inheritdoc/>
     public async Task<VehicleSettings?> GetSettingsAsync(int id)
     {
-        using var context = await contextFactory.CreateDbContextAsync();
-
         return await context.Vehicles
             .GetNotDeleted()
             .Where(v => v.Id == id)
@@ -117,8 +111,6 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         {
             throw new ArgumentOutOfRangeException(nameof(place));
         }
-
-        using var context = await contextFactory.CreateDbContextAsync();
 
         var vehicles = await context.Vehicles
             .GetActive()
@@ -180,8 +172,6 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
     /// <inheritdoc/>
     public async Task PutSettingsAsync(UpdateVehicleSettings settings)
     {
-        using var context = await contextFactory.CreateDbContextAsync();
-
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(s => s.Registration == settings.Registration);
 
         if (vehicle == null)
@@ -200,7 +190,7 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
         await context.SaveChangesAsync();
     }
 
-    private async Task AddSingleEntryAsync(ApplicationDbContext context, VorIncident vorIncident, bool updateVors)
+    private async Task AddSingleEntryAsync(VorIncident vorIncident, bool updateVors)
     {
         var trimmedReg = vorIncident.Registration.ToUpperInvariant().Trim().Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == trimmedReg);
@@ -263,23 +253,67 @@ public class VehicleService(IDbContextFactory<ApplicationDbContext> contextFacto
 
     private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Place place)
     {
-        using var context = await contextFactory.CreateDbContextAsync();
-
-        foreach (var v in context.Vehicles
-           .GetActive()
-           .GetForPlace(place)
-           .Select(s => new VorStatus
-           {
-               CallSign = s.CallSign,
-               DueBack = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate : null,
-               HubId = s.HubId,
-               IsVor = s.IsVor,
-               Registration = s.Registration,
-               Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
-               Id = s.Id,
-           }))
+        await foreach (var v in context.Vehicles
+            .Include(e => e.Incidents)
+            .Include(e => e.Hub)
+            .ThenInclude(e => e.District)
+            .GetActive()
+            .GetForPlace(place).AsAsyncEnumerable())
         {
-            yield return v;
+            var now = DateTime.Today;
+            var thirteenMonthsAgo = now.AddMonths(-13);
+            var twelveMonthsAgo = now.AddMonths(-12);
+            var sevenMonthsAgo = now.AddMonths(-7);
+            var sixMonthsAgo = now.AddMonths(-6);
+            var fourMonthsAgo = now.AddMonths(-4);
+            var threeMonthsAgo = now.AddMonths(-3);
+            var oneMonthsAgo = now.AddMonths(-1);
+
+            var thirteenMonthDays = (oneMonthsAgo - thirteenMonthsAgo).TotalDays;
+            var twelveMonthDays = (now - twelveMonthsAgo).TotalDays;
+            var sevenMonthDays = (oneMonthsAgo - sevenMonthsAgo).TotalDays;
+            var sixMonthDays = (now - sixMonthsAgo).TotalDays;
+            var fourMonthDays = (oneMonthsAgo - fourMonthsAgo).TotalDays;
+            var threeMonthDays = (now - threeMonthsAgo).TotalDays;
+
+            yield return new VorStatus
+            {
+                CallSign = v.CallSign,
+                DueBack = v.IsVor ? v.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate : null,
+                HubId = v.HubId,
+                IsVor = v.IsVor,
+                Registration = v.Registration,
+                Summary = v.IsVor ? v.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
+                Id = v.Id,
+                District = v.Hub == null ? "Unknown" : v.Hub.District.Name,
+                Hub = v.Hub == null ? "Unknown" : v.Hub.Name,
+                Region = v.Hub == null ? Region.Undefined : v.Hub.District.Region,
+                TwelveMonthMinusOneVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count / thirteenMonthDays,
+                TwelveMonthVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(twelveMonthsAgo), DateOnly.FromDateTime(now)).Count / twelveMonthDays,
+                SixMonthMinusOneVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(sevenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count / sevenMonthDays,
+                SixMonthVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(sixMonthsAgo), DateOnly.FromDateTime(now)).Count / sixMonthDays,
+                ThreeMonthMinusOneVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(fourMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count / fourMonthDays,
+                ThreeMonthVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count / threeMonthDays,
+                VorDates = GetVorDates(v.Incidents, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(now)),
+            };
         }
+    }
+
+    private static List<DateOnly> GetVorDates(IEnumerable<VehicleIncident> incidents, DateOnly start, DateOnly end)
+    {
+        var vorDates = new HashSet<DateOnly>();
+
+        foreach (var i in incidents)
+        {
+            var s = i.StartDate < start ? start : i.StartDate;
+            var e = i.EndDate > end ? end : i.EndDate;
+
+            for (var date = s; date <= e; date = date.AddDays(1))
+            {
+                vorDates.Add(date);
+            }
+        }
+
+        return [.. vorDates];
     }
 }

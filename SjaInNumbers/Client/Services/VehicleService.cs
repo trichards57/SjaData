@@ -4,6 +4,7 @@
 // </copyright>
 
 using SjaInNumbers.Client.Services.Interfaces;
+using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
 using System.Net.Http.Json;
 
@@ -15,4 +16,11 @@ public class VehicleService(HttpClient client) : IVehicleService
 
     public IAsyncEnumerable<VehicleSettings> GetVehicleSettings()
         => client.GetFromJsonAsAsyncEnumerable<VehicleSettings>("/api/vehicles");
+
+    public async Task<VehicleSettings> GetVehicleSettingsAsync(int id) => await client.GetFromJsonAsync<VehicleSettings>($"/api/vehicles/{id}");
+
+    public async Task PostVehicleSettingsAsync(UpdateVehicleSettings settings) => await client.PostAsJsonAsync($"/api/vehicles", settings);
+
+    public IAsyncEnumerable<VorStatus> GetVorStatus(Region region)
+        => client.GetFromJsonAsAsyncEnumerable<VorStatus>($"/api/vor?region={region}");
 }

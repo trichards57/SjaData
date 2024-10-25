@@ -157,7 +157,7 @@ builder.Services.AddHealthChecks()
 
 builder.Services.AddApiVersioning(o =>
 {
-    o.ApiVersionReader = new MediaTypeApiVersionReader();
+    o.ApiVersionReader = new MediaTypeApiVersionReader("api-v");
     o.AssumeDefaultVersionWhenUnspecified = true;
     o.DefaultApiVersion = new ApiVersion(1);
 }).AddApiExplorer();

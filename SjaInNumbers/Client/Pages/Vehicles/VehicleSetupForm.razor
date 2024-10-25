@@ -8,6 +8,7 @@
 @using SjaInNumbers.Shared.Model.Hubs
 
 @inject IHubService HubService
+@inject IVehicleService VehicleService
 @inject NavigationManager NavigationManager
 
 <GeneralErrorHandler>
@@ -32,7 +33,7 @@
                 <option value="">Unknown</option>
                 @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
                 {
-                    <option value="@h.Id">@h.Name, @h.District, @h.Region</option>
+                    <option value="@h.Id">@h.Name, @h.District, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
                 }
             </InputSelect>
         </div>
@@ -41,13 +42,16 @@
             <InputSelect @bind-Value="Model.VehicleType">
                 @foreach (var h in Enum.GetValues<VehicleType>())
                 {
-                    <option value="@h">@h.ToString()</option>
+                    <option value="@h">@Converters.LabelConverters.LabelToDisplay(h)</option>
                 }
             </InputSelect>
         </div>
         <div>
-            <label>For Disposal</label>
-            <InputCheckbox @bind-Value="Model.ForDisposal" />
+            <label class="checkbox">
+                For Disposal
+                <InputCheckbox @bind-Value="Model.ForDisposal" />
+            </label>
+
         </div>
 
         <button type="submit">Save</button>
@@ -66,13 +70,28 @@
 
     private async Task FormSubmit()
     {
-        await HubService.PostHubNameAsync(Id, new() { Name = Model.CallSign });
+        await VehicleService.PostVehicleSettingsAsync(new()
+        {
+            CallSign = Model.CallSign,
+            ForDisposal = Model.ForDisposal,
+            HubId = Model.Hub,
+            Registration = registration,
+            VehicleType = Model.VehicleType
+        });
         NavigationManager.NavigateTo("/vehicles/setup");
     }
 
     protected override async Task OnInitializedAsync()
     {
         hubs = await HubService.GetHubSummariesAsync().ToListAsync();
+
+        var vehicle = await VehicleService.GetVehicleSettingsAsync(Id);
+
+        registration = vehicle.Registration;
+        Model.CallSign = vehicle.CallSign;
+        Model.Hub = vehicle.HubId;
+        Model.VehicleType = vehicle.VehicleType;
+        Model.ForDisposal = vehicle.ForDisposal;
     }
 
     public class EditHubModel
