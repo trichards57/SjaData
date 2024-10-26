@@ -168,8 +168,6 @@ builder.Logging.AddApplicationInsights(
 
 var app = builder.Build();
 
-app.UseRewriter(new RewriteOptions().AddRedirectToNonWwwPermanent());
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
