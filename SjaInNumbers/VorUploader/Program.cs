@@ -8,6 +8,7 @@
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using OpenIddict.Client;
@@ -36,7 +37,6 @@ internal static class Program
     private static async Task<string> GetTokenAsync(IServiceProvider provider)
     {
         var service = provider.GetRequiredService<OpenIddictClientService>();
-
         var result = await service.AuthenticateWithClientCredentialsAsync(new());
         return result.AccessToken;
     }
@@ -58,18 +58,28 @@ internal static class Program
         services.AddOpenIddict()
             .AddClient(o =>
             {
-                o.AllowClientCredentialsFlow();
-                o.DisableTokenStorage();
-                o.UseSystemNetHttp().SetProductInformation(typeof(Program).Assembly);
-                o.AddRegistration(new OpenIddictClientRegistration
+                var registration = new OpenIddictClientRegistration
                 {
                     Issuer = baseUri,
                     ClientId = configuration["OpenIdWorkerSettings:VorUploaderClientId"],
                     ClientSecret = configuration["OpenIdWorkerSettings:VorUploaderClientSecret"],
-                });
+                };
+
+                o.AllowClientCredentialsFlow();
+                o.DisableTokenStorage();
+                o.UseSystemNetHttp().SetProductInformation(typeof(Program).Assembly);
+                o.AddRegistration(registration);
             });
+        services.AddLogging(l =>
+        {
+            l.AddConsole();
+        });
 
         await using var provider = services.BuildServiceProvider();
+
+        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+
+        var logger = loggerFactory.CreateLogger("Program");
 
         // Get AO Dashboard Token
         var token = await GetTokenAsync(provider);
@@ -88,6 +98,8 @@ internal static class Program
         foreach (var file in files)
         {
             var fileDate = DateOnly.Parse(Path.GetFileNameWithoutExtension(file).Split(" ")[0], CultureInfo.InvariantCulture);
+
+            logger.LogInformation("Processing file {File} with date {Date}", file, fileDate);
 
             var items = FileParser.ParseFile(file, fileDate);
 
@@ -108,12 +120,13 @@ internal static class Program
 
             if (!result.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Received Error : {result.StatusCode}");
+                logger.LogError("Received Error : {StatusCode}", result.StatusCode);
             }
             else
             {
                 Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
                 File.Move(file, Path.Combine(Environment.CurrentDirectory, "Uploaded", Path.GetFileName(file)), true);
+                logger.LogInformation("File {File} successfully uploaded.", file);
             }
         }
 
@@ -172,7 +185,8 @@ internal static class Program
             }
 
             var fileDate = DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
-            Console.WriteLine($"Found File - Date: {e.ReceivedDateTime}");
+
+            logger.LogInformation("Processing email with date {Date}", fileDate);
 
             var tempFile = Path.GetRandomFileName();
             await File.WriteAllBytesAsync(tempFile, fa.ContentBytes);
@@ -196,13 +210,14 @@ internal static class Program
 
             if (!result.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Received Error : {result.StatusCode}");
+                logger.LogError("Received Error : {StatusCode}", result.StatusCode);
             }
             else
             {
                 Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
                 File.Move(tempFile, Path.Combine(Environment.CurrentDirectory, "Uploaded", $"{fileDate:o} VOR Report.xls"), true);
                 await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
+                logger.LogInformation("Email from {Date} successfully uploaded.", fileDate);
             }
         }
 

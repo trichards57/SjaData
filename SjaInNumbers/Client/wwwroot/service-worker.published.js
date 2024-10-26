@@ -38,6 +38,7 @@ async function onFetch(event) {
         // For all navigation requests, try to serve index.html from cache
         const shouldServeIndexHtml = event.request.mode === 'navigate'
             && !event.request.url.includes("/api/") // Exclude API calls, which include the log in process
+            && !event.request.url.includes("/.well-known/") // Exclude all .well-known URLs.
             && !event.request.url.includes("/signin-microsoft"); // Exclude Microsoft login process
 
         const request = shouldServeIndexHtml ? 'index.html' : event.request;

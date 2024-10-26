@@ -43,14 +43,14 @@
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            NavigationManager.NavigateTo("/hubs");
+            NavigationManager.NavigateTo("/setup/hubs");
         }
     }
 
     private async Task FormSubmit()
     {
         await HubService.PostHubNameAsync(Id, new() { Name = Model.Name });
-        NavigationManager.NavigateTo("/hubs");
+        NavigationManager.NavigateTo("/setup/hubs");
     }
 
     public class EditHubModel
