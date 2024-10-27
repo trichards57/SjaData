@@ -19,55 +19,31 @@
         <label for="filter">Find:</label>
         <input @oninput="FilterChanged" id="filter" type="search" />
     </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th />
-                <th>Call Sign</th>
-                <th>Registration</th>
-                <th>Region</th>
-                <th>District</th>
-                <th>Hub</th>
-                <th>Make</th>
-                <th>Model</th>
-                <th>Body Type</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var vehicle in vehicles.Where(v =>
-                v.CallSign.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
-                v.Registration.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
-                v.Region.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase) ||
-                v.District.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
-                v.Hub.Contains(filter, StringComparison.OrdinalIgnoreCase)
-            ).OrderBy(v=>v.CallSign))
-            {
-                <tr>
-                    <td class="edit-col">
-                        <a href="/vehicles/setup/@vehicle.Id">
-                            <img class="icon" src="/img/icons/pencil.svg" />
-                        </a>
-                    </td>
-                    <td class="call-sign-col">@vehicle.CallSign</td>
-                    <td class="reg-col">@vehicle.Registration</td>
-                    <td class="place-col">@LabelConverters.LabelToDisplay(vehicle.Region.ToString())</td>
-                    <td class="place-col">@vehicle.District</td>
-                    <td class="place-col">@vehicle.Hub</td>
-                    <td class="place-col">@vehicle.Make</td>
-                    <td class="place-col">@vehicle.Model</td>
-                    <td class="place-col">@vehicle.BodyType</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
+    
+    <h4>Front Line Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+    <h4>All Wheel Drive Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+    <h4>Off-Road Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+    <h4>Other</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+    <hr />
+    <h4>For Disposal</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
 </GeneralErrorHandler>
 
 @code {
     private IList<VehicleSettings> vehicles = [];
 
     private string filter = string.Empty;
+
+    private IEnumerable<VehicleSettings> FrontLine => vehicles.Where(v => !v.ForDisposal && v.VehicleType == Shared.Model.VehicleType.FrontLineAmbulance);
+    private IEnumerable<VehicleSettings> AllWheelDrive => vehicles.Where(v => !v.ForDisposal && v.VehicleType == Shared.Model.VehicleType.AllWheelDrive);
+    private IEnumerable<VehicleSettings> OffRoad => vehicles.Where(v => !v.ForDisposal && v.VehicleType == Shared.Model.VehicleType.OffRoadAmbulance);
+    private IEnumerable<VehicleSettings> Other => vehicles.Where(v => !v.ForDisposal && v.VehicleType == Shared.Model.VehicleType.Other);
+    private IEnumerable<VehicleSettings> Unknown => vehicles.Where(v => !v.ForDisposal && v.VehicleType == Shared.Model.VehicleType.Unknown);
+    private IEnumerable<VehicleSettings> ForDisposal => vehicles.Where(v => v.ForDisposal);
 
     protected override async Task OnInitializedAsync()
     {
