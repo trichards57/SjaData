@@ -29,6 +29,9 @@
                 <th>Region</th>
                 <th>District</th>
                 <th>Hub</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Body Type</th>
             </tr>
         </thead>
         <tbody>
@@ -51,6 +54,9 @@
                     <td class="place-col">@LabelConverters.LabelToDisplay(vehicle.Region.ToString())</td>
                     <td class="place-col">@vehicle.District</td>
                     <td class="place-col">@vehicle.Hub</td>
+                    <td class="place-col">@vehicle.Make</td>
+                    <td class="place-col">@vehicle.Model</td>
+                    <td class="place-col">@vehicle.BodyType</td>
                 </tr>
             }
         </tbody>

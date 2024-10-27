@@ -3,11 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using SjaInNumbers.Server.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
@@ -40,6 +42,15 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
 
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider);
+    }
+
+    [HttpGet("clear")]
+    [AllowAnonymous]
+    public IActionResult Clear()
+    {
+        Response.Headers.TryAdd("Clear-Site-Data", "\"cache\", \"cookies\", \"storage\", \"executionContexts\", \"*\"");
+
+        return Redirect("/");
     }
 
     /// <summary>
