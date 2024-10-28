@@ -1,0 +1,16 @@
+﻿.update-alert {
+    position: fixed;
+    top: 0;
+    right: 0;
+    max-width: 400px;
+    padding: 10px;
+    background-color: var(--sja-light-gray);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+.update-alert-content {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}

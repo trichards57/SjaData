@@ -11,13 +11,8 @@
         <ChildContent>
             @if (updateComplete)
             {
-                <div class="update-alert">
-                    <div class="update-alert-content">
-                        <p>A new version of the site is available.</p>
-                        <button class="update-alert-button" @onclick="() => JSRuntime.InvokeVoidAsync("location.reload")">Refresh</button>
-                    </div>
-                </div>
-            })
+                
+            }
             else if (preloading)
             {
                 <div class="preload-alert">

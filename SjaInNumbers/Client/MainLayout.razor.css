@@ -22,9 +22,9 @@ h1 {
     z-index: 9999; /* Ensure it stays on top */
 }
 
-.preload-alert.done {
-    background-color: var(--sja-light-green); /* Change background color as needed */
-}
+    .preload-alert.done {
+        background-color: var(--sja-light-green); /* Change background color as needed */
+    }
 
 .progress-bar {
     position: absolute;
