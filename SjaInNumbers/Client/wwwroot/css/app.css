@@ -106,6 +106,17 @@ h3 > a {
     cursor: pointer;
 }
 
+.btn-small {
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.375rem 0.75rem;
+    border: none;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+}
+
 a.btn-large {
     width: calc(100% - var(--root-padding) * 2 - 0.75rem - 2px);
 }
