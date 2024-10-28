@@ -8,7 +8,9 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<AdditionalFiles Include="stylecop.json" />
+		<AdditionalFiles Include="stylecop.json">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</AdditionalFiles>
 		<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
 		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
 		<PackageReference Include="Azure.Identity" Version="1.13.0" />
