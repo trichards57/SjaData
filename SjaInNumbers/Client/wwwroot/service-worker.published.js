@@ -20,6 +20,10 @@ async function onInstall(event) {
         .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
         .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
     await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
+
+    if (window.DotNet) {
+        window.DotNet.invokeMethodAsync('SjaInNumbers.Client', 'NewWorkerAvailable');
+    }
 }
 
 async function onActivate(event) {

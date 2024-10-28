@@ -9,7 +9,16 @@
     <h1>SJA In Numbers</h1>
     <ErrorBoundary>
         <ChildContent>
-            @if (preloading)
+            @if (updateComplete)
+            {
+                <div class="update-alert">
+                    <div class="update-alert-content">
+                        <p>A new version of the site is available.</p>
+                        <button class="update-alert-button" @onclick="() => JSRuntime.InvokeVoidAsync("location.reload")">Refresh</button>
+                    </div>
+                </div>
+            })
+            else if (preloading)
             {
                 <div class="preload-alert">
                     Loading Data...
@@ -20,6 +29,7 @@
             {
                 <div class="preload-alert done">Offline Data Loaded</div>
             }
+            
 
             @Body
         </ChildContent>
@@ -44,6 +54,7 @@
     private bool preloadingComplete;
     private DotNetObjectReference<MainLayout>? objRef;
     private IJSObjectReference? module;
+    private bool updateComplete;
 
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
@@ -67,37 +78,37 @@
             var lastMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1).ToString("yyyy-MM-dd");
 
             Region[] regions = [Region.London, Region.SouthWest, Region.SouthEast, Region.WestMidlands, Region.EastMidlands, Region.EastOfEngland, Region.NorthWest, Region.NorthEast];
-            /*
-            // Define the list of API endpoints you want to preload
-            IList<string> apiEndpoints = [
-                "/api/hours/target",
-    $"/api/hours/count?date={lastMonth}&date-type=Month&future=False",
-    $"/api/hours/count?date={date}&date-type=Month&future=False",
-    $"/api/hours/count?date={date}&date-type=Month&future=True",
-    $"/api/hours/count?date={date}&date-type=Year&future=False",
-    ];
+                    /*
+                    // Define the list of API endpoints you want to preload
+                    IList<string> apiEndpoints = [
+                    "/api/hours/target",
+                    $"/api/hours/count?date={lastMonth}&date-type=Month&future=False",
+                    $"/api/hours/count?date={date}&date-type=Month&future=False",
+            $"/api/hours/count?date={date}&date-type=Month&future=True",
+            $"/api/hours/count?date={date}&date-type=Year&future=False",
+            ];
 
             if (authState.User.IsInRole("Lead") || authState.User.IsInRole("Admin"))
             {
-                apiEndpoints = [..apiEndpoints,
-    ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=False"),
-    ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=True"),
-    ..regions.Select(r => $"/api/people/reports?date={date}&region={r}"),
-    ];
-            }
+            apiEndpoints = [..apiEndpoints,
+            ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=False"),
+            ..regions.Select(r => $"/api/hours/trends?region={r}&nhse=True"),
+                    ..regions.Select(r => $"/api/people/reports?date={date}&region={r}"),
+                        ];
+                        }
 
-            if (authState.User.IsInRole("Admin"))
-            {
+                        if (authState.User.IsInRole("Admin"))
+                {
                 apiEndpoints = [.. apiEndpoints, "/api/user"];
-            }
+                    }
 
-            preloading = true;
+                    preloading = true;
 
-            StateHasChanged();
+                    StateHasChanged();
 
-            // Call the JavaScript function to preload the API endpoints when idle
-            await module.InvokeVoidAsync("preloadApiEndpoints", apiEndpoints);
-            */
+                    // Call the JavaScript function to preload the API endpoints when idle
+                    await module.InvokeVoidAsync("preloadApiEndpoints", apiEndpoints);
+        */
         }
     }
 
@@ -111,6 +122,13 @@
         await Task.Delay(5000);
 
         preloadingComplete = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void NewWorkerAvailable()
+    {
+        updateComplete = true;
         StateHasChanged();
     }
 }
