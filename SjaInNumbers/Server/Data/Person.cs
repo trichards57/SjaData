@@ -4,10 +4,8 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers.Shared.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers.Server.Data;
 

@@ -9,7 +9,6 @@ using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 using System.Security.Cryptography;
 
@@ -73,6 +72,16 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         var incidentsLastModified = new DateTimeOffset(incidentsLastModifiedDateOnly.ToDateTime(new TimeOnly(16, 0, 0)), new TimeSpan(0));
 
         return new[] { incidentsLastModified, vehiclesLastModified, hubsLastModified }.Max();
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetNationalVorStatusesEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>
@@ -188,6 +197,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
+    /// <inheritdoc/>
     public async Task<StringSegment> GetSettingsEtagAsync(int id)
     {
         var lastModified = await context.Vehicles
@@ -196,6 +206,16 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
             .FirstOrDefaultAsync();
 
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{id}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetVorStatisticsEtagAsync(Place place)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
 
         return $"\"{Convert.ToBase64String(hash)}\"";
     }
@@ -252,6 +272,16 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
             VorVehicles = vorVehicles,
             PastAvailability = incidentsByMonth,
         };
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetVorStatusesEtagAsync(Place place)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>

@@ -22,6 +22,7 @@ public interface IVehicleService
     Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents);
     Task<DateTimeOffset> GetLastModifiedAsync();
     IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync();
+    Task<StringSegment> GetNationalVorStatusesEtagAsync();
 
     /// <summary>
     /// Gets the settings for all vehicles at the provided place.
@@ -51,6 +52,7 @@ public interface IVehicleService
     /// to the requested statistics, or <see langword="null" /> if the place was not found.
     /// </returns>
     Task<VorStatistics?> GetVorStatisticsAsync(Place place);
+    Task<StringSegment> GetVorStatisticsEtagAsync(Place place);
 
     /// <summary>
     /// Gets the VOR statuses for the provided place.
@@ -58,6 +60,7 @@ public interface IVehicleService
     /// <param name="place">The place to search for.</param>
     /// <returns>The list of statuses.</returns>
     IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
+    Task<StringSegment> GetVorStatusesEtagAsync(Place place);
 
     /// <summary>
     /// Updates or creates the settings for the provided vehicle.
