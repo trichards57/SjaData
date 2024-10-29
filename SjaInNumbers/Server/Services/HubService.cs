@@ -7,12 +7,33 @@ using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Hubs;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SjaInNumbers.Server.Services;
 
+/// <summary>
+/// Service for managing hubs.
+/// </summary>
 public class HubService(ApplicationDbContext context) : IHubService
 {
     private readonly ApplicationDbContext context = context;
+
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        return await context.Hubs.AnyAsync() ? await context.Hubs.MaxAsync(h => h.UpdatedAt) : DateTimeOffset.MinValue;
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetAllEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(lastModified.ToString()));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
 
     /// <inheritdoc/>
     public IAsyncEnumerable<HubSummary> GetAllAsync()

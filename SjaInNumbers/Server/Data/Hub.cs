@@ -38,5 +38,12 @@ public class Hub
     /// <summary>
     /// Gets or sets the name of the hub.
     /// </summary>
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the last time the hub information was updated.
+    /// </summary>
+    public DateTimeOffset UpdatedAt { get; set; }
 }
