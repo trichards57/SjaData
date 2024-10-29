@@ -4,12 +4,14 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Primitives;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
-using System.Collections.Frozen;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace SjaInNumbers.Server.Services;
 
@@ -62,11 +64,72 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        var hubsLastModified = await context.Hubs.AnyAsync() ? await context.Hubs.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
+        var vehiclesLastModified = await context.Vehicles.AnyAsync() ? await context.Vehicles.Select(s => s.LastModified).MaxAsync() : DateTimeOffset.MinValue;
+        var incidentsLastModifiedDateOnly = await context.VehicleIncidents.AnyAsync() ? await context.VehicleIncidents.Select(s => s.EndDate).MaxAsync() : new DateOnly(2000, 1, 1);
+
+        var incidentsLastModified = new DateTimeOffset(incidentsLastModifiedDateOnly.ToDateTime(new TimeOnly(16, 0, 0)), new TimeSpan(0));
+
+        return new[] { incidentsLastModified, vehiclesLastModified, hubsLastModified }.Max();
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync()
+    {
+        var now = DateTime.Today;
+        var thirteenMonthsAgo = now.AddMonths(-13);
+        var twelveMonthsAgo = now.AddMonths(-12);
+        var sevenMonthsAgo = now.AddMonths(-7);
+        var sixMonthsAgo = now.AddMonths(-6);
+        var fourMonthsAgo = now.AddMonths(-4);
+        var threeMonthsAgo = now.AddMonths(-3);
+        var oneMonthsAgo = now.AddMonths(-1);
+
+        var thirteenMonthDays = (oneMonthsAgo - thirteenMonthsAgo).TotalDays;
+        var twelveMonthDays = (now - twelveMonthsAgo).TotalDays;
+        var sevenMonthDays = (oneMonthsAgo - sevenMonthsAgo).TotalDays;
+        var sixMonthDays = (now - sixMonthsAgo).TotalDays;
+        var fourMonthDays = (oneMonthsAgo - fourMonthsAgo).TotalDays;
+        var threeMonthDays = (now - threeMonthsAgo).TotalDays;
+
+        await foreach (var make in context.Vehicles
+            .Include(e => e.Incidents)
+            .GetActive()
+            .GroupBy(e => e.Make.ToUpper()).AsAsyncEnumerable())
+        {
+            foreach (var model in make.GroupBy(v => v.Model.ToUpper()))
+            {
+                foreach (var bodyType in model.GroupBy(b => b.BodyType.ToUpper()))
+                {
+                    var incidents = bodyType.Select(v => v.Incidents);
+
+                    yield return new VehicleTypeStatus
+                    {
+                        Make = bodyType.First().Make,
+                        Model = bodyType.First().Model,
+                        BodyType = bodyType.First().BodyType,
+                        Total = bodyType.Count(),
+                        CurrentlyAvailable = bodyType.Count(v => !v.IsVor),
+                        AverageTwelveMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
+                        AverageTwelveMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(twelveMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
+                        AverageSixMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sevenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / sevenMonthDays,
+                        AverageSixMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sixMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / sixMonthDays,
+                        AverageThreeMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(fourMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / fourMonthDays,
+                        AverageThreeMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / threeMonthDays,
+                    };
+                }
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
     {
         Console.WriteLine(place.CreateQuery());
 
-        foreach (var v in context.Vehicles
+        await foreach (var v in context.Vehicles
             .GetNotDeleted()
             .GetForPlace(place)
             .AsNoTracking()
@@ -84,7 +147,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
                 Model = s.Model,
                 Make = s.Make,
                 BodyType = s.BodyType,
-            }))
+            }).AsAsyncEnumerable())
         {
             yield return v;
         }
@@ -113,6 +176,28 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
             })
             .Cast<VehicleSettings?>()
             .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetSettingsEtagAsync(Place place)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    public async Task<StringSegment> GetSettingsEtagAsync(int id)
+    {
+        var lastModified = await context.Vehicles
+            .Where(e => e.Id == id)
+            .Select(s => s.LastModified)
+            .FirstOrDefaultAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{id}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>
@@ -202,6 +287,24 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         vehicle.BodyType = settings.BodyType.Trim();
         vehicle.LastModified = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
+    }
+
+    private static List<DateOnly> GetVorDates(IEnumerable<VehicleIncident> incidents, DateOnly start, DateOnly end)
+    {
+        var vorDates = new HashSet<DateOnly>();
+
+        foreach (var i in incidents)
+        {
+            var s = i.StartDate < start ? start : i.StartDate;
+            var e = i.EndDate > end ? end : i.EndDate;
+
+            for (var date = s; date <= e; date = date.AddDays(1))
+            {
+                vorDates.Add(date);
+            }
+        }
+
+        return [.. vorDates];
     }
 
     private async Task AddSingleEntryAsync(VorIncident vorIncident, bool updateVors)
@@ -310,72 +413,6 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
                 ThreeMonthVorCount = GetVorDates(v.Incidents, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count / threeMonthDays,
                 VorDates = GetVorDates(v.Incidents, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(now)),
             };
-        }
-    }
-
-    private static List<DateOnly> GetVorDates(IEnumerable<VehicleIncident> incidents, DateOnly start, DateOnly end)
-    {
-        var vorDates = new HashSet<DateOnly>();
-
-        foreach (var i in incidents)
-        {
-            var s = i.StartDate < start ? start : i.StartDate;
-            var e = i.EndDate > end ? end : i.EndDate;
-
-            for (var date = s; date <= e; date = date.AddDays(1))
-            {
-                vorDates.Add(date);
-            }
-        }
-
-        return [.. vorDates];
-    }
-
-    public async IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync()
-    {
-        var now = DateTime.Today;
-        var thirteenMonthsAgo = now.AddMonths(-13);
-        var twelveMonthsAgo = now.AddMonths(-12);
-        var sevenMonthsAgo = now.AddMonths(-7);
-        var sixMonthsAgo = now.AddMonths(-6);
-        var fourMonthsAgo = now.AddMonths(-4);
-        var threeMonthsAgo = now.AddMonths(-3);
-        var oneMonthsAgo = now.AddMonths(-1);
-
-        var thirteenMonthDays = (oneMonthsAgo - thirteenMonthsAgo).TotalDays;
-        var twelveMonthDays = (now - twelveMonthsAgo).TotalDays;
-        var sevenMonthDays = (oneMonthsAgo - sevenMonthsAgo).TotalDays;
-        var sixMonthDays = (now - sixMonthsAgo).TotalDays;
-        var fourMonthDays = (oneMonthsAgo - fourMonthsAgo).TotalDays;
-        var threeMonthDays = (now - threeMonthsAgo).TotalDays;
-
-        foreach (var make in context.Vehicles
-            .Include(e => e.Incidents)
-            .GetActive()
-            .GroupBy(e => e.Make.ToUpper()))
-        {
-            foreach (var model in make.GroupBy(v => v.Model.ToUpper()))
-            {
-                foreach (var bodyType in model.GroupBy(b => b.BodyType.ToUpper()))
-                {
-                    var incidents = bodyType.Select(v => v.Incidents);
-
-                    yield return new VehicleTypeStatus
-                    {
-                        Make = bodyType.First().Make,
-                        Model = bodyType.First().Model,
-                        BodyType = bodyType.First().BodyType,
-                        Total = bodyType.Count(),
-                        CurrentlyAvailable = bodyType.Count(v => !v.IsVor),
-                        AverageTwelveMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
-                        AverageTwelveMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(twelveMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
-                        AverageSixMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sevenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / sevenMonthDays,
-                        AverageSixMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(sixMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / sixMonthDays,
-                        AverageThreeMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(fourMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / fourMonthDays,
-                        AverageThreeMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(threeMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / threeMonthDays,
-                    };
-                }
-            }
         }
     }
 }

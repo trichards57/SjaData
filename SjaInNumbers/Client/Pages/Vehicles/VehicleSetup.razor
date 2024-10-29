@@ -1,9 +1,12 @@
 ﻿@page "/vehicles/setup"
 
+@using Microsoft.AspNetCore.Authorization
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model.Vehicles
+
+@attribute [Authorize(Policy = "Lead")]
 
 @inject IVehicleService VehicleService
 

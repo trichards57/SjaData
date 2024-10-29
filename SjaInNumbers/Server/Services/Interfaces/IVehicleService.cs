@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.Extensions.Primitives;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
 
@@ -19,6 +20,7 @@ public interface IVehicleService
     /// <param name="vorIncidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents);
+    Task<DateTimeOffset> GetLastModifiedAsync();
     IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync();
 
     /// <summary>
@@ -37,6 +39,8 @@ public interface IVehicleService
     /// to the requested settings, or <see langword="null" /> if not found.
     /// </returns>
     Task<VehicleSettings?> GetSettingsAsync(int id);
+    Task<StringSegment> GetSettingsEtagAsync(Place place);
+    Task<StringSegment> GetSettingsEtagAsync(int id);
 
     /// <summary>
     /// Gets the VOR statistics for the provided place.

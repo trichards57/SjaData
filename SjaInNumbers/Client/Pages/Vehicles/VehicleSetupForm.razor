@@ -1,11 +1,14 @@
 ﻿@page "/vehicles/setup/{id:int}"
 
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model
 @using SjaInNumbers.Shared.Model.Hubs
+
+@attribute [Authorize(Policy = "Lead")]
 
 @inject IHubService HubService
 @inject IVehicleService VehicleService
