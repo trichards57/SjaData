@@ -31,4 +31,6 @@ public class Deployment
 
     [Range(0, 1000000)]
     public int DipsReference { get; set; }
+
+    public DateTimeOffset LastModified { get; set; }
 }

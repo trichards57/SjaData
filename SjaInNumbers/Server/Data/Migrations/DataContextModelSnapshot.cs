@@ -468,6 +468,9 @@ namespace SjaData.Server.Migrations
                     b.Property<int>("FrontLineAmbulances")
                         .HasColumnType("int");
 
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)

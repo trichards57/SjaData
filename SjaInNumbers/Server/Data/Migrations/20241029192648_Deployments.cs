@@ -1,4 +1,4 @@
-﻿// <copyright file="20241029192409_Deployments.cs" company="Tony Richards">
+﻿// <copyright file="20241029192648_Deployments.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -27,6 +27,7 @@ public partial class Deployments : Migration
                 AllWheelDriveAmbulances = table.Column<int>(type: "int", nullable: false),
                 OffRoadAmbulances = table.Column<int>(type: "int", nullable: false),
                 DipsReference = table.Column<int>(type: "int", nullable: false),
+                LastModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
             },
             constraints: table =>
             {

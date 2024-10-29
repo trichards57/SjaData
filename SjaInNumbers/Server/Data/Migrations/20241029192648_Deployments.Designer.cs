@@ -12,7 +12,7 @@ using SjaInNumbers.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241029192409_Deployments")]
+    [Migration("20241029192648_Deployments")]
     partial class Deployments
     {
         /// <inheritdoc />
@@ -470,6 +470,9 @@ namespace SjaData.Server.Migrations
 
                     b.Property<int>("FrontLineAmbulances")
                         .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
