@@ -17,15 +17,13 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFactory) : IPersonService
+public class PersonService(ApplicationDbContext context) : IPersonService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
+    private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
     {
-        using var context = await dataContextFactory.CreateDbContextAsync();
-
         var peopleList = new List<Person>();
 
         await foreach (var p in people)
@@ -125,15 +123,6 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
-        using var context = await dataContextFactory.CreateDbContextAsync();
-
-        var dataContext = await dataContextFactory.CreateDbContextAsync();
-
-        if (await dataContext.Hours.AnyAsync())
-        {
-            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
-        }
-
         var hoursLastModified = await context.Hours.AnyAsync() ? await context.Hours.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
         var peopleLastModified = await context.People.AnyAsync() ? await context.People.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
 
@@ -143,8 +132,6 @@ public class PersonService(IDbContextFactory<ApplicationDbContext> dataContextFa
     /// <inheritdoc/>
     public async IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region)
     {
-        using var context = await dataContextFactory.CreateDbContextAsync();
-
         var people = context.People
             .AsNoTracking()
             .Where(p => p.Hub != null && p.Hub.District.Region == region && p.DeletedAt == null)
