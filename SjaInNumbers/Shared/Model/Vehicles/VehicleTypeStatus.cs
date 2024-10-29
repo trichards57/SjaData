@@ -59,4 +59,9 @@ public readonly record struct VehicleTypeStatus
     /// Gets the average three month minus one month availability rate.
     /// </summary>
     public double AverageThreeMonthMinusOneAvailability { get; init; }
+
+    /// <summary>
+    /// Gets the total number of vehicles.
+    /// </summary>
+    public int Total { get; init; }
 }
