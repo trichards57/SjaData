@@ -50,6 +50,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     /// </summary>
     public DbSet<VehicleIncident> VehicleIncidents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the recorded deployments.
+    /// </summary>
+    public DbSet<Deployment> Deployments { get; set; }
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)
     {
