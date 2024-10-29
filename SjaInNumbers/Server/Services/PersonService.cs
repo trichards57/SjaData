@@ -125,8 +125,9 @@ public class PersonService(ApplicationDbContext context) : IPersonService
     {
         var hoursLastModified = await context.Hours.AnyAsync() ? await context.Hours.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
         var peopleLastModified = await context.People.AnyAsync() ? await context.People.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
+        var hubsLastModified = await context.Hubs.AnyAsync() ? await context.Hubs.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
 
-        return DateTimeOffset.Compare(hoursLastModified, peopleLastModified) > 0 ? hoursLastModified : peopleLastModified;
+        return new[] { hoursLastModified, peopleLastModified, hubsLastModified }.Max();
     }
 
     /// <inheritdoc/>
