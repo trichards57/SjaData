@@ -191,15 +191,15 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
             context.Vehicles.Add(vehicle);
         }
 
-        vehicle.CallSign = settings.CallSign;
+        vehicle.CallSign = settings.CallSign.Trim().Replace(" ", string.Empty).ToUpper();
         vehicle.ForDisposal = settings.ForDisposal;
         vehicle.HubId = settings.HubId;
-        vehicle.Registration = settings.Registration;
+        vehicle.Registration = settings.Registration.Trim().Replace(" ", string.Empty).ToUpper();
         vehicle.VehicleType = settings.VehicleType;
         vehicle.Deleted = null;
-        vehicle.Make = settings.Make;
-        vehicle.Model = settings.Model;
-        vehicle.BodyType = settings.BodyType;
+        vehicle.Make = settings.Make.Trim().ToUpper();
+        vehicle.Model = settings.Model.Trim().ToUpper();
+        vehicle.BodyType = settings.BodyType.Trim();
         vehicle.LastModified = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
     }
@@ -365,6 +365,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
                         Make = bodyType.First().Make,
                         Model = bodyType.First().Model,
                         BodyType = bodyType.First().BodyType,
+                        Total = bodyType.Count(),
                         CurrentlyAvailable = bodyType.Count(v => !v.IsVor),
                         AverageTwelveMonthMinusOneAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(thirteenMonthsAgo), DateOnly.FromDateTime(oneMonthsAgo)).Count).Average() / thirteenMonthDays,
                         AverageTwelveMonthAvailability = incidents.Select(i => GetVorDates(i, DateOnly.FromDateTime(twelveMonthsAgo), DateOnly.FromDateTime(now)).Count).Average() / twelveMonthDays,
