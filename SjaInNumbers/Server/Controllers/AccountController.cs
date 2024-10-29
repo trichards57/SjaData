@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
@@ -22,6 +22,7 @@ namespace SjaInNumbers.Server.Controllers;
 /// <param name="userStore">Store for user data.</param>
 [Route("api/account")]
 [ApiController]
+[AllowAnonymous]
 public sealed partial class AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserStore<ApplicationUser> userStore) : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> signInManager = signInManager;
@@ -34,6 +35,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// <param name="returnUrl">The URL to return to afterwards.</param>
     /// <returns>The result of the action.</returns>
     [HttpGet("login")]
+    [NotCachedFilter]
     public IActionResult Login(string provider, string returnUrl)
     {
         IEnumerable<KeyValuePair<string, StringValues>> query = [new("ReturnUrl", returnUrl)];
@@ -44,8 +46,12 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
         return Challenge(properties, provider);
     }
 
+    /// <summary>
+    /// Clears the site data for a user.
+    /// </summary>
+    /// <returns>The result of the action.</returns>
     [HttpGet("clear")]
-    [AllowAnonymous]
+    [NotCachedFilter]
     public IActionResult Clear()
     {
         Response.Headers.TryAdd("Clear-Site-Data", "\"cache\", \"cookies\", \"storage\", \"executionContexts\", \"*\"");
@@ -61,6 +67,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
     /// </returns>
     [HttpPost("logout")]
+    [NotCachedFilter]
     public async Task<IActionResult> Logout(string returnUrl)
     {
         await signInManager.SignOutAsync();
@@ -75,6 +82,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// A task that represents the asynchronous operation. Resolves to the result of the action.
     /// </returns>
     [HttpGet("externalLogin")]
+    [NotCachedFilter]
     public async Task<IActionResult> ExternalLogin(string returnUrl)
     {
         var info = await signInManager.GetExternalLoginInfoAsync() ?? throw new InvalidOperationException("Error loading external login information.");
