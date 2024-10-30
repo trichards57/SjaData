@@ -20,19 +20,23 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
     /// <inheritdoc/>
     public async Task AddDeploymentAsync(NewDeployment deployment)
     {
-        var newDeployment = new Deployment
-        {
-            AllWheelDriveAmbulances = deployment.AllWheelDriveAmbulances,
-            Date = deployment.Date,
-            DipsReference = deployment.DipsReference,
-            DistrictId = deployment.DistrictId,
-            FrontLineAmbulances = deployment.FrontLineAmbulances,
-            Name = deployment.Name,
-            OffRoadAmbulances = deployment.OffRoadAmbulances,
-            LastModified = DateTime.UtcNow,
-        };
+        var deploymentItem = await context.Deployments.FirstOrDefaultAsync(d => d.DipsReference == deployment.DipsReference && d.Date == deployment.Date);
 
-        context.Deployments.Add(newDeployment);
+        if (deploymentItem == null)
+        {
+            deploymentItem = new Deployment();
+            context.Deployments.Add(deploymentItem);
+        }
+
+        deploymentItem.AllWheelDriveAmbulances = deployment.AllWheelDriveAmbulances;
+        deploymentItem.Date = deployment.Date;
+        deploymentItem.DipsReference = deployment.DipsReference;
+        deploymentItem.DistrictId = deployment.DistrictId;
+        deploymentItem.FrontLineAmbulances = deployment.FrontLineAmbulances;
+        deploymentItem.Name = deployment.Name;
+        deploymentItem.OffRoadAmbulances = deployment.OffRoadAmbulances;
+        deploymentItem.LastModified = DateTime.UtcNow;
+
         await context.SaveChangesAsync();
     }
 

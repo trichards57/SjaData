@@ -59,10 +59,12 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
     .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IDeploymentService, DeploymentService>();
+builder.Services.AddScoped<IDistrictService, DistrictService>();
 builder.Services.AddScoped<IHoursService, HoursService>();
 builder.Services.AddScoped<IHubService, HubService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 

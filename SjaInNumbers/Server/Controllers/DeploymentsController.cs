@@ -1,21 +1,33 @@
-﻿using CsvHelper;
+﻿// <copyright file="DeploymentsController.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SjaInNumbers.Server.Model.People;
 using SjaInNumbers.Server.Model;
-using System.Globalization;
-using System.Security.Claims;
 using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Server.Services.Interfaces;
+using System.Globalization;
 
 namespace SjaInNumbers.Server.Controllers;
 
+/// <summary>
+/// Controller for managing deployments.
+/// </summary>
 [ApiController]
 [Route("api/deployments")]
-public class DeploymentsController( IDeploymentService deploymentService) : ControllerBase
+public class DeploymentsController(IDistrictService districtService, IDeploymentService deploymentService) : ControllerBase
 {
     private readonly IDeploymentService deploymentService = deploymentService;
+    private readonly IDistrictService districtService = districtService;
 
+    /// <summary>
+    /// Receives a CSV file containing deployment data and processes it.
+    /// </summary>
+    /// <param name="file">The uploaded deployment file.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous action.  Resolves to the result of the action.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
@@ -26,13 +38,18 @@ public class DeploymentsController( IDeploymentService deploymentService) : Cont
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<DeploymentsFileLineMap>();
 
+        var updatedCount = 0;
+
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Unable to get user details.");
-
             await foreach (var record in csv.GetRecordsAsync<DeploymentsFileLine>())
             {
-                var district = 
+                var district = await districtService.GetIdByDistrictCodeAsync(record.District);
+
+                if (district == null)
+                {
+                    continue;
+                }
 
                 var item = new NewDeployment
                 {
@@ -42,10 +59,12 @@ public class DeploymentsController( IDeploymentService deploymentService) : Cont
                     DipsReference = record.DipsNumber ?? 0,
                     FrontLineAmbulances = record.Ambulances,
                     Name = record.Name,
+                    DistrictId = (int)district,
                 };
-            }
 
-            var updatedCount = await deploymentService.AddDeploymentAsync(csv.GetRecordsAsync<PersonFileLine>(), userId);
+                await deploymentService.AddDeploymentAsync(item);
+                updatedCount++;
+            }
 
             return Ok(new CountResponse { Count = updatedCount });
         }
