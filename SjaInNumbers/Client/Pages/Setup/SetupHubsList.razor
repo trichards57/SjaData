@@ -13,7 +13,11 @@
 
 <GeneralErrorHandler>
     <h2>Hubs</h2>
-    <HomeLink />
+    <h3>
+        <a href="/setup">
+            <img class="icon" src="/img/icons/backward.svg" /> Go Back
+        </a>
+    </h3>
 
     @foreach (var r in Enum.GetValues<Region>().OrderBy(r => r.ToString()))
     {
