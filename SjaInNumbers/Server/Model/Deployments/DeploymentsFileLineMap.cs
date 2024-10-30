@@ -24,8 +24,8 @@ public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
         Map(h => h.EventLeadResponsible).Name("Event Lead Responsible");
         Map(h => h.AmbulanceLead).Name("Ambulance Lead");
         Map(h => h.HubLocation).Name("Hub Location");
-        Map(h => h.FourWheelDriveAmbulances).Name("4x4");
-        Map(h => h.OffRoadAmbulances).Name("ORA");
+        Map(h => h.OffRoadAmbulances).Name("4x4");
+        Map(h => h.AllWheelDriveAmbulances).Name("ORA");
         Map(h => h.Notes).Name("Notes");
         Map(h => h.Requester).Name("Requestor");
         Map(h => h.CreatedAt).Name("Created");

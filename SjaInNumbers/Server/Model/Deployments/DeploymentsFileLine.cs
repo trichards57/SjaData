@@ -19,8 +19,8 @@ public class DeploymentsFileLine
     public string EventLeadResponsible { get; set; }
     public string AmbulanceLead { get; set; }
     public string HubLocation { get; set; }
-    public int FourWheelDriveAmbulances { get; set; }
     public int OffRoadAmbulances { get; set; }
+    public int AllWheelDriveAmbulances { get; set; }
     public string Notes { get; set; }
     public string Requester { get; set; }
     public DateTime CreatedAt { get; set; }
