@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.EntityFrameworkCore;
+using SjaInNumbers.Shared.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,4 +35,10 @@ public class Deployment
     public int DipsReference { get; set; }
 
     public DateTimeOffset LastModified { get; set; }
+
+    public int DistrictId { get; set; }
+
+    [ForeignKey(nameof(DistrictId))]
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public District District { get; set; }
 }

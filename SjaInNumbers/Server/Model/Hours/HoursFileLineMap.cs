@@ -38,11 +38,6 @@ internal class HoursFileLineMap : ClassMap<HoursFileLine>
                 return DateOnly.MinValue;
             }
 
-            if (text.Equals("24:00"))
-            {
-                return TimeSpan.FromDays(1);
-            }
-
             return DateOnly.Parse(text, CultureInfo.GetCultureInfo("en-GB"));
         }
     }

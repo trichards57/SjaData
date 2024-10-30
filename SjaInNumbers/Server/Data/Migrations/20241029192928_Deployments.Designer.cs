@@ -12,7 +12,7 @@ using SjaInNumbers.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241029192648_Deployments")]
+    [Migration("20241029192928_Deployments")]
     partial class Deployments
     {
         /// <inheritdoc />
@@ -468,6 +468,9 @@ namespace SjaData.Server.Migrations
                     b.Property<int>("DipsReference")
                         .HasColumnType("int");
 
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
+
                     b.Property<int>("FrontLineAmbulances")
                         .HasColumnType("int");
 
@@ -483,6 +486,8 @@ namespace SjaData.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DistrictId");
 
                     b.ToTable("Deployments");
                 });
@@ -811,6 +816,17 @@ namespace SjaData.Server.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Authorization");
+                });
+
+            modelBuilder.Entity("SjaInNumbers.Server.Data.Deployment", b =>
+                {
+                    b.HasOne("SjaInNumbers.Server.Data.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("District");
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.HoursEntry", b =>
