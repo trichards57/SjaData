@@ -7,15 +7,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <Content Remove="stylecop.json" />
-	  <Content Remove="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 	<ItemGroup>
 	  <AdditionalFiles Include="stylecop.json">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </AdditionalFiles>
-	</ItemGroup>
-	<ItemGroup>
-	  <None Include="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />

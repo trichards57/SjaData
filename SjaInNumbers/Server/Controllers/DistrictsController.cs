@@ -6,14 +6,13 @@
 using Microsoft.AspNetCore.Mvc;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Districts;
-using Microsoft.AspNetCore.Http;
 
 namespace SjaInNumbers.Server.Controllers;
 
 /// <summary>
 /// Controller for managing districts.
 /// </summary>
-[Route("api/district")]
+[Route("api/districts")]
 [ApiController]
 public class DistrictsController(IDistrictService districtService) : ControllerBase
 {

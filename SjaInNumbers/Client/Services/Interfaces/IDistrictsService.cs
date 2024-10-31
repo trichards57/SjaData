@@ -1,0 +1,15 @@
+﻿// <copyright file="IDistrictsService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers.Shared.Model.Districts;
+
+namespace SjaInNumbers.Client.Services.Interfaces;
+
+public interface IDistrictsService
+{
+    Task<DistrictSummary> GetDistrictAsync(int id);
+    IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync();
+    Task PostDistrictCode(int id, string code);
+}
