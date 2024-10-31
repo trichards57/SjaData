@@ -46,7 +46,7 @@ public class DeploymentsController(IDistrictService districtService, IDeployment
             {
                 var district = await districtService.GetIdByDistrictCodeAsync(record.District);
 
-                if (district == null)
+                if (district == null || record.DipsNumber == 0)
                 {
                     continue;
                 }

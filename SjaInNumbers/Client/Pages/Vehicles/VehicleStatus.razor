@@ -13,11 +13,7 @@
 
 <GeneralErrorHandler>
     <h2>Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</h2>
-    <h3>
-        <a href="/vehicles">
-            <img class="icon" src="/img/icons/backward.svg" /> Go Back
-        </a>
-    </h3>
+    <BackLink Url="/vehicles" />
 
     @foreach (var district in vehicles.GroupBy(v => v.District))
     {

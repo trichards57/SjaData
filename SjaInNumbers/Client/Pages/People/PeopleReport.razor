@@ -17,13 +17,7 @@
 
 <GeneralErrorHandler>
     <h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
-
-    <h3>
-        <a href="/people">
-            <img class="icon" src="/img/icons/backward.svg" /> Go Back
-        </a>
-    </h3>
-
+    <BackLink Url="/people" />
     <PersonGroup IsLoading="@isLoading" Title="@ActivePeopleTitle" Reports="@activePeople" />
     <PersonGroup IsLoading="@isLoading" Title="@DormantPeopleTitle" Reports="@dormantPeople" />
     <PersonGroup IsLoading="@isLoading" Title="@InactivePeopleTitle" Reports="@inactivePeople" />

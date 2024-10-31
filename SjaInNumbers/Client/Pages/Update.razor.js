@@ -79,13 +79,13 @@ async function handleFile(file) {
         } catch {
             await dotNetHelper.invokeMethodAsync("ShowUploadFailed");
         }
-    } else if (firstBytes.toUpperCase() === "AOB ID") {
+    } else if (firstBytes.toUpperCase() === "AOB") {
         await dotNetHelper.invokeMethodAsync("ShowUploading");
         try {
             const result = await uploadDeployments(file);
 
             if (result) {
-                await dotNetHelper.invokeMethodAsync("ShowUploadSuccess", result.count, "hours");
+                await dotNetHelper.invokeMethodAsync("ShowUploadSuccess", result.count, "deployments");
             } else {
                 await dotNetHelper.invokeMethodAsync("ShowUploadFailed");
             }

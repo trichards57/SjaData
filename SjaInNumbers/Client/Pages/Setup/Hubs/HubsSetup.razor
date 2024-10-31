@@ -13,11 +13,7 @@
 
 <GeneralErrorHandler>
     <h2>Hubs</h2>
-    <h3>
-        <a href="/setup">
-            <img class="icon" src="/img/icons/backward.svg" /> Go Back
-        </a>
-    </h3>
+    <BackLink Url="/setup" />
 
     @foreach (var r in Enum.GetValues<Region>().OrderBy(r => r.ToString()))
     {
@@ -37,7 +33,7 @@
                                 <img class="icon" src="/img/icons/pencil.svg" title="Edit" />
                             </a>
                         </td>
-                        <td>
+                        @* <td>
                             <a href="@($"/setup/hubs/{h.Id}/delete")">
                                 <img class="icon" src="/img/icons/trash-can.svg" title="Delete" />
                             </a>
@@ -46,7 +42,7 @@
                             <a href="@($"/setup/hubs/{h.Id}/delete")">
                                 <img class="icon" src="/img/icons/link.svg" title="Merge" />
                             </a>
-                        </td>
+                        </td> *@
                         <td>
                             @h.Name, @h.District
                         </td>
