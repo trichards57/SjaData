@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Server.Services.Interfaces;
+using SjaInNumbers.Shared.Model.Deployments;
 using System.Globalization;
 
 namespace SjaInNumbers.Server.Controllers;
@@ -72,5 +73,15 @@ public class DeploymentsController(IDistrictService districtService, IDeployment
         {
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
+    }
+
+    [HttpGet("peaks")]
+    [ProducesResponseType(typeof(IEnumerable<PeakLoads>), StatusCodes.Status200OK)]
+    public IAsyncEnumerable<PeakLoads> GetPeakLoads()
+    {
+        var endDate = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = endDate.AddYears(-1);
+
+        return deploymentService.GetPeakLoadsAsync(startDate, endDate);
     }
 }

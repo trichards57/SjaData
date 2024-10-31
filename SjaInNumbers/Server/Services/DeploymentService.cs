@@ -5,8 +5,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
-using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Server.Services.Interfaces;
+using SjaInNumbers.Shared.Model.Deployments;
 
 namespace SjaInNumbers.Server.Services;
 
@@ -86,5 +86,22 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
                 })
                 .ToDictionaryAsync(r => r.Region, r => r.Summaries),
         };
+    }
+
+    public IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync(DateOnly startDate, DateOnly endDate)
+    {
+        var items = context.Deployments.Where(d => d.Date >= startDate && d.Date <= endDate).ToList();
+
+        return context.Deployments.Where(d => d.Date >= startDate && d.Date <= endDate)
+            .GroupBy(d => d.District)
+            .Select(d => new PeakLoads
+            {
+                Region = d.Key.Region,
+                District = d.Key.Name,
+                FrontLineAmbulances = d.Max(d => d.FrontLineAmbulances),
+                AllWheelDriveAmbulances = d.Max(d => d.AllWheelDriveAmbulances),
+                OffRoadAmbulances = d.Max(d => d.OffRoadAmbulances),
+            })
+            .AsAsyncEnumerable();
     }
 }

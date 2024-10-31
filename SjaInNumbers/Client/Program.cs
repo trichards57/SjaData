@@ -25,6 +25,7 @@ builder.Services.AddAuthorizationCore(c =>
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddHttpClient("SjaInNumbers.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
+builder.Services.AddScoped<IDeploymentService, DeploymentService>();
 builder.Services.AddScoped<IDistrictsService, DistrictsService>();
 builder.Services.AddScoped<IHoursService, HoursService>();
 builder.Services.AddScoped<IHubService, HubsService>();
