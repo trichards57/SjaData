@@ -12,4 +12,9 @@ public class DeploymentService(HttpClient client) : IDeploymentService
     {
         return client.GetFromJsonAsAsyncEnumerable<PeakLoads>("/api/deployments/peaks");
     }
+
+    public Task<NationalSummary> GetNationalSummary()
+    {
+        return client.GetFromJsonAsync<NationalSummary>("/api/deployments/national");
+    }
 }

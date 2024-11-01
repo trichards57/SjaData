@@ -64,9 +64,10 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
     {
         return new NationalSummary
         {
-            Regions = await context
+            Regions = (await context
                 .Deployments
                 .Include(d => d.District)
+                .ToListAsync())
                 .Where(d => d.Date >= startDate && d.Date <= endDate)
                 .GroupBy(d => d.District.Region)
                 .Select(r => new
@@ -78,30 +79,36 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
                             DistrictId = d.Key,
                             District = d.First().District.Name,
                             Region = r.Key,
-                            FrontLineAmbulances = d.GroupBy(d => d.Date).Select(d => new { Date = d.Key, Count = d.Sum(d => d.FrontLineAmbulances) }).ToDictionary(d => d.Date, d => d.Count),
-                            AllWheelDriveAmbulances = d.GroupBy(d => d.Date).Select(d => new { Date = d.Key, Count = d.Sum(d => d.AllWheelDriveAmbulances) }).ToDictionary(d => d.Date, d => d.Count),
-                            OffRoadAmbulances = d.GroupBy(d => d.Date).Select(d => new { Date = d.Key, Count = d.Sum(d => d.OffRoadAmbulances) }).ToDictionary(d => d.Date, d => d.Count),
+                            FrontLineAmbulances = CountVehicles(d => d.FrontLineAmbulances)(d),
+                            AllWheelDriveAmbulances = CountVehicles(d => d.AllWheelDriveAmbulances)(d),
+                            OffRoadAmbulances = CountVehicles(d => d.OffRoadAmbulances)(d),
                         })
                         .ToList(),
                 })
-                .ToDictionaryAsync(r => r.Region, r => r.Summaries),
+                .ToDictionary(r => r.Region, r => r.Summaries),
         };
     }
 
+    /// <inheritdoc/>
     public IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync(DateOnly startDate, DateOnly endDate)
     {
-        var items = context.Deployments.Where(d => d.Date >= startDate && d.Date <= endDate).ToList();
-
         return context.Deployments.Where(d => d.Date >= startDate && d.Date <= endDate)
             .GroupBy(d => d.District)
             .Select(d => new PeakLoads
             {
                 Region = d.Key.Region,
                 District = d.Key.Name,
+                DistrictId = d.Key.Id,
                 FrontLineAmbulances = d.Max(d => d.FrontLineAmbulances),
                 AllWheelDriveAmbulances = d.Max(d => d.AllWheelDriveAmbulances),
                 OffRoadAmbulances = d.Max(d => d.OffRoadAmbulances),
             })
             .AsAsyncEnumerable();
     }
+
+    private static Func<IGrouping<int, Deployment>, Dictionary<DateOnly, int>> CountVehicles(Func<Deployment, int> selector) =>
+        d => d.GroupBy(d => d.Date)
+          .Select(d => new { Date = d.Key, Count = d.Sum(selector) })
+          .Where(d => d.Count > 0)
+          .ToDictionary(d => d.Date, d => d.Count);
 }

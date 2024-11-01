@@ -9,8 +9,8 @@ using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace SjaInNumbers.Server.Services;
 
@@ -22,6 +22,43 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
 {
     private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
+
+    public async Task<NationalVehicleReport> GetVehicleReportAsync()
+    {
+        return await context.Vehicles
+            .GetActive()
+            .GroupBy(v => 1) // Group by a constant to get a single overall grouping
+            .Select(g => new NationalVehicleReport
+            {
+                AllWheelDriveAmbulances = g.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
+                OffRoadAmbulances = g.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
+                FrontLineAmbulances = g.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
+                Districts = g
+                    .Where(v => v.HubId.HasValue)
+                    .GroupBy(v => v.Hub.District)
+                    .Select(dg => new DistrictVehicleReport
+                    {
+                        District = dg.Key.Name,
+                        AllWheelDriveAmbulances = dg.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
+                        OffRoadAmbulances = dg.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
+                        FrontLineAmbulances = dg.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
+                        Region = dg.Key.Region,
+                        DistrictId = dg.Key.Id,
+                    })
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetVehicleReportEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
 
     /// <inheritdoc/>
     public async Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents)

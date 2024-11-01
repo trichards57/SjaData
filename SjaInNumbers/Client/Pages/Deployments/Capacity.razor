@@ -1,0 +1,82 @@
+﻿@page "/deployments/capacity"
+
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Deployments
+@using SjaInNumbers.Shared.Model.Vehicles
+
+@inject IVehicleService VehicleService
+@inject IDeploymentService DeploymentService
+
+<GeneralErrorHandler>
+    <h2>Front-Line Capacity Prediction</h2>
+    <BackLink Url="/deployments" />
+
+    <table>
+        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
+        {
+            <thead>
+                <tr>
+                    <th colspan="2">@LabelConverters.LabelToDisplay(region.Key)</th>
+                </tr>
+                <tr>
+                    <th>District</th>
+                    <th>Current</th>
+                    <th>Peak Load</th>
+                    <th>Days Over Capacity</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var district in region.OrderBy(d => d.District))
+                {
+                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                    var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
+
+                    <tr>
+                        <td>@district.District</td>
+                        <td>@capacity</td>
+                        <td>@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
+                        <td>@peakReport.FrontLineAmbulances.Count(d => d.Value > capacity)</td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+</GeneralErrorHandler>
+
+@code
+{
+    private NationalVehicleReport vehicles;
+    private NationalSummary deployments;
+    private IList<DistrictSummary> districts = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehicleService.GetNationalReportAsync();
+        deployments = await DeploymentService.GetNationalSummary();
+
+        districts = vehicles.Districts.Select(d => new DistrictSummary
+            {
+                DistrictId = d.DistrictId,
+                District = d.District,
+                Region = d.Region,
+            }).Union(deployments.Regions.Where(r => r.Key != Region.Undefined)
+                .SelectMany(r => r.Value.Select(d => new DistrictSummary
+                    {
+                        DistrictId = d.DistrictId,
+                        District = d.District,
+                        Region = d.Region,
+                    }))).ToList();
+    }
+
+    private readonly record struct DistrictSummary
+    {
+        public int DistrictId { get; init; }
+        public string District { get; init; }
+        public Region Region { get; init; }
+    }
+}

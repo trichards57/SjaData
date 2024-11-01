@@ -42,6 +42,8 @@ public interface IVehicleService
     Task<VehicleSettings?> GetSettingsAsync(int id);
     Task<StringSegment> GetSettingsEtagAsync(Place place);
     Task<StringSegment> GetSettingsEtagAsync(int id);
+    Task<NationalVehicleReport> GetVehicleReportAsync();
+    Task<StringSegment> GetVehicleReportEtagAsync();
 
     /// <summary>
     /// Gets the VOR statistics for the provided place.

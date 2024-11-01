@@ -84,4 +84,13 @@ public class DeploymentsController(IDistrictService districtService, IDeployment
 
         return deploymentService.GetPeakLoadsAsync(startDate, endDate);
     }
+
+    [HttpGet("national")]
+    public async Task<ActionResult<NationalSummary>> GetNationalSummary()
+    {
+        var endDate = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = endDate.AddYears(-1);
+
+        return await deploymentService.GetNationalSummaryAsync(startDate, endDate);
+    }
 }

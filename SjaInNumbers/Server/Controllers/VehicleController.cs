@@ -23,6 +23,29 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
 {
     private readonly IVehicleService vehicleService = vehicleService;
 
+    [HttpGet("all")]
+    [Authorize(Policy = "Lead")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [RevalidateCache]
+    public async Task<ActionResult<NationalVehicleReport>> GetVehiclesAsync([FromHeader(Name = "If-None-Match")] string? etag)
+    {
+        var actualEtagValue = await vehicleService.GetVehicleReportEtagAsync();
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+        var lastUpdate = await vehicleService.GetLastModifiedAsync();
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastUpdate;
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        return Ok(await vehicleService.GetVehicleReportAsync());
+    }
+
     /// <summary>
     /// Gets all of the vehicles for a given place.
     /// </summary>

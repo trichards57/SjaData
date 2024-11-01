@@ -6,6 +6,8 @@ public readonly record struct PeakLoads
 
     public string District { get; init; }
 
+    public int DistrictId { get; init; }
+
     public int FrontLineAmbulances { get; init; }
 
     public int AllWheelDriveAmbulances { get; init; }
