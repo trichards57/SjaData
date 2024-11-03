@@ -23,43 +23,6 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
 
-    public async Task<NationalVehicleReport> GetVehicleReportAsync()
-    {
-        return await context.Vehicles
-            .GetActive()
-            .GroupBy(v => 1) // Group by a constant to get a single overall grouping
-            .Select(g => new NationalVehicleReport
-            {
-                AllWheelDriveAmbulances = g.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
-                OffRoadAmbulances = g.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
-                FrontLineAmbulances = g.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
-                Districts = g
-                    .Where(v => v.HubId.HasValue)
-                    .GroupBy(v => v.Hub.District)
-                    .Select(dg => new DistrictVehicleReport
-                    {
-                        District = dg.Key.Name,
-                        AllWheelDriveAmbulances = dg.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
-                        OffRoadAmbulances = dg.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
-                        FrontLineAmbulances = dg.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
-                        Region = dg.Key.Region,
-                        DistrictId = dg.Key.Id,
-                    })
-                    .ToList(),
-            })
-            .FirstOrDefaultAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<StringSegment> GetVehicleReportEtagAsync()
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
-
     /// <inheritdoc/>
     public async Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents)
     {
@@ -100,6 +63,41 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
+    public async IAsyncEnumerable<FailureReport> GetFailureReports(DateOnly endDate, VehicleType type)
+    {
+        var vehicles = context.Vehicles
+            .AsNoTracking()
+            .GetActive()
+            .Where(v => v.VehicleType == type)
+            .Include(v => v.Incidents)
+            .GroupBy(g => new { g.Make, g.Model, g.BodyType })
+            .AsAsyncEnumerable();
+
+        var startDate = endDate.AddDays(-365);
+
+        await foreach (var group in vehicles)
+        {
+            var failureReports = group.Select(v => new VehicleFailureReport
+            {
+                AnnualFailures = v.Incidents.Count(i => i.StartDate >= startDate && i.EndDate <= endDate),
+                AverageRepairTime = v.Incidents.Where(i => i.StartDate >= startDate && i.EndDate <= endDate).Select(i => EF.Functions.DateDiffDay(i.StartDate, i.EndDate)).Average(),
+            });
+
+            var (probability, stdDev) = GetFleetFailureProbability(failureReports);
+
+            yield return new FailureReport
+            {
+                BodyType = group.Key.BodyType,
+                FailureProbability = probability,
+                FailureStdDev = stdDev,
+                Make = group.Key.Make,
+                Model = group.Key.Model,
+                VehicleType = type,
+            };
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<DateTimeOffset> GetLastModifiedAsync()
     {
         var hubsLastModified = await context.Hubs.AnyAsync() ? await context.Hubs.Select(s => s.UpdatedAt).MaxAsync() : DateTimeOffset.MinValue;
@@ -109,16 +107,6 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         var incidentsLastModified = new DateTimeOffset(incidentsLastModifiedDateOnly.ToDateTime(new TimeOnly(16, 0, 0)), new TimeSpan(0));
 
         return new[] { incidentsLastModified, vehiclesLastModified, hubsLastModified }.Max();
-    }
-
-    /// <inheritdoc/>
-    public async Task<StringSegment> GetNationalVorStatusesEtagAsync()
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>
@@ -168,6 +156,16 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
                 }
             }
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetNationalVorStatusesEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>
@@ -248,11 +246,39 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetVorStatisticsEtagAsync(Place place)
+    public async Task<NationalVehicleReport> GetVehicleReportAsync()
+    {
+        return await context.Vehicles
+            .GetActive()
+            .GroupBy(v => 1) // Group by a constant to get a single overall grouping
+            .Select(g => new NationalVehicleReport
+            {
+                AllWheelDriveAmbulances = g.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
+                OffRoadAmbulances = g.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
+                FrontLineAmbulances = g.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
+                Districts = g
+                    .Where(v => v.HubId.HasValue)
+                    .GroupBy(v => v.Hub!.District)
+                    .Select(dg => new DistrictVehicleReport
+                    {
+                        District = dg.Key.Name,
+                        AllWheelDriveAmbulances = dg.Count(v => v.VehicleType == VehicleType.AllWheelDrive),
+                        OffRoadAmbulances = dg.Count(v => v.VehicleType == VehicleType.OffRoadAmbulance),
+                        FrontLineAmbulances = dg.Count(v => v.VehicleType == VehicleType.FrontLineAmbulance),
+                        Region = dg.Key.Region,
+                        DistrictId = dg.Key.Id,
+                    })
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetVehicleReportEtagAsync()
     {
         var lastModified = await GetLastModifiedAsync();
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
 
         return $"\"{Convert.ToBase64String(hash)}\"";
     }
@@ -312,7 +338,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetVorStatusesEtagAsync(Place place)
+    public async Task<StringSegment> GetVorStatisticsEtagAsync(Place place)
     {
         var lastModified = await GetLastModifiedAsync();
 
@@ -330,6 +356,16 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         }
 
         return GetVorStatusesPrivateAsync(place);
+    }
+
+    /// <inheritdoc/>
+    public async Task<StringSegment> GetVorStatusesEtagAsync(Place place)
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     /// <inheritdoc/>
@@ -354,6 +390,30 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         vehicle.BodyType = settings.BodyType.Trim();
         vehicle.LastModified = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
+    }
+
+    private static (double Probability, double StdDev) GetFleetFailureProbability(IEnumerable<VehicleFailureReport> vehicles)
+    {
+        double combinedProbability = 1.0;
+        double combinedVariance = 0.0;
+
+        foreach (var vehicle in vehicles)
+        {
+            double vehicleFailureProbability = vehicle.GetDailyFailureProbability();
+            double vehicleFailureVariance = vehicle.GetDailyFailureVariance();
+
+            // Multiply the complements of probabilities for combined probability
+            combinedProbability *= 1 - vehicleFailureProbability;
+
+            // Aggregate variance (assuming independence)
+            combinedVariance += vehicleFailureVariance;
+        }
+
+        // Fleet failure probability and standard deviation
+        double fleetFailureProbability = 1 - combinedProbability;
+        double fleetFailureStdDev = Math.Sqrt(combinedVariance);
+
+        return (fleetFailureProbability, fleetFailureStdDev);
     }
 
     private static List<DateOnly> GetVorDates(IEnumerable<VehicleIncident> incidents, DateOnly start, DateOnly end)

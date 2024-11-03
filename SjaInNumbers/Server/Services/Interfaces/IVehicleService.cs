@@ -20,6 +20,7 @@ public interface IVehicleService
     /// <param name="vorIncidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents);
+    IAsyncEnumerable<FailureReport> GetFailureReports(DateOnly endDate, VehicleType type);
     Task<DateTimeOffset> GetLastModifiedAsync();
     IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync();
     Task<StringSegment> GetNationalVorStatusesEtagAsync();

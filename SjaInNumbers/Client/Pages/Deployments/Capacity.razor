@@ -1,7 +1,9 @@
 ﻿@page "/deployments/capacity"
 
+@using Microsoft.AspNetCore.Components.Forms
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Maths
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model
 @using SjaInNumbers.Shared.Model.Deployments
@@ -14,18 +16,20 @@
     <h2>Front-Line Capacity Prediction</h2>
     <BackLink Url="/deployments" />
 
+    <h3>Current Capacity</h3>
     <table>
         @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
         {
             <thead>
                 <tr>
-                    <th colspan="2">@LabelConverters.LabelToDisplay(region.Key)</th>
+                    <th colspan="5">@LabelConverters.LabelToDisplay(region.Key)</th>
                 </tr>
                 <tr>
                     <th>District</th>
-                    <th>Current</th>
                     <th>Peak Load</th>
-                    <th>Days Over Capacity</th>
+                    <th>Capacity</th>
+                    <th>Days Over</th>
+                    <th>Nominal Moves</th>
                 </tr>
             </thead>
 
@@ -38,9 +42,50 @@
 
                     <tr>
                         <td>@district.District</td>
-                        <td>@capacity</td>
                         <td>@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
+                        <td>@capacity</td>
                         <td>@peakReport.FrontLineAmbulances.Count(d => d.Value > capacity)</td>
+                        <td>@peakReport.FrontLineAmbulances.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+
+    <h3>New Capacity</h3>
+    <table>
+        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
+        {
+            <thead>
+                <tr>
+                    <th colspan="5">@LabelConverters.LabelToDisplay(region.Key)</th>
+                </tr>
+                <tr>
+                    <th>District</th>
+                    <th>Peak Load</th>
+                    <th>New Capacity</th>
+                    <th>Predicted Days Over</th>
+                    <th>Predicted Moves</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var district in region.OrderBy(d => d.District))
+                {
+                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                    var model = districtModels[district.DistrictId];
+
+                    <tr>
+                        <td>@peakReport.District</td>
+                        <td>@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
+                        <td>
+                            <EditForm Model="model">
+                                <InputNumber @bind-Value="model.Vehicles" />
+                            </EditForm>
+                        </td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 }
             </tbody>
@@ -53,6 +98,9 @@
     private NationalVehicleReport vehicles;
     private NationalSummary deployments;
     private IList<DistrictSummary> districts = [];
+    private WeibullGenerator weibullGenerator = new(0.66, 9.28); // Numbers from failure analysis
+
+    private Dictionary<int, InputModel> districtModels = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,6 +119,19 @@
                         District = d.District,
                         Region = d.Region,
                     }))).ToList();
+
+        foreach (var district in districts)
+        {
+            var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+            var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
+
+            districtModels[district.DistrictId] = new InputModel { Vehicles = capacity };
+        }
+    }
+
+    private void CalculateCapacity()
+    {
+        
     }
 
     private readonly record struct DistrictSummary
@@ -78,5 +139,14 @@
         public int DistrictId { get; init; }
         public string District { get; init; }
         public Region Region { get; init; }
+    }
+
+    private class InputModel
+    {
+        public int Vehicles { get; set; }
+        public int PredictedDaysOver { get; set; }
+        public int PredictedDaysOverMargin { get; set; }
+        public int PredictedMoves { get; set; }
+        public int PredictedMovesMargin { get; set; }
     }
 }
