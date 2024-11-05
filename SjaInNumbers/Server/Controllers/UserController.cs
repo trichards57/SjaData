@@ -30,7 +30,7 @@ public class UserController(IUserService userService) : ControllerBase
     /// </returns>
     [HttpGet("me")]
     [Authorize]
-    [NotCachedFilter]
+    [NotCached]
     [ProducesResponseType(typeof(UserDetails), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<UserDetails>> GetCurrentUser()
@@ -55,7 +55,7 @@ public class UserController(IUserService userService) : ControllerBase
     /// </returns>
     [HttpGet]
     [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
+    [NotCached]
     [ProducesResponseType(typeof(IAsyncEnumerable<UserDetails>), StatusCodes.Status200OK)]
     public IAsyncEnumerable<UserDetails> GetAll() => userService.GetAll();
 
@@ -68,7 +68,7 @@ public class UserController(IUserService userService) : ControllerBase
     /// </returns>
     [HttpPost("{userId}/approve")]
     [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
+    [NotCached]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ApproveUser([FromRoute] string userId)
@@ -100,7 +100,7 @@ public class UserController(IUserService userService) : ControllerBase
     /// </returns>
     [HttpPost]
     [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
+    [NotCached]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -146,7 +146,7 @@ public class UserController(IUserService userService) : ControllerBase
     /// </returns>
     [HttpDelete("{userId}")]
     [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
+    [NotCached]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteUser([FromRoute] string userId)
     {

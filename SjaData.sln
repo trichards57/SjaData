@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SjaInNumbers.Shared", "SjaI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VorUploader", "SjaInNumbers\VorUploader\VorUploader.csproj", "{550FCAE5-E50E-4B62-8536-01645D2C0DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaInNumbers.Server.Tests", "SjaInNumbers.Server.Tests\SjaInNumbers.Server.Tests.csproj", "{527A4AE8-B79A-4AF7-9D90-EAE25BD11131}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{527A4AE8-B79A-4AF7-9D90-EAE25BD11131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{527A4AE8-B79A-4AF7-9D90-EAE25BD11131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{527A4AE8-B79A-4AF7-9D90-EAE25BD11131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{527A4AE8-B79A-4AF7-9D90-EAE25BD11131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

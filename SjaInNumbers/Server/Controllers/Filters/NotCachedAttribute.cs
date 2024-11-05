@@ -12,7 +12,7 @@ namespace SjaInNumbers.Server.Controllers.Filters;
 /// Attribute to indicate that the response from an action must not be cached.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-public class NotCachedFilterAttribute : ActionFilterAttribute
+public class NotCachedAttribute : ActionFilterAttribute
 {
     /// <inheritdoc/>
     public override void OnResultExecuting(ResultExecutingContext context)

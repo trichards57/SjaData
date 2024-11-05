@@ -117,7 +117,7 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<CountResponse>(StatusCodes.Status200OK)]
     [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
+    [NotCached]
     public async Task<ActionResult<CountResponse>> ReceiveHoursFile(IFormFile file)
     {
         using var reader = new StreamReader(file.OpenReadStream());
