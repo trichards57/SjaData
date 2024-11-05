@@ -84,13 +84,14 @@
                                 <InputNumber @bind-Value="model.Vehicles" />
                             </EditForm>
                         </td>
-                        <td></td>
-                        <td></td>
+                        <td>@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin))</td>
+                        <td>@model.PredictedMoves (+- @(model.PredictedMovesMargin))</td>
                     </tr>
                 }
             </tbody>
         }
     </table>
+    <button @onclick="@CalculateCapacity">Run</button>
 </GeneralErrorHandler>
 
 @code
@@ -99,6 +100,7 @@
     private NationalSummary deployments;
     private IList<DistrictSummary> districts = [];
     private WeibullGenerator weibullGenerator = new(0.66, 9.28); // Numbers from failure analysis
+    private Random random = new();
 
     private Dictionary<int, InputModel> districtModels = new();
 
@@ -131,7 +133,34 @@
 
     private void CalculateCapacity()
     {
-        
+        var monteCarloVehicles = new List<MonteCarloVehicle>();
+
+        var failureProbability = 0.15; // TODO : get this from the data.
+        var requirements = deployments.Regions
+            .SelectMany(r => r.Value.Select(d => new { d.DistrictId, d.FrontLineAmbulances }))
+            .ToDictionary(r => r.DistrictId, r => r.FrontLineAmbulances);
+
+        foreach (var district in districts)
+        {
+            for (var i = 0; i < districtModels[district.DistrictId].Vehicles; i++)
+            {
+                monteCarloVehicles.Add(new MonteCarloVehicle(district.DistrictId, failureProbability, weibullGenerator, random));
+            }
+        }
+
+        var model = new MonteCarloSimulation(monteCarloVehicles, requirements);
+
+        var result = model.RunSimulation(new DateOnly(2023, 1, 1), new DateOnly(2023, 12, 31), 30);
+
+        foreach (var r in result.Keys)
+        {
+            districtModels[r].PredictedDaysOver = result[r].DaysShort;
+            districtModels[r].PredictedDaysOverMargin = result[r].DaysShortStandardDeviation;
+            districtModels[r].PredictedMoves = result[r].TotalMoves;
+            districtModels[r].PredictedMovesMargin = result[r].TotalMovesStandardDeviation;
+        }
+
+        StateHasChanged();
     }
 
     private readonly record struct DistrictSummary
@@ -145,8 +174,8 @@
     {
         public int Vehicles { get; set; }
         public int PredictedDaysOver { get; set; }
-        public int PredictedDaysOverMargin { get; set; }
+        public double PredictedDaysOverMargin { get; set; }
         public int PredictedMoves { get; set; }
-        public int PredictedMovesMargin { get; set; }
+        public double PredictedMovesMargin { get; set; }
     }
 }
