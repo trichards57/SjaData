@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Data;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SjaInNumbers.Server.Controllers;
@@ -31,10 +32,13 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     private readonly IUserStore<ApplicationUser> userStore = userStore;
 
     /// <summary>
-    /// Clears the site data for a user.
+    /// Clears the cache, cookies, storage, and execution contexts in the client,
+    /// then redirects to the home page.
     /// </summary>
     /// <returns>The result of the action.</returns>
     [HttpGet("clear")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status302Found)]
     [NotCachedFilter]
     public IActionResult Clear()
     {
@@ -53,8 +57,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// A task that represents the asynchronous operation. Resolves to the result of the action.
     /// </returns>
     [HttpGet("externalLogin")]
-    [NotCachedFilter]
-    public async Task<IActionResult> ExternalLogin(string returnUrl)
+    public async Task<IActionResult> ExternalLogin(string returnUrl = "")
     {
         var info = await signInManager.GetExternalLoginInfoAsync() ?? throw new InvalidOperationException("Error loading external login information.");
         var userId = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown";
