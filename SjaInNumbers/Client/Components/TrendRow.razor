@@ -23,8 +23,8 @@
                 <TrendArrow Value="@Trends.ThreeMonthAverage[KeyValue]" PreviousValue="@Trends.ThreeMonthMinusOneAverage[KeyValue]" />
             </div>
         </td>
-        <td>
-            <ApexChart TItem="ChartItem" Options="@chartOptions" Height="40" Width="100">
+        <td class="graph-cell">
+            <ApexChart TItem="ChartItem" Options="@chartOptions" Height="40" Width="128">
                 <ApexPointSeries TItem="ChartItem"
                                  Items="@HoursItems"
                                  SeriesType="SeriesType.Line"
@@ -54,8 +54,16 @@
         {
             Sparkline = new()
             {
-                Enabled = true
-            }
+                Enabled = true,
+            },
+        },
+        Tooltip = new()
+        {
+            Enabled = false,
+        },
+        Xaxis = new()
+        {
+            Type = XAxisType.Numeric,
         }
     };
 

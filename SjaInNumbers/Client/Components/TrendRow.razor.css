@@ -9,3 +9,7 @@
     justify-content: end;
     align-items: center;
 }
+
+.activity-trends tbody tr {
+    height: 3rem;
+}

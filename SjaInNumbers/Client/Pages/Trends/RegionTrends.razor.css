@@ -9,6 +9,39 @@
     font-family: var(--sja-header-font);
     font-weight: normal;
     font-size: 1.2rem;
-    padding: 0 5px;
     text-align: left;
+    color: var(--sja-dark-green);
+}
+
+.section-title span {
+    max-width: fit-content;
+    font-family: var(--sja-header-font);
+    color: var(--sja-black);
+    font-size: 1.2rem;
+    font-weight: bolder;
+}
+
+table thead:not(:first-child) .section-title span {
+    margin-top: 20px;
+    display: block;
+}
+
+.area-col {
+    width: 13rem;
+}
+
+.trend-col {
+    width: 7.5rem;
+}
+
+.graph-col {
+    width: 8rem;
+}
+
+
+
+    
+
+.activity-trends tbody tr {
+    height: 3rem;
 }
