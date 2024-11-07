@@ -130,6 +130,12 @@ a.btn-large {
     color: var(--sja-dark-green-text);
 }
 
+.btn-small:disabled, .btn-large:disabled {
+    background-color: var(--sja-gray);
+    color: var(--sja-gray-text);
+    cursor: wait;
+}
+
 .btn-secondary {
     background-color: var(--sja-yellow);
     color: var(--sja-yellow-text);

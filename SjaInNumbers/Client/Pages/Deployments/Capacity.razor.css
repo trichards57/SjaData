@@ -14,3 +14,22 @@
     margin-bottom: var(--root-padding);
     width: 100%
 }
+
+    .run-button:disabled {
+        background-color: var(--sja-gray);
+        color: var(--sja-gray-text);
+        cursor: wait;
+    }
+
+.district-label {
+    font-family: var(--sja-header-font);
+    padding: 0 5px;
+}
+
+.value-cell {
+    text-align: center;
+}
+
+.prediction-cell {
+    text-align: right;
+}

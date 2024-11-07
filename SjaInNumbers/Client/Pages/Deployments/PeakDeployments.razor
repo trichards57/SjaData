@@ -17,19 +17,21 @@
     <BackLink Url="/deployments" />
 
     <table>
-        <thead>
-            <tr>
-                <th>District</th>
-                <th>Front-Line</th>
-                <th>AWD</th>
-                <th>4x4</th>
-            </tr>
-        </thead>
         @foreach (var region in peaks.GroupBy(p => p.Region).Where(r => r.Key != Shared.Model.Region.Undefined))
         {
             <thead>
                 <tr>
-                    <th colspan="4">@LabelConverters.LabelToDisplay(region.Key)</th>
+                    <th class="section-title" colspan="4">
+                        <span>
+                            @LabelConverters.LabelToDisplay(region.Key)
+                        </span>
+                    </th>
+                </tr>
+                <tr class="sub-head">
+                    <th class="district-col">District</th>
+                    <th class="vehicle-col">Front-Line</th>
+                    <th class="vehicle-col">AWD</th>
+                    <th class="vehicle-col">4x4</th>
                 </tr>
             </thead>
 
@@ -37,10 +39,22 @@
                 @foreach (var district in region.OrderBy(d => d.District))
                 {
                     <tr>
-                        <td>@district.District</td>
-                        <td>@district.FrontLineAmbulances</td>
-                        <td>@district.AllWheelDriveAmbulances</td>
-                        <td>@district.OffRoadAmbulances</td>
+                        <td class="district-label">@district.District</td>
+                        <td>
+                            <div class="peak-value">
+                                @district.FrontLineAmbulances
+                            </div>
+                        </td>
+                        <td>
+                            <div class="peak-value">
+                                @district.AllWheelDriveAmbulances
+                            </div>
+                        </td>
+                        <td>
+                            <div class="peak-value">
+                                @district.OffRoadAmbulances
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>
