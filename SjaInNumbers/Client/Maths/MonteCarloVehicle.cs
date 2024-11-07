@@ -1,26 +1,49 @@
-﻿namespace SjaInNumbers.Client.Maths;
+﻿using MathNet.Numerics.Distributions;
 
-public class MonteCarloVehicle(int districtId, double failureProbability, WeibullGenerator repairTimeGenerator, Random random)
+namespace SjaInNumbers.Client.Maths;
+
+public class MonteCarloVehicle(int districtId, double failureProbability, IContinuousDistribution repairTimeGenerator, Random random)
 {
     private readonly double failureProbability = failureProbability;
     private readonly Random random = random;
-    private readonly WeibullGenerator repairTimeGenerator = repairTimeGenerator;
+    private readonly IContinuousDistribution repairTimeGenerator = repairTimeGenerator;
     private int daysToReturn;
+
+    public static Dictionary<int, int> RepairTimes { get; } = [];
 
     public int DistrictId { get; } = districtId;
 
     public bool IsAvailable { get; private set; }
 
+    public int DaysAvailable { get; private set; }
+
+    public void Reset()
+    {
+        IsAvailable = true;
+        DaysAvailable = 0;
+    }
+
     public void Update()
     {
         if (IsAvailable)
         {
-            var fail = random.NextDouble() > failureProbability;
-
-            if (fail)
+            if (random.NextDouble() < failureProbability)
             {
                 IsAvailable = false;
-                daysToReturn = repairTimeGenerator.Generate();
+                daysToReturn = (int)Math.Round(repairTimeGenerator.Sample());
+
+                if (RepairTimes.ContainsKey(daysToReturn))
+                {
+                    RepairTimes[daysToReturn]++;
+                }
+                else
+                {
+                    RepairTimes[daysToReturn] = 1;
+                }
+            }
+            else
+            {
+                DaysAvailable++;
             }
         }
         else
@@ -28,6 +51,11 @@ public class MonteCarloVehicle(int districtId, double failureProbability, Weibul
             if (daysToReturn == 0)
             {
                 IsAvailable = true;
+                DaysAvailable++;
+            }
+            else
+            {
+                daysToReturn--;
             }
         }
     }

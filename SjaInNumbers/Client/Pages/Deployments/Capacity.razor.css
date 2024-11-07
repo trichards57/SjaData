@@ -1,0 +1,16 @@
+﻿::deep .new-vehicles {
+    max-width: 3rem;
+    padding: var(--root-padding);
+    border-radius: var(--root-padding);
+    border: 1px solid var(--sja-gray);
+}
+
+.run-button {
+    background-color: var(--sja-green);
+    color: var(--sja-green-text);
+    border: none;
+    padding: var(--root-padding) var(--button-padding);
+    margin-top: var(--root-padding);
+    margin-bottom: var(--root-padding);
+    width: 100%
+}

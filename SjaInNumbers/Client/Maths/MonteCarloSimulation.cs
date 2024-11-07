@@ -10,10 +10,12 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
     private readonly Dictionary<int, Dictionary<DateOnly, int>> districtRequirements = districtRequirements;
     private readonly List<MonteCarloVehicle> vehicles = vehicles;
 
-    public Dictionary<int, SimulationResult> RunSimulation(DateOnly startDate, DateOnly endDate, int iterations)
+    public SimulationResult RunSimulation(DateOnly startDate, DateOnly endDate, int iterations)
     {
         var districtShortageDays = new Dictionary<int, List<int>>();
         var districtTotalMoves = new Dictionary<int, List<int>>();
+
+        var availability = new List<double>();
 
         foreach (var district in districtRequirements.Keys)
         {
@@ -23,7 +25,14 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
 
         for (int i = 0; i < iterations; i++)
         {
+            foreach (var v in vehicles)
+            {
+                v.Reset();
+            }
+
             var iterationResults = RunSingleIteration(startDate, endDate);
+
+            availability.Add(vehicles.Average(v => v.DaysAvailable));
 
             foreach (var district in iterationResults.Keys)
             {
@@ -32,7 +41,7 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
             }
         }
 
-        var finalResults = new Dictionary<int, SimulationResult>();
+        var finalResults = new Dictionary<int, DistrictSimulationResult>();
 
         foreach (var district in districtShortageDays.Keys)
         {
@@ -50,16 +59,16 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
             };
         }
 
-        return finalResults;
+        return new() { DistrictResults = finalResults, AverageAvailability = availability.Average() / 365 };
     }
 
-    public Dictionary<int, (int DaysWithShortages, int TotalMoves)> RunSingleIteration(DateOnly startDate, DateOnly endDate)
+    public Dictionary<int, IterationResult> RunSingleIteration(DateOnly startDate, DateOnly endDate)
     {
-        var districtResults = new Dictionary<int, (int DaysWithShortages, int TotalMoves)>();
+        var districtResults = new Dictionary<int, IterationResult>();
 
         foreach (var district in districtRequirements.Keys)
         {
-            districtResults[district] = (DaysWithShortages: 0, TotalMoves: 0);
+            districtResults[district] = default;
         }
 
         var districtVehicles = vehicles.GroupBy(v => v.DistrictId).ToDictionary(i => i.Key, i => i.ToList());
@@ -73,14 +82,23 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
 
             foreach (var district in districtRequirements.Keys)
             {
-                var requiredVehicles = districtRequirements[district][day];
-                var availableVehicles = districtVehicles[district].Count(v => v.IsAvailable);
+                int requiredVehicles = districtRequirements[district].TryGetValue(day, out var value) ? value : 0;
+                var availableVehicles = districtVehicles.TryGetValue(district, out var val) ? val.Count(v => v.IsAvailable) : 0;
 
                 if (availableVehicles < requiredVehicles)
                 {
                     var shortage = requiredVehicles - availableVehicles;
-                    districtResults[district] = (districtResults[district].DaysWithShortages + 1, districtResults[district].TotalMoves + shortage);
+                    districtResults[district] = districtResults[district] with
+                    {
+                        DaysWithShortages = districtResults[district].DaysWithShortages + 1,
+                        TotalMoves = districtResults[district].TotalMoves + shortage,
+                    };
                 }
+
+                //if (district == 231)
+                //{
+                //    Console.WriteLine($"Day: {day}, District: {district}, Required: {requiredVehicles}, Available: {availableVehicles}, Shortages: {districtResults[district].DaysWithShortages}, Moves: {districtResults[district].TotalMoves}");
+                //}
             }
         }
 

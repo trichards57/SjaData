@@ -1,5 +1,6 @@
 ﻿@page "/deployments/capacity"
 
+@using MathNet.Numerics.Distributions
 @using Microsoft.AspNetCore.Components.Forms
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
@@ -8,6 +9,7 @@
 @using SjaInNumbers.Shared.Model
 @using SjaInNumbers.Shared.Model.Deployments
 @using SjaInNumbers.Shared.Model.Vehicles
+@using System.Text.Json
 
 @inject IVehicleService VehicleService
 @inject IDeploymentService DeploymentService
@@ -54,6 +56,24 @@
 
     <h3>New Capacity</h3>
     <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>New Capacity</th>
+                <th>Predicted Days Over</th>
+                <th>Predicted Moves</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>National</td>
+                <td></td>
+                <td>@districtModels.Sum(s => s.Value.Vehicles)</td>
+                <td>@districtModels.Sum(s => s.Value.PredictedDaysOver) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedDaysOverMargin, 2))).ToString("F2"))</td>
+                <td>@districtModels.Sum(s => s.Value.PredictedMoves) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedMovesMargin, 2))).ToString("F2"))</td>
+            </tr>
+        </tbody>
         @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
         {
             <thead>
@@ -81,17 +101,23 @@
                         <td>@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
                         <td>
                             <EditForm Model="model">
-                                <InputNumber @bind-Value="model.Vehicles" />
+                                <InputNumber class="new-vehicles" @bind-Value="model.Vehicles" />
                             </EditForm>
                         </td>
-                        <td>@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin))</td>
-                        <td>@model.PredictedMoves (+- @(model.PredictedMovesMargin))</td>
+                        <td>@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin.ToString("F2")))</td>
+                        <td>@model.PredictedMoves (+- @(model.PredictedMovesMargin.ToString("F2")))</td>
                     </tr>
                 }
             </tbody>
         }
+        <tfoot>
+            <tr>
+                <td colspan="6">
+                    <button class="run-button btn-small" @onclick="@CalculateCapacity">Run</button>
+                </td>
+            </tr>
+        </tfoot>
     </table>
-    <button @onclick="@CalculateCapacity">Run</button>
 </GeneralErrorHandler>
 
 @code
@@ -99,7 +125,7 @@
     private NationalVehicleReport vehicles;
     private NationalSummary deployments;
     private IList<DistrictSummary> districts = [];
-    private WeibullGenerator weibullGenerator = new(0.66, 9.28); // Numbers from failure analysis
+    private IContinuousDistribution weibullGenerator = new Gamma(0.84, 0.122); // Numbers from failure analysis
     private Random random = new();
 
     private Dictionary<int, InputModel> districtModels = new();
@@ -135,7 +161,7 @@
     {
         var monteCarloVehicles = new List<MonteCarloVehicle>();
 
-        var failureProbability = 0.15; // TODO : get this from the data.
+        var failureProbability = 0.0232;
         var requirements = deployments.Regions
             .SelectMany(r => r.Value.Select(d => new { d.DistrictId, d.FrontLineAmbulances }))
             .ToDictionary(r => r.DistrictId, r => r.FrontLineAmbulances);
@@ -146,19 +172,32 @@
             {
                 monteCarloVehicles.Add(new MonteCarloVehicle(district.DistrictId, failureProbability, weibullGenerator, random));
             }
+
+            // Console.WriteLine($"District : {district.DistrictId}, Vehicles : {districtModels[district.DistrictId].Vehicles}, Count : {monteCarloVehicles.Count(v => v.DistrictId == district.DistrictId)}, Total : {monteCarloVehicles.Count}");
         }
 
         var model = new MonteCarloSimulation(monteCarloVehicles, requirements);
 
-        var result = model.RunSimulation(new DateOnly(2023, 1, 1), new DateOnly(2023, 12, 31), 30);
+        var endDate = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = endDate.AddYears(-1);
 
-        foreach (var r in result.Keys)
+        var result = model.RunSimulation(startDate, endDate, 30);
+
+        foreach (var r in result.DistrictResults.Keys)
         {
-            districtModels[r].PredictedDaysOver = result[r].DaysShort;
-            districtModels[r].PredictedDaysOverMargin = result[r].DaysShortStandardDeviation;
-            districtModels[r].PredictedMoves = result[r].TotalMoves;
-            districtModels[r].PredictedMovesMargin = result[r].TotalMovesStandardDeviation;
+            if (!districtModels.ContainsKey(r))
+            {
+                continue;
+            }
+
+            districtModels[r].PredictedDaysOver = result.DistrictResults[r].DaysShort;
+            districtModels[r].PredictedDaysOverMargin = result.DistrictResults[r].DaysShortStandardDeviation;
+            districtModels[r].PredictedMoves = result.DistrictResults[r].TotalMoves;
+            districtModels[r].PredictedMovesMargin = result.DistrictResults[r].TotalMovesStandardDeviation;
         }
+
+        Console.WriteLine(JsonSerializer.Serialize(MonteCarloVehicle.RepairTimes));
+        Console.WriteLine($"{result.AverageAvailability:p2}");
 
         StateHasChanged();
     }
