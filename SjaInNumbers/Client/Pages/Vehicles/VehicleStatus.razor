@@ -15,50 +15,63 @@
     <h2>Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</h2>
     <BackLink Url="/vehicles" />
 
-    @foreach (var district in vehicles.GroupBy(v => v.District))
-    {
-        <h3>@district.Key</h3>
-
-        foreach (var hub in district.GroupBy(d => d.Hub))
+    <table class="vehicle-status">
+        @foreach (var district in vehicles.GroupBy(v => v.District).OrderBy(v => v.Key))
         {
-            <h4>@hub.Key</h4>
-
-            <table class="vehicle-status">
+            @foreach (var hub in district.GroupBy(d => d.Hub))
+            {
                 <thead>
                     <tr>
-                        <th>Vehicle</th>
-                        <th>Status</th>
-                        <th>Due Back</th>
-                        <th>12 Month Availability</th>
-                        <th>6 Month Availability</th>
-                        <th>3 Month Availability</th>
+                        <th class="section-title" colspan="6">
+                            <span>
+                                @district.Key - @hub.Key
+                            </span>
+                        </th>
+                    </tr>
+                    <tr class="sub-head">
+                        <th class="vehicle-col">Vehicle</th>
+                        <th class="status-col">Status</th>
+                        <th class="due-back-col">Due Back</th>
+                        <th class="avail-col">12 Month Avail.</th>
+                        <th class="avail-col">6 Month Avail.</th>
+                        <th class="avail-col">3 Month Avail.</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var vehicle in hub)
                     {
                         <tr>
-                            <td>@vehicle.Registration (@vehicle.CallSign)</td>
-                            <td>@(vehicle.IsVor ? "VOR" : "Operational")</td>
+                            <td class="vehicle-label">@vehicle.Registration (@vehicle.CallSign)</td>
+                            <td>
+                                <span class=@($"vehicle-status-marker {(vehicle.IsVor ? "vehicle-status-vor" : "vehicle-status-operational")}")>
+                                    @(vehicle.IsVor ? "VOR" : "Operational")
+                                </span>
+                            </td>
                             <td>@(vehicle.IsVor ? vehicle.DueBack : "")</td>
-                            <td>
-                                @($"{1.0 - vehicle.TwelveMonthVorCount:p1}")
-                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.TwelveMonthVorCount)" PreviousValue="@(1 - vehicle.TwelveMonthMinusOneVorCount)" />
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - vehicle.TwelveMonthVorCount:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.TwelveMonthVorCount)" PreviousValue="@(1 - vehicle.TwelveMonthMinusOneVorCount)" />
+                                </div>
                             </td>
-                            <td>
-                                @($"{1.0 - vehicle.SixMonthVorCount:p1}")
-                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.SixMonthVorCount)" PreviousValue="@(1 - vehicle.SixMonthMinusOneVorCount)" />
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - vehicle.SixMonthVorCount:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.SixMonthVorCount)" PreviousValue="@(1 - vehicle.SixMonthMinusOneVorCount)" />
+                                </div>
                             </td>
-                            <td>
-                                @($"{1.0 - vehicle.ThreeMonthVorCount:p1}")
-                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.ThreeMonthVorCount)" PreviousValue="@(1 - vehicle.ThreeMonthMinusOneVorCount)" />
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - vehicle.ThreeMonthVorCount:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.ThreeMonthVorCount)" PreviousValue="@(1 - vehicle.ThreeMonthMinusOneVorCount)" />
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
-            </table>
+            }
         }
-    }
+    </table>
 </GeneralErrorHandler>
 
 @code {

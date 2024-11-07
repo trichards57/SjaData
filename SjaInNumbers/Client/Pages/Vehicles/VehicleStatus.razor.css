@@ -1,0 +1,49 @@
+﻿.vehicle-label {
+    font-family: var(--sja-header-font);
+    padding: 0 5px;
+}
+
+.vehicle-status-marker {
+    border-radius: 5px;
+    background-color: var(--sja-light-gray);
+    padding: 5px;
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+}
+
+.vehicle-status-vor {
+    background: var(--sja-yellow);
+    color: var(--sja-yellow-text);
+}
+
+.vehicle-status-operational {
+    background: var(--sja-green);
+    color: var(--sja-green-text);
+}
+
+.vehicle-col {
+    width: 8.5rem;
+}
+
+.status-col {
+    text-align: center;
+    width: 5.5rem;
+}
+
+.due-back-col {
+    text-align: center;
+    width: 7rem;
+}
+
+.avail-col {
+    width: 8rem;
+}
+
+.trend-value {
+    width: 100%;
+    display: inline-flex;
+    justify-content: end;
+    align-items: center;
+}

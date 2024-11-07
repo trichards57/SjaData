@@ -14,50 +14,59 @@
     <BackLink Url="/vehicles" />
 
     <table>
-        <thead>
-            <tr>
-                <th>Body Type</th>
-                <th>Currently Available</th>
-                <th>12 Month Availability</th>
-                <th>6 Month Availability</th>
-                <th>3 Month Availability</th>
-            </tr>
-        </thead>
         @foreach (var make in vehicleTypes.GroupBy(v => v.Make).OrderBy(m => m.Key))
         {
             foreach (var model in make.GroupBy(v => v.Model))
             {
                 <thead>
                     <tr>
-                        <th colspan="5">
-                            @make.Key @model.Key
+                        <th class="section-title" colspan="5">
+                            <span>
+                                @make.Key @model.Key
+                            </span>
                         </th>
                     </tr>
-                </thead>
-                foreach (var bodyType in model)
-                {
-                    <tr>
-                        <td>
-                            @bodyType.BodyType
-                        </td>
-                        <td>
-                            @bodyType.CurrentlyAvailable / @bodyType.Total
-                        </td>
-                        <td>
-                            @($"{1.0 - bodyType.AverageTwelveMonthAvailability:p1}")
-                            <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageTwelveMonthAvailability)" PreviousValue="@(1 - bodyType.AverageTwelveMonthMinusOneAvailability)" />
-                        </td>
-                        <td>
-                            @($"{1.0 - bodyType.AverageSixMonthAvailability:p1}")
-                            <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageSixMonthAvailability)" PreviousValue="@(1 - bodyType.AverageSixMonthMinusOneAvailability)" />
-                        </td>
-                        <td>
-                            @($"{1.0 - bodyType.AverageThreeMonthAvailability:p1}")
-                            <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageThreeMonthAvailability)" PreviousValue="@(1 - bodyType.AverageThreeMonthMinusOneAvailability)" />
-                        </td>
-
+                    <tr class="sub-head">
+                        <th class="vehicle-col">Body Type</th>
+                        <th class="status-col">Current Status</th>
+                        <th class="avail-col">12 Month Avail.</th>
+                        <th class="avail-col">6 Month Avail.</th>
+                        <th class="avail-col">3 Month Avail.</th>
                     </tr>
-                }
+                </thead>
+                <tbody>
+                    @foreach (var bodyType in model)
+                    {
+                        <tr>
+                            <td class="vehicle-label">
+                                @bodyType.BodyType
+                            </td>
+                            <td>
+                                <div class="status-value">
+                                    @bodyType.CurrentlyAvailable / @bodyType.Total
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageTwelveMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageTwelveMonthAvailability)" PreviousValue="@(1 - bodyType.AverageTwelveMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageSixMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageSixMonthAvailability)" PreviousValue="@(1 - bodyType.AverageSixMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageThreeMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageThreeMonthAvailability)" PreviousValue="@(1 - bodyType.AverageThreeMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
             }
         }
     </table>
