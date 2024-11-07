@@ -283,6 +283,27 @@ td, tr.sub-head th {
         border-right-width: 1px;
     }
 
+thead th {
+    font-family: var(--sja-header-font);
+    font-weight: normal;
+    font-size: 1.2rem;
+    text-align: left;
+    color: var(--sja-dark-green);
+}
+
 tr.sub-head th {
     padding: 0 5px;
+}
+
+.section-title span {
+    max-width: fit-content;
+    font-family: var(--sja-header-font);
+    color: var(--sja-black);
+    font-size: 1.2rem;
+    font-weight: bolder;
+}
+
+table thead:not(:first-child) .section-title span {
+    margin-top: 20px;
+    display: block;
 }

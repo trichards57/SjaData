@@ -18,10 +18,12 @@
 <GeneralErrorHandler>
     <h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
     <BackLink Url="/people" />
-    <PersonGroup IsLoading="@isLoading" Title="@ActivePeopleTitle" Reports="@activePeople" />
-    <PersonGroup IsLoading="@isLoading" Title="@DormantPeopleTitle" Reports="@dormantPeople" />
-    <PersonGroup IsLoading="@isLoading" Title="@InactivePeopleTitle" Reports="@inactivePeople" />
-    <PersonGroup IsLoading="@isLoading" Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+    <table class="activity-trends">
+        <PersonGroup IsLoading="@isLoading" Title="@ActivePeopleTitle" Reports="@activePeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@DormantPeopleTitle" Reports="@dormantPeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@InactivePeopleTitle" Reports="@inactivePeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+    </table>
 </GeneralErrorHandler>
 
 @code {

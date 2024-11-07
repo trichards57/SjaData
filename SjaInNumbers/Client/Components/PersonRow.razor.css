@@ -1,4 +1,4 @@
-﻿.area-label {
+﻿.person-label {
     font-family: var(--sja-header-font);
     padding: 0 5px;
 }
@@ -8,4 +8,8 @@
     display: inline-flex;
     justify-content: end;
     align-items: center;
+}
+
+.activity-trends tbody tr {
+    height: 3rem;
 }
