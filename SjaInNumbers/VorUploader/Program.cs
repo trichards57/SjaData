@@ -14,7 +14,6 @@ using Microsoft.Graph.Models;
 using OpenIddict.Client;
 using System.Globalization;
 using System.Net.Http.Json;
-using System.Reflection;
 
 namespace VorUploader;
 

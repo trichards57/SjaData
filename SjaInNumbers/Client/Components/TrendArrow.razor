@@ -1,19 +1,19 @@
 ﻿@if (ValueChange > SignificantValue && PercentChange > SignificantChange)
 {
     <i class="drop" title="@GetChangeString(-ValueChange, -PercentChange)">
-        <img class="icon" src="/img/icons/arrow-down.svg" />
+        <img class="icon" src="/img/icons/arrow-down.svg" alt="down" />
     </i>
 }
 else if (ValueChange < SignificantValue && PercentChange < -SignificantChange)
 {
     <i class="increase" title="@GetChangeString(-ValueChange, -PercentChange)">
-        <img class="icon" src="/img/icons/arrow-up.svg" />
+        <img class="icon" src="/img/icons/arrow-up.svg" alt="up" />
     </i>
 }
 else
 {
     <i class="no-change" title="@GetChangeString(-ValueChange, -PercentChange)">
-        <img class="icon" src="/img/icons/equals.svg" />
+        <img class="icon" src="/img/icons/equals.svg" alt="equal" />
     </i>
 }
 

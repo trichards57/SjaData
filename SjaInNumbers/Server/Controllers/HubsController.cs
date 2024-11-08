@@ -5,11 +5,16 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Hubs;
 
 namespace SjaInNumbers.Server.Controllers;
 
+/// <summary>
+/// Controller for managing hubs.
+/// </summary>
 [Route("api/hubs")]
 [ApiController]
 [Authorize(Policy = "Lead")]
@@ -17,9 +22,42 @@ public class HubsController(IHubService hubService) : ControllerBase
 {
     private readonly IHubService hubService = hubService;
 
+    /// <summary>
+    /// Gets all of the hub summaries.
+    /// </summary>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpGet]
-    public IAsyncEnumerable<HubSummary> GetHubSummaries() => hubService.GetAllAsync();
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType<IAsyncEnumerable<HubSummary>>(StatusCodes.Status200OK)]
+    [RevalidateCache]
+    public async Task<ActionResult<IAsyncEnumerable<HubSummary>>> GetHubSummaries([FromHeader(Name = "If-None-Match")] string? etag)
+    {
+        var actualEtagValue = await hubService.GetAllEtagAsync();
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+        var lastUpdate = await hubService.GetLastModifiedAsync();
 
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastUpdate;
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        return Ok(hubService.GetAllAsync());
+    }
+
+    /// <summary>
+    /// Gets the name of a hub.
+    /// </summary>
+    /// <param name="id">The ID of the hub whose name is required.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpGet("{id}/name")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -35,6 +73,14 @@ public class HubsController(IHubService hubService) : ControllerBase
         return hubName;
     }
 
+    /// <summary>
+    /// Updates the name of a hub.
+    /// </summary>
+    /// <param name="id">The ID of the hub whose name is being updated.</param>
+    /// <param name="hubName">The new name of the hub.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
     [HttpPost("{id}/name")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

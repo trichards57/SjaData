@@ -1,35 +1,39 @@
 ﻿@using SjaInNumbers.Shared.Model.People
 
-<h3>@Title</h3>
-<table class="activity-trends">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Hours this Year</th>
-            <th>Last 12 Months</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (IsLoading == true)
+<thead>
+    <tr>
+        <th class="section-title" colspan="3">
+            <span>
+                @Title
+            </span>
+        </th>
+    </tr>
+    <tr class="sub-head">
+        <th class="name-col">Name</th>
+        <th class="hours-col">Hours this Year</th>
+        <th>Last 12 Months</th>
+    </tr>
+</thead>
+<tbody>
+    @if (IsLoading == true)
+    {
+        @for (var i = 0; i < 6; i++)
         {
-            @for (var i = 0; i < 6; i++)
-            {
-                <tr>
-                    <td><span class="loading-control wide" /></td>
-                    <td><span class="loading-control" /></td>
-                    <td><span class="loading-control" /></td>
-                </tr>
-            }
+            <tr>
+                <td><span class="loading-control fit" /></td>
+                <td><span class="loading-control fit" /></td>
+                <td><span class="loading-control fit" /></td>
+            </tr>
         }
-        else
+    }
+    else
+    {
+        @foreach (var r in Reports)
         {
-            @foreach (var r in Reports)
-            {
-                <PersonRow Report="@r" />
-            }
+            <PersonRow Report="@r" />
         }
-    </tbody>
-</table>
+    }
+</tbody>
 
 @code {
     [Parameter]

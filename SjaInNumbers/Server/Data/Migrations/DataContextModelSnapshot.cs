@@ -448,6 +448,47 @@ namespace SjaData.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SjaInNumbers.Server.Data.Deployment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AllWheelDriveAmbulances")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("DipsReference")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FrontLineAmbulances")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("OffRoadAmbulances")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DistrictId");
+
+                    b.ToTable("Deployments");
+                });
+
             modelBuilder.Entity("SjaInNumbers.Server.Data.District", b =>
                 {
                     b.Property<int>("Id")
@@ -455,6 +496,10 @@ namespace SjaData.Server.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -524,7 +569,11 @@ namespace SjaData.Server.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -768,6 +817,17 @@ namespace SjaData.Server.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Authorization");
+                });
+
+            modelBuilder.Entity("SjaInNumbers.Server.Data.Deployment", b =>
+                {
+                    b.HasOne("SjaInNumbers.Server.Data.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("District");
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.HoursEntry", b =>

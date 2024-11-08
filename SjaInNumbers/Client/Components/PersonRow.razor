@@ -2,14 +2,14 @@
 @using SjaInNumbers.Shared.Model.People
 
 <tr>
-    <td class="area-label">@Report.Name</td>
+    <td class="person-label">@Report.Name</td>
     <td>
         <div class="trend-value">
             @Round(Report.HoursThisYear)
         </div>
     </td>
     <td>
-        <ApexChart TItem="ChartItem" Options="@chartOptions" Height="40" Width="100">
+        <ApexChart TItem="ChartItem" Options="@chartOptions" Height="40" Width="128">
             <ApexPointSeries TItem="ChartItem"
                              Items="@HoursItems"
                              SeriesType="SeriesType.Line"
@@ -38,6 +38,14 @@
                 {
                     Enabled = true
                 }
+            },
+            Tooltip = new()
+            {
+                Enabled = false,
+            },
+            Xaxis = new()
+            {
+                Type = XAxisType.Numeric,
             }
         };
 

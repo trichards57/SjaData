@@ -1,19 +1,19 @@
-﻿@page "/vehicles/setup"
+﻿@page "/setup/vehicles"
 
+@using Microsoft.AspNetCore.Authorization
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
 @using SjaInNumbers.Client.Services.Interfaces
 @using SjaInNumbers.Shared.Model.Vehicles
 
+@attribute [Authorize(Policy = "Lead")]
+
 @inject IVehicleService VehicleService
 
 <GeneralErrorHandler>
     <h2>Vehicle Setup</h2>
-    <h3>
-        <a href="/vehicles">
-            <img class="icon" src="/img/icons/backward.svg" /> Go Back
-        </a>
-    </h3>
+    <BackLink Url="/setup" />
+
 
     <div>
         <label for="filter">Find:</label>

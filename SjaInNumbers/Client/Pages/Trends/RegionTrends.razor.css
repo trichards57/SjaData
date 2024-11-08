@@ -5,10 +5,18 @@
     align-items: center;
 }
 
-.activity-trends thead th {
-    font-family: var(--sja-header-font);
-    font-weight: normal;
-    font-size: 1.2rem;
-    padding: 0 5px;
-    text-align: left;
+.area-col {
+    width: 13rem;
+}
+
+.trend-col {
+    width: 7.5rem;
+}
+
+.graph-col {
+    width: 8rem;
+}
+
+.activity-trends tbody tr {
+    height: 3rem;
 }

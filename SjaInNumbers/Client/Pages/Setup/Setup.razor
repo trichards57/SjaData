@@ -1,0 +1,18 @@
+﻿@page "/setup"
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Components
+
+@attribute [Authorize(Policy = "Lead")]
+
+<PageTitle>SJA In Numbers - Home</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Setup</h2>
+    <HomeLink />
+
+    <LinkBoxes Size="LinkBoxSize.Small">
+        <LinkBox IsLink="true" Link="/setup/districts">Districts</LinkBox>
+        <LinkBox IsLink="true" Link="/setup/hubs">Hubs</LinkBox>
+        <LinkBox IsLink="true" Link="/setup/vehicles">Vehicles</LinkBox>
+    </LinkBoxes>
+</GeneralErrorHandler>

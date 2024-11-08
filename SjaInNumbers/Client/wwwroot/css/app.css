@@ -130,6 +130,12 @@ a.btn-large {
     color: var(--sja-dark-green-text);
 }
 
+.btn-small:disabled, .btn-large:disabled {
+    background-color: var(--sja-gray);
+    color: var(--sja-gray-text);
+    cursor: wait;
+}
+
 .btn-secondary {
     background-color: var(--sja-yellow);
     color: var(--sja-yellow-text);
@@ -197,6 +203,12 @@ a.btn-large {
         width: 300px;
     }
 
+    .loading-control.fit {
+        width: calc(100% - 10px);
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
 
 
 @keyframes wave {
@@ -219,10 +231,10 @@ form div {
         margin-top: 1rem;
     }
 
-    form div label.checkbox {
-        display: flex;
-        align-items: center;
-    }
+        form div label.checkbox {
+            display: flex;
+            align-items: center;
+        }
 
     form div input, form div select {
         width: calc(100% - 3 * var(--root-padding));
@@ -257,4 +269,47 @@ form button[type="submit"] {
     margin-bottom: var(--root-padding);
     border-radius: var(--root-padding);
     cursor: pointer;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td, tr.sub-head th {
+    border-color: var(--sja-light-gray);
+    border-style: solid;
+    border-width: 1px 0;
+}
+
+    td:first-child, tr.sub-head th:first-child {
+        border-left-width: 1px;
+    }
+
+    td:last-child, tr.sub-head th:last-child {
+        border-right-width: 1px;
+    }
+
+thead th {
+    font-family: var(--sja-header-font);
+    font-weight: normal;
+    font-size: 1.2rem;
+    text-align: left;
+    color: var(--sja-dark-green);
+}
+
+tr.sub-head th {
+    padding: 0 5px;
+}
+
+.section-title span {
+    max-width: fit-content;
+    font-family: var(--sja-header-font);
+    color: var(--sja-black);
+    font-size: 1.2rem;
+    font-weight: bolder;
+}
+
+table thead:not(:first-child) .section-title span {
+    margin-top: 20px;
+    display: block;
 }

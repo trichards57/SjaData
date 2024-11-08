@@ -1,0 +1,59 @@
+﻿@page "/setup/districts"
+
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Components
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Districts
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject IDistrictsService DistrictsService
+
+<GeneralErrorHandler>
+    <h2>Districts</h2>
+    <BackLink Url="/setup" />
+    <table>
+
+        @foreach (var region in Enum.GetValues<Region>())
+        {
+            if (region == Region.All)
+            {
+                continue;
+            }
+
+            <thead>
+                <tr>
+                    <th colspan="3">@LabelConverters.LabelToDisplay(region)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var hub in hubs.Where(h => h.Region == region).OrderBy(h => h.Name))
+                {
+                    <tr>
+                        <td>
+                        </td>
+                        <td>@hub.Name</td>
+                        <td>
+                            <a href="@($"/setup/districts/{hub.Id}/editCode")">
+                                <img class="icon" src="/img/icons/pencil.svg" title="Edit Code" />
+                            </a>
+                            @hub.Code  
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+</GeneralErrorHandler>
+
+@code {
+    private IList<DistrictSummary> hubs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubs = await DistrictsService.GetDistrictSummariesAsync().ToListAsync();
+    }
+}

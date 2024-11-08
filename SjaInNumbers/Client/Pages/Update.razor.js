@@ -38,6 +38,18 @@ async function uploadPeople(file) {
     return res.ok ? (await res.json()) : undefined;
 };
 
+async function uploadDeployments(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/deployments", {
+        method: "POST",
+        body: formData,
+    });
+
+    return res.ok ? (await res.json()) : undefined;
+};
+
 async function handleFile(file) {
     const firstBytes = await file.slice(0, 6, "text/plain").text();
 
@@ -61,6 +73,19 @@ async function handleFile(file) {
 
             if (result) {
                 await dotNetHelper.invokeMethodAsync("ShowUploadSuccess", result.count, "hours");
+            } else {
+                await dotNetHelper.invokeMethodAsync("ShowUploadFailed");
+            }
+        } catch {
+            await dotNetHelper.invokeMethodAsync("ShowUploadFailed");
+        }
+    } else if (firstBytes.toUpperCase() === "AOB") {
+        await dotNetHelper.invokeMethodAsync("ShowUploading");
+        try {
+            const result = await uploadDeployments(file);
+
+            if (result) {
+                await dotNetHelper.invokeMethodAsync("ShowUploadSuccess", result.count, "deployments");
             } else {
                 await dotNetHelper.invokeMethodAsync("ShowUploadFailed");
             }

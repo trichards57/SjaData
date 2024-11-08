@@ -7,7 +7,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <Content Remove="stylecop.json" />
-	  <Content Remove="wwwroot\img\sja-back.svg" />
 	</ItemGroup>
 	<ItemGroup>
 	  <AdditionalFiles Include="stylecop.json">
@@ -15,10 +14,8 @@
 	  </AdditionalFiles>
 	</ItemGroup>
 	<ItemGroup>
-	  <None Include="wwwroot\img\sja-back.svg" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />
+		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.10" />

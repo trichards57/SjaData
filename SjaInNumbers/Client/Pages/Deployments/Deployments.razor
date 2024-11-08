@@ -1,0 +1,17 @@
+﻿@page "/deployments"
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Components
+
+@attribute [Authorize(Policy = "Lead")]
+
+<PageTitle>SJA In Numbers - Deployments</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Deployments</h2>
+    <HomeLink />
+
+    <LinkBoxes Size="LinkBoxSize.Small">
+        <LinkBox IsLink="true" Link="/deployments/peaks">Peak Load</LinkBox>
+        <LinkBox IsLink="true" Link="/deployments/capacity">Capacity</LinkBox>
+    </LinkBoxes>
+</GeneralErrorHandler>

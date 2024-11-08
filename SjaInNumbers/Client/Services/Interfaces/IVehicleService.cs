@@ -13,6 +13,8 @@ namespace SjaInNumbers.Client.Services.Interfaces;
 /// </summary>
 public interface IVehicleService
 {
+    Task<NationalVehicleReport> GetNationalReportAsync();
+
     /// <summary>
     /// Gets the national vehicle availability statistics.
     /// </summary>

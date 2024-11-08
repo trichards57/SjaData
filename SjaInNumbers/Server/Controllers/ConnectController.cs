@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+using SjaInNumbers.Server.Controllers.Filters;
 using System.Security.Claims;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -36,6 +37,7 @@ public class ConnectController(IOpenIddictApplicationManager applicationManager,
     [HttpPost("token")]
     [IgnoreAntiforgeryToken]
     [Produces("application/json")]
+    [NotCachedFilter]
     public async Task<IActionResult> TokenExchange()
     {
         var request = HttpContext.GetOpenIddictServerRequest()!;

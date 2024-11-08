@@ -37,4 +37,6 @@ public class District
     /// Gets or sets the hubs in the district.
     /// </summary>
     public IList<Hub> Hubs { get; set; } = [];
+
+    public string Code { get; set; } = string.Empty;
 }

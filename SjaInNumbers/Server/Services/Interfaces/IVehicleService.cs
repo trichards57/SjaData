@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.Extensions.Primitives;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
 
@@ -19,7 +20,10 @@ public interface IVehicleService
     /// <param name="vorIncidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task AddEntriesAsync(IEnumerable<VorIncident> vorIncidents);
+    IAsyncEnumerable<FailureReport> GetFailureReports(DateOnly endDate, VehicleType type);
+    Task<DateTimeOffset> GetLastModifiedAsync();
     IAsyncEnumerable<VehicleTypeStatus> GetNationalVorStatusesAsync();
+    Task<StringSegment> GetNationalVorStatusesEtagAsync();
 
     /// <summary>
     /// Gets the settings for all vehicles at the provided place.
@@ -37,6 +41,10 @@ public interface IVehicleService
     /// to the requested settings, or <see langword="null" /> if not found.
     /// </returns>
     Task<VehicleSettings?> GetSettingsAsync(int id);
+    Task<StringSegment> GetSettingsEtagAsync(Place place);
+    Task<StringSegment> GetSettingsEtagAsync(int id);
+    Task<NationalVehicleReport> GetVehicleReportAsync();
+    Task<StringSegment> GetVehicleReportEtagAsync();
 
     /// <summary>
     /// Gets the VOR statistics for the provided place.
@@ -47,6 +55,7 @@ public interface IVehicleService
     /// to the requested statistics, or <see langword="null" /> if the place was not found.
     /// </returns>
     Task<VorStatistics?> GetVorStatisticsAsync(Place place);
+    Task<StringSegment> GetVorStatisticsEtagAsync(Place place);
 
     /// <summary>
     /// Gets the VOR statuses for the provided place.
@@ -54,6 +63,7 @@ public interface IVehicleService
     /// <param name="place">The place to search for.</param>
     /// <returns>The list of statuses.</returns>
     IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
+    Task<StringSegment> GetVorStatusesEtagAsync(Place place);
 
     /// <summary>
     /// Updates or creates the settings for the provided vehicle.
