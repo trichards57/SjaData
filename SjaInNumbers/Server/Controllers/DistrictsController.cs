@@ -14,9 +14,10 @@ namespace SjaInNumbers.Server.Controllers;
 /// </summary>
 [Route("api/districts")]
 [ApiController]
-public class DistrictsController(IDistrictService districtService) : ControllerBase
+public sealed partial class DistrictsController(IDistrictService districtService, ILogger<DistrictsController> logger) : ControllerBase
 {
     private readonly IDistrictService districtService = districtService;
+    private readonly ILogger logger = logger;
 
     /// <summary>
     /// Gets the district with the specified ID.
@@ -34,8 +35,12 @@ public class DistrictsController(IDistrictService districtService) : ControllerB
 
         if (district == null)
         {
+            LogDistrictNotFound(id);
+
             return NotFound();
         }
+
+        LogRetrievedDistrictSummary(id);
 
         return Ok(district);
     }
@@ -45,7 +50,12 @@ public class DistrictsController(IDistrictService districtService) : ControllerB
     /// </summary>
     /// <returns>The list of districts.</returns>
     [HttpGet]
-    public IAsyncEnumerable<DistrictSummary> GetAll() => districtService.GetAll();
+    public IAsyncEnumerable<DistrictSummary> GetAll()
+    {
+        LogRetrievedAllDistrictSummaries();
+
+        return districtService.GetAll();
+    }
 
     /// <summary>
     /// Updates the code for the district with the specified ID.
@@ -62,9 +72,25 @@ public class DistrictsController(IDistrictService districtService) : ControllerB
     {
         if (await districtService.SetDistrictCodeAsync(id, code))
         {
+            LogDistrictCodeUpdated(id, code);
+
             return NoContent();
         }
 
+        LogDistrictNotFound(id);
+
         return NotFound();
     }
+
+    [LoggerMessage(1003, LogLevel.Information, "District code for {districtId} updated.")]
+    private partial void LogDistrictCodeUpdated(int districtId, string newCode);
+
+    [LoggerMessage(2001, LogLevel.Warning, "Could not find a district with the ID {districtId}.")]
+    private partial void LogDistrictNotFound(int districtId);
+
+    [LoggerMessage(1002, LogLevel.Information, "Retrieved all the district summaries.")]
+    private partial void LogRetrievedAllDistrictSummaries();
+
+    [LoggerMessage(1001, LogLevel.Information, "Retrieved the summary for district {districtId}.")]
+    private partial void LogRetrievedDistrictSummary(int districtId);
 }
