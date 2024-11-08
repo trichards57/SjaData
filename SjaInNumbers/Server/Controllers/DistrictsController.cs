@@ -82,8 +82,36 @@ public sealed partial class DistrictsController(IDistrictService districtService
         return NotFound();
     }
 
+    /// <summary>
+    /// Updates the name for the district with the specified ID.
+    /// </summary>
+    /// <param name="id">The ID of the district.</param>
+    /// <param name="name">The district's name.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the operation.
+    /// </returns>
+    [HttpPost("{id}/name")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateName(int id, [FromBody] string name)
+    {
+        if (await districtService.SetDistrictNameAsync(id, name))
+        {
+            LogDistrictNameUpdated(id, name);
+
+            return NoContent();
+        }
+
+        LogDistrictNotFound(id);
+
+        return NotFound();
+    }
+
     [LoggerMessage(1003, LogLevel.Information, "District code for {districtId} updated.")]
     private partial void LogDistrictCodeUpdated(int districtId, string newCode);
+
+    [LoggerMessage(1004, LogLevel.Information, "District name for {districtId} updated.")]
+    private partial void LogDistrictNameUpdated(int districtId, string name);
 
     [LoggerMessage(2001, LogLevel.Warning, "Could not find a district with the ID {districtId}.")]
     private partial void LogDistrictNotFound(int districtId);

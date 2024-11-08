@@ -35,7 +35,12 @@
                     <tr>
                         <td>
                         </td>
-                        <td>@hub.Name</td>
+                        <td>
+                            <a href="@($"/setup/districts/{hub.Id}/editName")">
+                                <img class="icon" src="/img/icons/pencil.svg" title="Edit Name" />
+                            </a>
+                            @hub.Name
+                        </td>
                         <td>
                             <a href="@($"/setup/districts/{hub.Id}/editCode")">
                                 <img class="icon" src="/img/icons/pencil.svg" title="Edit Code" />
