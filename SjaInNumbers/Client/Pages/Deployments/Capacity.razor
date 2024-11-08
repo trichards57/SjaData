@@ -1,6 +1,7 @@
 ﻿@page "/deployments/capacity"
 
 @using MathNet.Numerics.Distributions
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using SjaInNumbers.Client.Components
 @using SjaInNumbers.Client.Converters
@@ -10,6 +11,8 @@
 @using SjaInNumbers.Shared.Model.Deployments
 @using SjaInNumbers.Shared.Model.Vehicles
 @using System.Text.Json
+
+@attribute [Authorize(Policy = "Lead")]
 
 @inject IVehicleService VehicleService
 @inject IDeploymentService DeploymentService
