@@ -26,7 +26,7 @@ namespace SjaInNumbers.Server.Controllers;
 /// <param name="logger">The logger for this instance.</param>
 [ApiController]
 [Route("api/hours")]
-public class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
+public sealed partial class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
     private readonly ILogger logger = logger;
     private readonly IHoursService hoursService = hoursService;
@@ -45,6 +45,8 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
     [Authorize(Policy = "Approved")]
     public async Task<ActionResult<HoursTarget>> GetTargetAsync([FromHeader(Name = "If-None-Match")] string? etag)
     {
+        LogNhseTargetRequested(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown");
+
         var target = await hoursService.GetNhseTargetAsync();
         var actualEtagValue = await hoursService.GetNhseTargetEtagAsync();
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
@@ -56,6 +58,7 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
 
         if (actualEtag.Compare(etagValue, false))
         {
+            LogItemNotModified(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown", "the NHSE target");
             return StatusCode(StatusCodes.Status304NotModified);
         }
 
@@ -88,6 +91,8 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
         [FromQuery(Name = "date-type")] DateType dateType = DateType.Month,
         [FromQuery(Name = "future")] bool future = false)
     {
+        LogHoursCountRequested(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown", date);
+
         var actualEtagValue = await hoursService.GetHoursCountEtagAsync(date, dateType, future);
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
 
@@ -98,6 +103,7 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
 
         if (actualEtag.Compare(etagValue, false))
         {
+            LogItemNotModified(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown", $"the hours count for {date}");
             return StatusCode(StatusCodes.Status304NotModified);
         }
 
@@ -120,6 +126,8 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
     [NotCached]
     public async Task<ActionResult<CountResponse>> ReceiveHoursFile(IFormFile file)
     {
+        LogHoursFileUploaded(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown");
+
         using var reader = new StreamReader(file.OpenReadStream());
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<HoursFileLineMap>();
@@ -133,11 +141,10 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
         }
         catch (CsvHelperException ex)
         {
-            logger.LogError(ex, "There was an error reading the CSV file.");
+            LogCsvReadError(ex);
 
             var problemDetails = new ProblemDetails()
             {
-                Detail = ex.Message,
                 Title = "The uploaded CSV data was invalid.",
                 Status = StatusCodes.Status400BadRequest,
             };
@@ -168,6 +175,8 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
             return BadRequest("The region was not recognised.");
         }
 
+        LogTrendsRequested(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown", region);
+
         var actualEtagValue = await hoursService.GetTrendsEtagAsync(region, nhse);
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
         var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
@@ -179,6 +188,7 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
 
         if (actualEtag.Compare(etagValue, false))
         {
+            LogItemNotModified(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown", $"the trends for {region}");
             return StatusCode(StatusCodes.Status304NotModified);
         }
 
@@ -186,4 +196,22 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
 
         return Ok(trends);
     }
+
+    [LoggerMessage("The user {UserId} has requested the NHSE target.", EventId = 1000, Level = LogLevel.Information)]
+    private partial void LogNhseTargetRequested(string userId);
+
+    [LoggerMessage("The user {UserId} has requested the hours count for {Date}.", EventId = 1001, Level = LogLevel.Information)]
+    private partial void LogHoursCountRequested(string userId, DateOnly date);
+
+    [LoggerMessage("The user {UserId} has requested the trends for {Region}.", EventId = 1002, Level = LogLevel.Information)]
+    private partial void LogTrendsRequested(string userId, Region region);
+
+    [LoggerMessage("The user {UserId} has uploaded a file of hours.", EventId = 1003, Level = LogLevel.Information)]
+    private partial void LogHoursFileUploaded(string userId);
+
+    [LoggerMessage("The user {UserId} has requested {Item} but already has the latest data.", EventId = 2001, Level = LogLevel.Information)]
+    private partial void LogItemNotModified(string userId, string item);
+
+    [LoggerMessage("There was an error reading the hours CSV file.", EventId = 3001, Level = LogLevel.Error)]
+    private partial void LogCsvReadError(Exception ex);
 }
