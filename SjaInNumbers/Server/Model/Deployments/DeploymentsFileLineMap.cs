@@ -1,7 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
-using SjaInNumbers.Server.Model.Hours;
 using System.Globalization;
 
 namespace SjaInNumbers.Server.Model.Deployments;
