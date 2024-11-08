@@ -31,11 +31,24 @@ public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
         Map(h => h.AllWheelDriveAmbulances).Name("ORA").TypeConverter<OptionalIntConverter>();
         Map(h => h.Notes).Name("Notes");
         Map(h => h.Requester).Name("Requestor");
-        Map(h => h.CreatedAt).Name("Created");
+        Map(h => h.CreatedAt).Name("Created").TypeConverter<DateTimeConverter>();
         Map(h => h.DateAcceptedByLead).Name("Date Event accepted by Ambulance Lead").TypeConverter<DateOnlyConverter>();
-        Map(h => h.Modified).Name("Modified");
+        Map(h => h.Modified).Name("Modified").TypeConverter<DateTimeConverter>();
         Map(h => h.ItemType).Name("Item Type");
         Map(h => h.Path).Name("Path");
+    }
+
+    private sealed class DateTimeConverter : DefaultTypeConverter
+    {
+        public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return DateTime.MinValue;
+            }
+
+            return DateTime.Parse(text, CultureInfo.GetCultureInfo("en-GB"));
+        }
     }
 
     private sealed class DateOnlyConverter : DefaultTypeConverter

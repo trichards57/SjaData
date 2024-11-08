@@ -19,10 +19,11 @@ namespace SjaInNumbers.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/deployments")]
-public class DeploymentsController(IDistrictService districtService, IDeploymentService deploymentService) : ControllerBase
+public partial class DeploymentsController(IDistrictService districtService, IDeploymentService deploymentService, ILogger<DeploymentsController> logger) : ControllerBase
 {
     private readonly IDeploymentService deploymentService = deploymentService;
     private readonly IDistrictService districtService = districtService;
+    private readonly ILogger logger = logger;
 
     /// <summary>
     /// Receives a CSV file containing deployment data and processes it.
@@ -69,8 +70,10 @@ public class DeploymentsController(IDistrictService districtService, IDeployment
 
             return Ok(new CountResponse { Count = updatedCount });
         }
-        catch (CsvHelperException)
+        catch (CsvHelperException ex)
         {
+            CouldNotProcessCsvData(ex);
+
             return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
         }
     }
@@ -93,4 +96,7 @@ public class DeploymentsController(IDistrictService districtService, IDeployment
 
         return await deploymentService.GetNationalSummaryAsync(startDate, endDate);
     }
+
+    [LoggerMessage(EventId = 2001, Message = "Could not process the uploaded CSV data.", Level = LogLevel.Error)]
+    private partial void CouldNotProcessCsvData(Exception exception);
 }

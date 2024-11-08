@@ -40,7 +40,7 @@
             </thead>
 
             <tbody>
-                @foreach (var district in region.OrderBy(d => d.District))
+                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
                 {
                     var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
                     var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
@@ -48,10 +48,10 @@
 
                     <tr>
                         <td class="district-label">@district.District</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
+                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
                         <td class="value-cell">@capacity</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances.Count(d => d.Value > capacity)</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
+                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Count(d => d.Value > capacity)</td>
+                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
                     </tr>
                 }
             </tbody>
@@ -98,7 +98,7 @@
             </thead>
 
             <tbody>
-                @foreach (var district in region.OrderBy(d => d.District))
+                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
                 {
                     var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
                     var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
@@ -106,7 +106,7 @@
 
                     <tr>
                         <td class="district-label">@peakReport.District</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances.Max(v => v.Value)</td>
+                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
                         <td>
                             <EditForm Model="model">
                                 <InputNumber class="new-vehicles" @bind-Value="model.Vehicles" />
