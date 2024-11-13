@@ -21,9 +21,10 @@ namespace SjaInNumbers.Server.Controllers;
 /// </summary>
 /// <param name="applicationManager">OpenIddict Application Manager to use.</param>
 /// <param name="scopeManager">OpenIddict Scope Manager to use.</param>
+/// <remarks>Does not have it's own logger because OpenIddict logs.</remarks>
 [ApiController]
 [Route("/connect")]
-public class ConnectController(IOpenIddictApplicationManager applicationManager, IOpenIddictScopeManager scopeManager) : ControllerBase
+public sealed partial class ConnectController(IOpenIddictApplicationManager applicationManager, IOpenIddictScopeManager scopeManager) : ControllerBase
 {
     private readonly IOpenIddictApplicationManager applicationManager = applicationManager;
     private readonly IOpenIddictScopeManager scopeManager = scopeManager;

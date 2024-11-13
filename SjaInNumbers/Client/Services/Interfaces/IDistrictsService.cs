@@ -12,4 +12,5 @@ public interface IDistrictsService
     Task<DistrictSummary> GetDistrictAsync(int id);
     IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync();
     Task PostDistrictCode(int id, string code);
+    Task PostDistrictName(int id, string name);
 }

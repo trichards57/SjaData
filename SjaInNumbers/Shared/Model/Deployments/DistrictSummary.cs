@@ -1,6 +1,4 @@
-﻿using SjaInNumbers.Shared.Model;
-
-namespace SjaInNumbers.Shared.Model.Deployments;
+﻿namespace SjaInNumbers.Shared.Model.Deployments;
 
 public readonly record struct DistrictSummary
 {

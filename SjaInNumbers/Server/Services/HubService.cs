@@ -85,4 +85,26 @@ public class HubService(ApplicationDbContext context) : IHubService
 
         return true;
     }
+
+    /// <inheritdoc/>
+    public async Task<HubSummary> AddHubAsync(NewHub newHub)
+    {
+        var hub = new Hub
+        {
+            Name = newHub.Name,
+            DistrictId = newHub.DistrictId,
+            UpdatedAt = DateTimeOffset.UtcNow,
+        };
+
+        context.Hubs.Add(hub);
+        await context.SaveChangesAsync();
+
+        return await context.Hubs.Select(s => new HubSummary
+        {
+            District = s.District.Name,
+            Name = s.Name,
+            Id = s.Id,
+            Region = s.District.Region,
+        }).FirstOrDefaultAsync(h => h.Id == hub.Id);
+    }
 }

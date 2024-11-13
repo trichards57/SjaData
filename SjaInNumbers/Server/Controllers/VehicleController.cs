@@ -23,6 +23,11 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
 {
     private readonly IVehicleService vehicleService = vehicleService;
 
+    /// <summary>
+    /// A report on the national vehicle status.
+    /// </summary>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
+    /// <returns>The national vehicle report.</returns>
     [HttpGet("all")]
     [Authorize(Policy = "Lead")]
     [ProducesResponseType(StatusCodes.Status200OK)]

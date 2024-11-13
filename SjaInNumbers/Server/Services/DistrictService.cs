@@ -59,17 +59,40 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     /// <inheritdoc/>
     public async Task<bool> SetDistrictCodeAsync(int id, string code)
     {
-        var district = await context.Districts.FindAsync(id);
-
-        if (district is null)
+        var district = new District
         {
-            return false;
-        }
+            Id = id,
+        };
+
+        context.Districts.Attach(district);
 
         district.Code = code;
 
-        await context.SaveChangesAsync();
+        var count = await context.SaveChangesAsync();
 
-        return true;
+        return count == 1;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> CheckDistrictCodeAvailable(int id, string code)
+    {
+        return !await context.Districts.AnyAsync(d => d.Id != id && d.Code == code);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> SetDistrictNameAsync(int id, string name)
+    {
+        var district = new District
+        {
+            Id = id,
+        };
+
+        context.Districts.Attach(district);
+
+        district.Name = name;
+
+        var count = await context.SaveChangesAsync();
+
+        return count == 1;
     }
 }

@@ -16,4 +16,7 @@ public class DistrictsService(HttpClient httpClient) : IDistrictsService
 
     public Task PostDistrictCode(int id, string code)
         => httpClient.PostAsJsonAsync($"/api/districts/{id}/code", code);
+
+    public Task PostDistrictName(int id, string name)
+        => httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
 }

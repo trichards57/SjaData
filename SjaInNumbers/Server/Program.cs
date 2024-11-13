@@ -21,6 +21,15 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.EnableEnrichment();
+
+builder.Services.AddApplicationMetadata(x =>
+{
+    x.ApplicationName = "SJA in Numbers";
+    x.EnvironmentName = builder.Environment.EnvironmentName;
+    x.BuildVersion = typeof(Program).Assembly.GetName().Version?.ToString();
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
