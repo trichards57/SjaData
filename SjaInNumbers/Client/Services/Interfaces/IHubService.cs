@@ -32,4 +32,11 @@ public interface IHubService
     /// </summary>
     /// <returns>The list of hubs.</returns>
     IAsyncEnumerable<HubSummary> GetHubSummariesAsync();
+
+    /// <summary>
+    /// Posts a new hub to the server.
+    /// </summary>
+    /// <param name="hub">The new hub.</param>
+    /// <returns>A task representing the asynchronous activity.</returns>
+    Task PostHubAsync(NewHub hub);
 }

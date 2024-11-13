@@ -21,4 +21,7 @@ public class HubsService(HttpClient httpClient) : IHubService
 
     public Task PostHubNameAsync(int id, HubName name)
         => httpClient.PostAsJsonAsync($"/api/hubs/{id}/name", name);
+
+    public Task PostHubAsync(NewHub hub)
+        => httpClient.PostAsJsonAsync("/api/hubs", hub);
 }

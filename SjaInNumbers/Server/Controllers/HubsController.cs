@@ -95,4 +95,20 @@ public class HubsController(IHubService hubService) : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>
+    /// Creates a new hub.
+    /// </summary>
+    /// <param name="newHub">The details of the new hub.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType<HubSummary>(StatusCodes.Status201Created)]
+    public async Task<IActionResult> PostHub([FromBody] NewHub newHub)
+    {
+        var hub = await hubService.AddHubAsync(newHub);
+
+        return Created($"/api/hubs/{hub.Id}", hub);
+    }
 }
