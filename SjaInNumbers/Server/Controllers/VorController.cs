@@ -54,6 +54,11 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
         return Ok(vehicleService.GetVorStatusesAsync(place));
     }
 
+    /// <summary>
+    /// Gets the status of every vehicle nationally.
+    /// </summary>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
+    /// <returns>The requested vehicle status.</returns>
     [HttpGet("national")]
     [Authorize(Policy = "Lead")]
     [ProducesResponseType(StatusCodes.Status200OK)]

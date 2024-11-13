@@ -4,8 +4,14 @@ using SjaInNumbers.Shared.Model.Deployments;
 
 namespace SjaInNumbers.Server.Model;
 
+/// <summary>
+/// Profile for mapping between different classes.
+/// </summary>
 public class MapperProfile : Profile
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MapperProfile"/> class.
+    /// </summary>
     public MapperProfile()
     {
         CreateMap<DeploymentsFileLine, NewDeployment>()

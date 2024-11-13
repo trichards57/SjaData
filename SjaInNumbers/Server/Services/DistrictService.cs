@@ -73,6 +73,7 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
         return count == 1;
     }
 
+    /// <inheritdoc/>
     public async Task<bool> CheckDistrictCodeAvailable(int id, string code)
     {
         return !await context.Districts.AnyAsync(d => d.Id != id && d.Code == code);

@@ -38,5 +38,8 @@ public class District
     /// </summary>
     public IList<Hub> Hubs { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets the districts code.
+    /// </summary>
     public string Code { get; set; } = string.Empty;
 }

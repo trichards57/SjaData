@@ -1,12 +1,23 @@
-﻿using CsvHelper;
+﻿// <copyright file="DeploymentsFileLineMap.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using System.Globalization;
 
 namespace SjaInNumbers.Server.Model.Deployments;
 
+/// <summary>
+/// Maps a <see cref="DeploymentsFileLine"/> to a CSV file.
+/// </summary>
 public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeploymentsFileLineMap"/> class.
+    /// </summary>
     public DeploymentsFileLineMap()
     {
         Map(h => h.Id).Name("AOB ID");
