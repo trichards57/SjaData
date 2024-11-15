@@ -1,4 +1,4 @@
-﻿// <copyright file="NotCachedFilterAttributeTests.cs" company="Tony Richards">
+﻿// <copyright file="NotCachedAttributeTests.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Net.Http.Headers;
 using SjaInNumbers.Server.Controllers.Filters;

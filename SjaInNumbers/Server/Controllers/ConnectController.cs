@@ -38,7 +38,7 @@ public sealed partial class ConnectController(IOpenIddictApplicationManager appl
     [HttpPost("token")]
     [IgnoreAntiforgeryToken]
     [Produces("application/json")]
-    [NotCachedFilter]
+    [NotCached]
     public async Task<IActionResult> TokenExchange()
     {
         var request = HttpContext.GetOpenIddictServerRequest()!;

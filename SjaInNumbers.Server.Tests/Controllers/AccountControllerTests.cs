@@ -1,12 +1,17 @@
-﻿using FluentAssertions;
+﻿// <copyright file="AccountControllerTests.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using SjaInNumbers.Server.Controllers;
 using SjaInNumbers.Server.Data;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace SjaInNumbers.Server.Tests.Controllers;
 
@@ -15,6 +20,7 @@ public class AccountControllerTests
     private readonly Mock<SignInManager<ApplicationUser>> signInManager;
     private readonly Mock<UserManager<ApplicationUser>> userManager;
     private readonly Mock<IUserStore<ApplicationUser>> userStore = new();
+    private readonly FakeLogger<AccountController> logger = new();
 
     public AccountControllerTests()
     {
@@ -25,7 +31,7 @@ public class AccountControllerTests
     [Fact]
     public void Clear_SetsHeadersAndRedirects()
     {
-        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object)
+        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -43,7 +49,7 @@ public class AccountControllerTests
     [Fact]
     public async Task Logout_SignsOutUserAndRedirects()
     {
-        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object)
+        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -71,7 +77,7 @@ public class AccountControllerTests
             .Returns(authProperties)
             .Verifiable();
 
-        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object)
+        var controller = new AccountController(signInManager.Object, userManager.Object, userStore.Object, logger)
         {
             ControllerContext = new ControllerContext
             {

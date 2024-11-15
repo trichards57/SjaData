@@ -119,7 +119,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
     [Authorize(Policy = "Uploader")]
     [HttpPost]
-    [NotCachedFilter]
+    [NotCached]
     public async Task<IActionResult> Post([FromBody] IEnumerable<VorIncident> incidents)
     {
         await vehicleService.AddEntriesAsync(incidents.ToList());

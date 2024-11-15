@@ -39,7 +39,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     [HttpGet("clear")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status302Found)]
-    [NotCachedFilter]
+    [NotCached]
     public IActionResult Clear()
     {
         Response.Headers.TryAdd("Clear-Site-Data", "\"cache\", \"cookies\", \"storage\", \"executionContexts\", \"*\"");
@@ -122,7 +122,7 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// <param name="returnUrl">The URL to return to afterwards.</param>
     /// <returns>The result of the action.</returns>
     [HttpGet("login")]
-    [NotCachedFilter]
+    [NotCached]
     public IActionResult Login(string provider, string returnUrl)
     {
         IEnumerable<KeyValuePair<string, StringValues>> query = [new("ReturnUrl", returnUrl)];
@@ -144,10 +144,11 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
     /// </returns>
     [HttpPost("logout")]
-    [NotCachedFilter]
+    [NotCached]
     public async Task<IActionResult> Logout(string returnUrl)
     {
         await signInManager.SignOutAsync();
+        Response.Headers.TryAdd("Clear-Site-Data", "\"cache\", \"cookies\", \"storage\", \"executionContexts\", \"*\"");
 
         LogUserLoggedOut(returnUrl);
 

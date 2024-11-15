@@ -125,7 +125,7 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize(Policy = "Lead")]
     [HttpPost]
-    [NotCachedFilter]
+    [NotCached]
     public async Task<IActionResult> PostVehicleAsync([FromBody] UpdateVehicleSettings settings)
     {
         await vehicleService.PutSettingsAsync(settings);
