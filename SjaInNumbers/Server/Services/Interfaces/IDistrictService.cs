@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Districts;
 
 namespace SjaInNumbers.Server.Services.Interfaces;
@@ -45,6 +46,7 @@ public interface IDistrictService
     /// The ID of the district, or <see langword="null"/> if the district does not exist.
     /// </returns>
     Task<int?> GetIdByDistrictCodeAsync(string code);
+    Task<int?> GetIdByNameAsync(string name, Region region);
 
     /// <summary>
     /// Sets the district code for the given district.

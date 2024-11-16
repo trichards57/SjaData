@@ -17,9 +17,10 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(ApplicationDbContext context) : IPersonService
+public class PersonService(IDistrictService districtService, ApplicationDbContext context) : IPersonService
 {
     private readonly ApplicationDbContext context = context;
+    private readonly IDistrictService districtService = districtService;
 
     /// <inheritdoc/>
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
@@ -31,7 +32,9 @@ public class PersonService(ApplicationDbContext context) : IPersonService
             var district = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation[10..] : p.DistrictStation).Trim();
             var region = CalculateRegion(p);
 
-            var place = await context.Hubs.FirstOrDefaultAsync(h => h.District.Name.Replace(",", string.Empty) == district && h.District.Region == region);
+            var districtId = await districtService.GetIdByNameAsync(district, region);
+
+            var place = districtId.HasValue ? await context.Hubs.FirstOrDefaultAsync(h => h.DistrictId == districtId) : null;
 
             if (place == null)
             {
