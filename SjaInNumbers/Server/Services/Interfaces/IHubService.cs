@@ -20,6 +20,15 @@ public interface IHubService
     Task<HubSummary> AddHubAsync(NewHub newHub);
 
     /// <summary>
+    /// Removes a hub from the system.
+    /// </summary>
+    /// <param name="id">The ID of the hub.</param>
+    /// <returns>
+    /// <see langword="true" /> if the hub was removed; otherwise, <see langword="false" />.
+    /// </returns>
+    Task<bool> DeleteHubAsync(int id);
+
+    /// <summary>
     /// Gets all of the registered hubs.
     /// </summary>
     /// <returns>A list of all hubs.</returns>

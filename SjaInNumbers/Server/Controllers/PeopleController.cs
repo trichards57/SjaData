@@ -72,7 +72,7 @@ public class PeopleController(IPersonService personService) : ControllerBase
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IAsyncEnumerable<PersonReport>>> GetReports([FromHeader(Name = "If-None-Match")] string? etag, Region region)
     {
-        if (!Enum.IsDefined(region) || region == Region.Undefined)
+        if (!Enum.IsDefined(region))
         {
             return BadRequest("The region was not recognised.");
         }

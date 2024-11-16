@@ -486,7 +486,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("DistrictId");
 
-                    b.ToTable("Deployments");
+                    b.ToTable("Deployments", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.District", b =>
@@ -511,7 +511,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Districts");
+                    b.ToTable("Districts", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.HoursEntry", b =>
@@ -553,7 +553,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Hours");
+                    b.ToTable("Hours", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.Hub", b =>
@@ -579,7 +579,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("DistrictId");
 
-                    b.ToTable("Hubs");
+                    b.ToTable("Hubs", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.KeyDates", b =>
@@ -595,7 +595,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KeyDates");
+                    b.ToTable("KeyDates", (string)null);
 
                     b.HasData(
                         new
@@ -647,7 +647,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("People");
+                    b.ToTable("People", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.Vehicle", b =>
@@ -706,7 +706,7 @@ namespace SjaData.Server.Migrations
                     b.HasIndex("Registration")
                         .IsUnique();
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.VehicleIncident", b =>
@@ -741,7 +741,7 @@ namespace SjaData.Server.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("VehicleIncidents");
+                    b.ToTable("VehicleIncidents", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
