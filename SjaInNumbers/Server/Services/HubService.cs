@@ -44,6 +44,8 @@ public class HubService(ApplicationDbContext context) : IHubService
             Name = s.Name,
             Id = s.Id,
             Region = s.District.Region,
+            VehicleCount = s.Vehicles.Count,
+            PeopleCount = s.People.Count,
         }).AsAsyncEnumerable();
     }
 
@@ -106,5 +108,13 @@ public class HubService(ApplicationDbContext context) : IHubService
             Id = s.Id,
             Region = s.District.Region,
         }).FirstOrDefaultAsync(h => h.Id == hub.Id);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> DeleteHubAsync(int id)
+    {
+        var res = await context.Hubs.Where(h => h.Id == id).ExecuteDeleteAsync();
+
+        return res > 0;
     }
 }

@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
+		Restore-From-Server.sql = Restore-From-Server.sql
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SjaInNumbers.Server", "SjaInNumbers\Server\SjaInNumbers.Server.csproj", "{369686CC-0CA4-4A79-AFA1-68438BDB2A4F}"

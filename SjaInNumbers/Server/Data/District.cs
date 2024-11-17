@@ -42,4 +42,14 @@ public class District
     /// Gets or sets the districts code.
     /// </summary>
     public string Code { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the last time the district information was updated.
+    /// </summary>
+    public DateTimeOffset LastModified { get; set; }
+
+    /// <summary>
+    /// Gets or sets the previous names of the district.
+    /// </summary>
+    public IList<DistrictPreviousName> PreviousNames { get; set; } = [];
 }

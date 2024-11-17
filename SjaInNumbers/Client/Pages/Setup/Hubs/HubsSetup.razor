@@ -11,21 +11,32 @@
 
 @inject IHubService HubService
 
+<PageTitle>SJA In Numbers - Setup Hubs</PageTitle>
+
 <GeneralErrorHandler>
     <h2>Hubs</h2>
     <BackLink Url="/setup" />
 
     <a href="/setup/hubs/add" class="btn-small btn-primary">Add Hub</a>
 
-    @foreach (var r in Enum.GetValues<Region>().OrderBy(r => r.ToString()))
-    {
-        if (hubs.Count(h => h.Region == r) == 0)
+    <table>
+        @foreach (var r in Enum.GetValues<Region>().OrderBy(RegionSorter.SortRegion))
         {
-            continue;
-        }
+            if (hubs.Count(h => h.Region == r) == 0)
+            {
+                continue;
+            }
 
-        <h3>@LabelConverters.LabelToDisplay(r.ToString())</h3>
-        <table>
+            <thead>
+                <tr>
+                    <th class="section-title" colspan="4">@LabelConverters.LabelToDisplay(r.ToString())</th>
+                </tr>
+                <tr class="sub-head">
+                    <th colspan="2">Name</th>
+                    <th>Vehicles</th>
+                    <th>People</th>
+                </tr>
+            </thead>
             <tbody>
                 @foreach (var h in hubs.Where(h => h.Region == r).OrderBy(h => h.Name))
                 {
@@ -34,25 +45,28 @@
                             <a href="@($"/setup/hubs/{h.Id}/edit")">
                                 <img class="icon" src="/img/icons/pencil.svg" title="Edit" />
                             </a>
+                            @* <a href="@($"/setup/hubs/{h.Id}/merge")">
+                                <img class="icon" src="/img/icons/link.svg" title="Merge" />
+                            </a> *@
                         </td>
                         @* <td>
-                            <a href="@($"/setup/hubs/{h.Id}/delete")">
-                                <img class="icon" src="/img/icons/trash-can.svg" title="Delete" />
-                            </a>
-                        </td>
-                        <td>
-                            <a href="@($"/setup/hubs/{h.Id}/delete")">
-                                <img class="icon" src="/img/icons/link.svg" title="Merge" />
-                            </a>
-                        </td> *@
+                <a href="@($"/setup/hubs/{h.Id}/delete")">
+                <img class="icon" src="/img/icons/trash-can.svg" title="Delete" />
+                </a>
+                </td>
+                <td>
+                
+                </td> *@
                         <td>
                             @h.Name, @h.District
                         </td>
+                        <td>@h.VehicleCount</td>
+                        <td>@h.PeopleCount</td>
                     </tr>
                 }
             </tbody>
-        </table>
-    }
+        }
+    </table>
 
 </GeneralErrorHandler>
 

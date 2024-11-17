@@ -19,4 +19,7 @@ public class DistrictsService(HttpClient httpClient) : IDistrictsService
 
     public Task PostDistrictName(int id, string name)
         => httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
+
+    public Task PostDistrictMerge(int sourceId, int destinationId)
+        => httpClient.PostAsJsonAsync($"/api/districts/merge", new MergeDistrict { SourceDistrictId = sourceId, DestinationDistrictId = destinationId });
 }

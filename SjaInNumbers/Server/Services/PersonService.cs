@@ -17,9 +17,10 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// A service to manage people.
 /// </summary>
-public class PersonService(ApplicationDbContext context) : IPersonService
+public class PersonService(IDistrictService districtService, ApplicationDbContext context) : IPersonService
 {
     private readonly ApplicationDbContext context = context;
+    private readonly IDistrictService districtService = districtService;
 
     /// <inheritdoc/>
     public async Task<int> AddPeopleAsync(IAsyncEnumerable<PersonFileLine> people, string userId)
@@ -31,7 +32,9 @@ public class PersonService(ApplicationDbContext context) : IPersonService
             var district = (p.DistrictStation.StartsWith("District: ") ? p.DistrictStation[10..] : p.DistrictStation).Trim();
             var region = CalculateRegion(p);
 
-            var place = await context.Hubs.FirstOrDefaultAsync(h => h.District.Name == district && h.District.Region == region);
+            var districtId = await districtService.GetIdByNameAsync(district, region);
+
+            var place = districtId.HasValue ? await context.Hubs.FirstOrDefaultAsync(h => h.DistrictId == districtId) : null;
 
             if (place == null)
             {
@@ -104,6 +107,7 @@ public class PersonService(ApplicationDbContext context) : IPersonService
                 p.UpdatedAt = DateTimeOffset.UtcNow;
                 p.UpdatedById = userId;
                 context.People.Add(p);
+                existingPeople.Add(p.Id, p);
             }
         }
 
@@ -137,10 +141,13 @@ public class PersonService(ApplicationDbContext context) : IPersonService
             .AsNoTracking()
             .Where(p => p.Hub != null && p.Hub.District.Region == region && p.DeletedAt == null)
             .Include(p => p.Hours)
+            .Include(p => p.Hub)
             .Select(p => new
             {
                 Name = $"{p.FirstName} {p.LastName}",
                 Hours = p.Hours.Where(h => h.DeletedAt == null && h.Date <= date && Math.Abs(EF.Functions.DateDiffMonth(date, h.Date)) < 13).ToList(),
+                District = p.Hub != null ? p.Hub.District.Name : string.Empty,
+                Hub = p.Hub != null ? p.Hub.Name : string.Empty,
             }).AsAsyncEnumerable();
 
         await foreach (var p in people)
@@ -151,6 +158,8 @@ public class PersonService(ApplicationDbContext context) : IPersonService
                 HoursThisYear = (uint)Math.Round(p.Hours.Where(p => p.Date.Year == DateTime.Now.Year).Select(h => h.Hours).Sum()),
                 MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
                 Hours = GetOverTime(p.Hours),
+                District = p.District,
+                Hub = p.Hub,
             };
 
             yield return report;

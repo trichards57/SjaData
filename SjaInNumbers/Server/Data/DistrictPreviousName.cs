@@ -1,4 +1,4 @@
-﻿// <copyright file="Hub.cs" company="Tony Richards">
+﻿// <copyright file="DistrictPreviousName.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -10,13 +10,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers.Server.Data;
 
-/// <summary>
-/// Represents a hub where vehicles are kept.
-/// </summary>
-public class Hub
+public class DistrictPreviousName
 {
     /// <summary>
-    /// Gets or sets the internal ID of the hub.
+    /// Gets or sets the internal ID of the district.
     /// </summary>
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -26,7 +23,7 @@ public class Hub
     /// Gets or sets the district the hub sits in.
     /// </summary>
     [ForeignKey(nameof(DistrictId))]
-    [DeleteBehavior(DeleteBehavior.Restrict)]
+    [DeleteBehavior(DeleteBehavior.Cascade)]
     [NotNull]
     public District? District { get; set; }
 
@@ -36,24 +33,8 @@ public class Hub
     public int DistrictId { get; set; }
 
     /// <summary>
-    /// Gets or sets the name of the hub.
+    /// Gets or sets the previous name.
     /// </summary>
     [Required(AllowEmptyStrings = false)]
-    [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the last time the hub information was updated.
-    /// </summary>
-    public DateTimeOffset UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the vehicles in the hub.
-    /// </summary>
-    public IList<Vehicle> Vehicles { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the people in the hub.
-    /// </summary>
-    public IList<Person> People { get; set; } = [];
+    public string OldName { get; set; } = string.Empty;
 }

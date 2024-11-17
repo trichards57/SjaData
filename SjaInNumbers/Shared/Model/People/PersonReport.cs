@@ -29,4 +29,8 @@ public readonly record struct PersonReport
     /// Gets the total number of hours this year.
     /// </summary>
     public double HoursThisYear { get; init; }
+
+    public string District { get; init; }
+
+    public string Hub { get; init; }
 }

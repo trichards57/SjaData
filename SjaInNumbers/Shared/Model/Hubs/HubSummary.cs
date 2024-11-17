@@ -29,4 +29,14 @@ public readonly record struct HubSummary
     /// Gets the name of the hub.
     /// </summary>
     public string Name { get; init; }
+
+    /// <summary>
+    /// Gets the number of vehicles in the hub.
+    /// </summary>
+    public int VehicleCount { get; init; }
+
+    /// <summary>
+    /// Gets the number of people in the hub.
+    /// </summary>
+    public int PeopleCount { get; init; }
 }

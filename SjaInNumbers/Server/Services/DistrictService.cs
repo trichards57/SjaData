@@ -6,6 +6,7 @@
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
+using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Districts;
 
 namespace SjaInNumbers.Server.Services;
@@ -16,6 +17,19 @@ namespace SjaInNumbers.Server.Services;
 public class DistrictService(ApplicationDbContext context) : IDistrictService
 {
     private readonly ApplicationDbContext context = context;
+
+    /// <inheritdoc/>
+    public Task<int?> GetIdByNameAsync(string name, Region region)
+    {
+        name = name.Trim();
+
+        return context.Districts
+            .Include(d => d.PreviousNames)
+            .Where(d => d.Region == region && (d.Name == name || d.PreviousNames.Any(e => e.OldName == name)))
+            .Select(s => s.Id)
+            .Cast<int?>()
+            .FirstOrDefaultAsync();
+    }
 
     /// <inheritdoc/>
     public Task<int?> GetIdByDistrictCodeAsync(string code)
@@ -67,6 +81,7 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
         context.Districts.Attach(district);
 
         district.Code = code;
+        district.LastModified = DateTimeOffset.UtcNow;
 
         var count = await context.SaveChangesAsync();
 
@@ -82,17 +97,63 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     /// <inheritdoc/>
     public async Task<bool> SetDistrictNameAsync(int id, string name)
     {
-        var district = new District
-        {
-            Id = id,
-        };
+        var district = await context.Districts.Include(d => d.PreviousNames).FirstOrDefaultAsync(d => d.Id == id);
 
-        context.Districts.Attach(district);
+        name = name.Trim();
+
+        if (district == null)
+        {
+            return false;
+        }
+
+        if (district.Name.Equals(name))
+        {
+            return true;
+        }
+
+        var oldName = district.Name;
 
         district.Name = name;
 
-        var count = await context.SaveChangesAsync();
+        if (!district.PreviousNames.Any(n => n.OldName == oldName))
+        {
+            district.PreviousNames.Add(new DistrictPreviousName { DistrictId = id, OldName = oldName });
+        }
 
-        return count == 1;
+        district.LastModified = DateTimeOffset.UtcNow;
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    {
+        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
+        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
+
+        if (sourceDistrict == null || destinationDistrict == null)
+        {
+            return false;
+        }
+
+        foreach (var hub in sourceDistrict.Hubs)
+        {
+            hub.DistrictId = destinationDistrict.Id;
+        }
+
+        foreach (var name in sourceDistrict.PreviousNames)
+        {
+            name.DistrictId = destinationDistrict.Id;
+        }
+
+        destinationDistrict.PreviousNames.Add(new DistrictPreviousName { DistrictId = destinationDistrict.Id, OldName = sourceDistrict.Name });
+
+        context.Districts.Remove(sourceDistrict);
+
+        await context.SaveChangesAsync();
+
+        return true;
     }
 }

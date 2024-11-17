@@ -107,6 +107,27 @@ public sealed partial class DistrictsController(IDistrictService districtService
         return NotFound();
     }
 
+    /// <summary>
+    /// Merges the source district into the destination district, including moving all of the hubs and the
+    /// historic name records.
+    /// </summary>
+    /// <param name="mergeDistrict">The details of the merge.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the operation.
+    /// </returns>
+    [HttpPost("merge")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Merge([FromBody] MergeDistrict mergeDistrict)
+    {
+        if (await districtService.MergeDistrictsAsync(mergeDistrict))
+        {
+            return NoContent();
+        }
+
+        return NotFound();
+    }
+
     [LoggerMessage(1003, LogLevel.Information, "District code for {districtId} updated.")]
     private partial void LogDistrictCodeUpdated(int districtId, string newCode);
 
