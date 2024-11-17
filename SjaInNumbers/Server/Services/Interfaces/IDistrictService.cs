@@ -46,7 +46,25 @@ public interface IDistrictService
     /// The ID of the district, or <see langword="null"/> if the district does not exist.
     /// </returns>
     Task<int?> GetIdByDistrictCodeAsync(string code);
+
+    /// <summary>
+    /// Gets the ID of a district using it's name, including any previous names.
+    /// </summary>
+    /// <param name="name">The name of the district.</param>
+    /// <param name="region">The region of the district.</param>
+    /// <returns>
+    /// The ID of the district, or <see langword="null"/> if the district does not exist.
+    /// </returns>
     Task<int?> GetIdByNameAsync(string name, Region region);
+
+    /// <summary>
+    /// Merges two districts by moving all items from one source to destination to another and then removing the source.
+    /// </summary>
+    /// <param name="mergeDistrict">The districts to merge.</param>
+    /// <returns>
+    /// <see langword="true" /> if the districts were merged, otherwise, <see langword="false"/>.
+    /// </returns>
+    Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict);
 
     /// <summary>
     /// Sets the district code for the given district.

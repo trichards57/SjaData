@@ -126,4 +126,34 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
 
         return true;
     }
+
+    /// <inheritdoc/>
+    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    {
+        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
+        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
+
+        if (sourceDistrict == null || destinationDistrict == null)
+        {
+            return false;
+        }
+
+        foreach (var hub in sourceDistrict.Hubs)
+        {
+            hub.DistrictId = destinationDistrict.Id;
+        }
+
+        foreach (var name in sourceDistrict.PreviousNames)
+        {
+            name.DistrictId = destinationDistrict.Id;
+        }
+
+        destinationDistrict.PreviousNames.Add(new DistrictPreviousName { DistrictId = destinationDistrict.Id, OldName = sourceDistrict.Name });
+
+        context.Districts.Remove(sourceDistrict);
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
 }

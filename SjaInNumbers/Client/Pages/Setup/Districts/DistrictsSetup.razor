@@ -30,22 +30,25 @@
             </thead>
 
             <tbody>
-                @foreach (var hub in hubs.Where(h => h.Region == region).OrderBy(h => h.Name))
+                @foreach (var district in districts.Where(h => h.Region == region).OrderBy(h => h.Name))
                 {
                     <tr>
                         <td>
                         </td>
                         <td>
-                            <a href="@($"/setup/districts/{hub.Id}/editName")">
+                            <a href="@($"/setup/districts/{district.Id}/editName")">
                                 <img class="icon" src="/img/icons/pencil.svg" title="Edit Name" />
                             </a>
-                            @hub.Name
+                            <a href="@($"/setup/districts/merge?source={district.Id}")">
+                                <img class="icon" src="/img/icons/link.svg" title="Merge" />
+                            </a>
+                            @district.Name
                         </td>
                         <td>
-                            <a href="@($"/setup/districts/{hub.Id}/editCode")">
+                            @district.Code
+                            <a href="@($"/setup/districts/{district.Id}/editCode")">
                                 <img class="icon" src="/img/icons/pencil.svg" title="Edit Code" />
                             </a>
-                            @hub.Code  
                         </td>
                     </tr>
                 }
@@ -55,10 +58,10 @@
 </GeneralErrorHandler>
 
 @code {
-    private IList<DistrictSummary> hubs = [];
+    private IList<DistrictSummary> districts = [];
 
     protected override async Task OnInitializedAsync()
     {
-        hubs = await DistrictsService.GetDistrictSummariesAsync().ToListAsync();
+        districts = await DistrictsService.GetDistrictSummariesAsync().ToListAsync();
     }
 }
