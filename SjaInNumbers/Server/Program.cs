@@ -171,6 +171,8 @@ builder.Services.AddApiVersioning(o =>
     o.DefaultApiVersion = new ApiVersion(1);
 }).AddApiExplorer();
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
     configureApplicationInsightsLoggerOptions: (options) => { });

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using BlazorApplicationInsights;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -35,5 +36,10 @@ builder.Services.AddScoped<IVehicleService, VehicleService>();
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("SjaInNumbers.ServerAPI"));
+
+builder.Services.AddBlazorApplicationInsights(x =>
+{
+    x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
 
 await builder.Build().RunAsync();
