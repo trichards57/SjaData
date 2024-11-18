@@ -1,15 +1,76 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿// <copyright file="20240926175018_UpdateForBlazorGrpc.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SjaInNumbers2.Migrations;
+namespace SjaData.Server.Migrations;
+
 /// <inheritdoc />
-public partial class CreateIdentitySchema : Migration
+public partial class UpdateForBlazorGrpc : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.DropTable(
+            name: "Patients");
+
+        migrationBuilder.DropTable(
+            name: "Users");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "Role",
+            table: "People",
+            type: "nvarchar(100)",
+            maxLength: 100,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "LastName",
+            table: "People",
+            type: "nvarchar(100)",
+            maxLength: 100,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "FirstName",
+            table: "People",
+            type: "nvarchar(100)",
+            maxLength: 100,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "District",
+            table: "People",
+            type: "nvarchar(100)",
+            maxLength: 100,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
+
+        migrationBuilder.AddColumn<string>(
+            name: "UpdatedById",
+            table: "People",
+            type: "nvarchar(450)",
+            nullable: false,
+            defaultValue: string.Empty);
+
+        migrationBuilder.AddColumn<string>(
+            name: "UpdatedById",
+            table: "Hours",
+            type: "nvarchar(450)",
+            nullable: false,
+            defaultValue: string.Empty);
+
         migrationBuilder.CreateTable(
             name: "AspNetRoles",
             columns: table => new
@@ -17,7 +78,7 @@ public partial class CreateIdentitySchema : Migration
                 Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                 NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
             },
             constraints: table =>
             {
@@ -42,7 +103,7 @@ public partial class CreateIdentitySchema : Migration
                 TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                 LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                 LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                AccessFailedCount = table.Column<int>(type: "int", nullable: false),
             },
             constraints: table =>
             {
@@ -57,7 +118,7 @@ public partial class CreateIdentitySchema : Migration
                     .Annotation("SqlServer:Identity", "1, 1"),
                 RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
             },
             constraints: table =>
             {
@@ -78,7 +139,7 @@ public partial class CreateIdentitySchema : Migration
                     .Annotation("SqlServer:Identity", "1, 1"),
                 UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
             },
             constraints: table =>
             {
@@ -98,7 +159,7 @@ public partial class CreateIdentitySchema : Migration
                 LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
             },
             constraints: table =>
             {
@@ -116,7 +177,7 @@ public partial class CreateIdentitySchema : Migration
             columns: table => new
             {
                 UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
             },
             constraints: table =>
             {
@@ -142,7 +203,7 @@ public partial class CreateIdentitySchema : Migration
                 UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
             },
             constraints: table =>
             {
@@ -154,6 +215,16 @@ public partial class CreateIdentitySchema : Migration
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Cascade);
             });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_People_UpdatedById",
+            table: "People",
+            column: "UpdatedById");
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Hours_UpdatedById",
+            table: "Hours",
+            column: "UpdatedById");
 
         migrationBuilder.CreateIndex(
             name: "IX_AspNetRoleClaims_RoleId",
@@ -193,11 +264,35 @@ public partial class CreateIdentitySchema : Migration
             column: "NormalizedUserName",
             unique: true,
             filter: "[NormalizedUserName] IS NOT NULL");
+
+        migrationBuilder.AddForeignKey(
+            name: "FK_Hours_AspNetUsers_UpdatedById",
+            table: "Hours",
+            column: "UpdatedById",
+            principalTable: "AspNetUsers",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Restrict);
+
+        migrationBuilder.AddForeignKey(
+            name: "FK_People_AspNetUsers_UpdatedById",
+            table: "People",
+            column: "UpdatedById",
+            principalTable: "AspNetUsers",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Restrict);
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.DropForeignKey(
+            name: "FK_Hours_AspNetUsers_UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.DropForeignKey(
+            name: "FK_People_AspNetUsers_UpdatedById",
+            table: "People");
+
         migrationBuilder.DropTable(
             name: "AspNetRoleClaims");
 
@@ -218,5 +313,92 @@ public partial class CreateIdentitySchema : Migration
 
         migrationBuilder.DropTable(
             name: "AspNetUsers");
+
+        migrationBuilder.DropIndex(
+            name: "IX_People_UpdatedById",
+            table: "People");
+
+        migrationBuilder.DropIndex(
+            name: "IX_Hours_UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.DropColumn(
+            name: "UpdatedById",
+            table: "People");
+
+        migrationBuilder.DropColumn(
+            name: "UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "Role",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "LastName",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "FirstName",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "District",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.CreateTable(
+            name: "Patients",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                CallSign = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                Date = table.Column<DateOnly>(type: "date", nullable: false),
+                DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                EventType = table.Column<byte>(type: "tinyint", nullable: false),
+                FinalClinicalImpression = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                Outcome = table.Column<byte>(type: "tinyint", nullable: false),
+                PresentingComplaint = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                Region = table.Column<byte>(type: "tinyint", nullable: false),
+                Trust = table.Column<byte>(type: "tinyint", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Patients", x => x.Id);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Users",
+            columns: table => new
+            {
+                Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Role = table.Column<byte>(type: "tinyint", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Users", x => x.Id);
+            });
     }
 }

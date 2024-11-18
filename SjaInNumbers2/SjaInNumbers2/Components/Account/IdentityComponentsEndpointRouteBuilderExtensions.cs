@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using SjaInNumbers.Server.Data;
 using SjaInNumbers2.Components.Account.Pages;
 using SjaInNumbers2.Components.Account.Pages.Manage;
-using SjaInNumbers2.Data;
 using System.Security.Claims;
 using System.Text.Json;
 

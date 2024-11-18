@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using SjaInNumbers.Server.Data;
 using SjaInNumbers2.Client;
-using SjaInNumbers2.Data;
 using System.Diagnostics;
 using System.Security.Claims;
 

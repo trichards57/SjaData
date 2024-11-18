@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers2.Client.Pages;
+using SjaInNumbers.Server.Authorization;
+using SjaInNumbers.Server.Data;
 using SjaInNumbers2.Components;
 using SjaInNumbers2.Components.Account;
-using SjaInNumbers2.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,12 +24,21 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
-builder.Services.AddAuthorizationCore(c =>
+
+builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
 {
-    c.AddPolicy("Approved", o => o.RequireAuthenticatedUser().RequireClaim("Approved", "Yes"));
-    c.AddPolicy("Admin", o => o.RequireRole("Admin").RequireClaim("Approved", "Yes"));
-    c.AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").RequireClaim("Approved", "Yes"));
+    var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? throw new InvalidOperationException("No Microsoft Tenant ID");
+    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? throw new InvalidOperationException("No Microsoft Client ID");
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? throw new InvalidOperationException("No Microsoft Client Secret");
+    microsoftOptions.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+    microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
 });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
