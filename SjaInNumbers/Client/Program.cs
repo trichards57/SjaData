@@ -13,8 +13,6 @@ using SjaInNumbers.Client.Services;
 using SjaInNumbers.Client.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddAuthorizationCore(c =>
 {

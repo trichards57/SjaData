@@ -1,0 +1,61 @@
+h1 {
+    background-color: var(--sja-black);
+    color: var(--sja-black-text);
+    font-family: var(--sja-header-font);
+    font-weight: 600;
+    width: auto;
+    padding: var(--root-padding) calc(var(--root-padding) * 2);
+    display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: fit-content;
+}
+
+.preload-alert {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 200px; /* Adjust width as needed */
+    padding: 10px;
+    background-color: var(--sja-light-gray); /* Change background color as needed */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add shadow */
+    z-index: 9999; /* Ensure it stays on top */
+}
+
+    .preload-alert.done {
+        background-color: var(--sja-light-green); /* Change background color as needed */
+    }
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px; /* Height of the progress bar */
+    overflow: hidden;
+    background-color: var(--sja-gray); /* Background of the progress bar */
+}
+
+    .progress-bar::before {
+        content: "";
+        display: block;
+        position: absolute;
+        height: 100%;
+        width: 50%; /* The width of the moving part */
+        background-color: var(--sja-yellow); /* Color of the progress indicator */
+        animation: progressAnimation 1.5s infinite;
+    }
+
+@keyframes progressAnimation {
+    0% {
+        left: -50%;
+    }
+
+    50% {
+        left: 25%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}

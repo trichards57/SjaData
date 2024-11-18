@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
+using SjaInNumbers.Server;
 using SjaInNumbers.Server.Authorization;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Helpers;
@@ -173,6 +174,9 @@ builder.Services.AddApiVersioning(o =>
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+builder.Services.AddRazorComponents()
+    .AddInteractiveWebAssemblyComponents();
+
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
     configureApplicationInsightsLoggerOptions: (options) => { });
@@ -200,7 +204,7 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseBlazorFrameworkFiles();
+app.UseAntiforgery();
 
 if (app.Environment.IsProduction())
 {
@@ -232,6 +236,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapFallbackToFile("index.html");
+app.MapRazorComponents<App>()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(SjaInNumbers.Client._Imports).Assembly);
 
 await app.RunAsync();
