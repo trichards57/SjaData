@@ -20,11 +20,11 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         var accountGroup = endpoints.MapGroup("/Account");
 
-        accountGroup.MapPost("/PerformExternalLogin", (
+        accountGroup.MapGet("/Login", (
             HttpContext context,
             [FromServices] SignInManager<ApplicationUser> signInManager,
-            [FromForm] string provider,
-            [FromForm] string returnUrl) =>
+            [FromQuery] string returnUrl,
+            [FromQuery] string provider = "Microsoft") =>
         {
             IEnumerable<KeyValuePair<string, StringValues>> query = [
                 new("ReturnUrl", returnUrl),
