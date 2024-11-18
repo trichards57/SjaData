@@ -1,0 +1,70 @@
+﻿@page "/setup/hubs/add"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model.Districts
+@using SjaInNumbers.Shared.Model.Hubs
+@using System.ComponentModel.DataAnnotations
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject IDistrictsService DistrictsService
+@inject IHubService HubService
+@inject NavigationManager NavigationManager
+
+<PageTitle>SJA In Numbers - Add Hub</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Add Hub</h2>
+    <BackLink Url="/setup/hubs" />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+
+        <div>
+            <label>Name</label>
+            <InputText @bind-Value="Model.Name" id="Name" />
+            <ValidationMessage For="@(() => Model.Name)" />
+        </div>
+        <div>
+            <label>District</label>
+            <InputSelect @bind-Value="Model.DistrictId">
+                @foreach (var h in districts.OrderBy(h => h.Region).ThenBy(h => h.Name))
+                {
+                    <option value="@h.Id">@h.Name, @SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    private List<DistrictSummary> districts = new();
+
+    [SupplyParameterFromForm]
+    public NewHubModel Model { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        districts = await DistrictsService.GetDistrictSummariesAsync().ToListAsync();
+
+        Model.DistrictId = districts.FirstOrDefault().Id;
+    }
+
+    private async Task FormSubmit()
+    {
+        await HubService.PostHubAsync(new NewHub { DistrictId = Model.DistrictId, Name = Model.Name });
+        NavigationManager.NavigateTo("/setup/hubs");
+    }
+
+    public class NewHubModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to enter a name for the hub.")]
+        public string Name { get; set; } = string.Empty;
+
+        public int DistrictId { get; set; }
+    }
+}

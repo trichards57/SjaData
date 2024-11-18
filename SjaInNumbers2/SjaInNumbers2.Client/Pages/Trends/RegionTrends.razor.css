@@ -1,0 +1,22 @@
+﻿.activity-trends tbody td div {
+    width: 100%;
+    display: inline-flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.area-col {
+    width: 13rem;
+}
+
+.trend-col {
+    width: 7.5rem;
+}
+
+.graph-col {
+    width: 8rem;
+}
+
+.activity-trends tbody tr {
+    height: 3rem;
+}

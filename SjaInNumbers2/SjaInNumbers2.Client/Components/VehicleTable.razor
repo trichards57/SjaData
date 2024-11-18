@@ -1,0 +1,51 @@
+﻿@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Shared.Model.Vehicles
+<table>
+    <thead>
+        <tr>
+            <th />
+            <th>Call Sign</th>
+            <th>Registration</th>
+            <th>Region</th>
+            <th>District</th>
+            <th>Hub</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Body Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vehicle in Vehicles.Where(v =>
+            v.CallSign.Contains(Filter, StringComparison.OrdinalIgnoreCase) ||
+            v.Registration.Contains(Filter, StringComparison.OrdinalIgnoreCase) ||
+            v.Region.ToString().Contains(Filter, StringComparison.OrdinalIgnoreCase) ||
+            v.District.Contains(Filter, StringComparison.OrdinalIgnoreCase) ||
+            v.Hub.Contains(Filter, StringComparison.OrdinalIgnoreCase)
+        ).OrderBy(v => v.CallSign))
+        {
+            <tr>
+                <td class="edit-col">
+                    <a href="/setup/vehicles/@vehicle.Id">
+                        <img class="icon" src="/img/icons/pencil.svg" />
+                    </a>
+                </td>
+                <td class="call-sign-col">@vehicle.CallSign</td>
+                <td class="reg-col">@vehicle.Registration</td>
+                <td class="place-col">@LabelConverters.LabelToDisplay(vehicle.Region.ToString())</td>
+                <td class="place-col">@vehicle.District</td>
+                <td class="place-col">@vehicle.Hub</td>
+                <td class="place-col">@vehicle.Make</td>
+                <td class="place-col">@vehicle.Model</td>
+                <td class="place-col">@vehicle.BodyType</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public string Filter { get; set; } = string.Empty;
+
+    [Parameter]
+    public IEnumerable<VehicleSettings> Vehicles { get; set; } = [];
+}

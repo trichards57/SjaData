@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+
+@page "/"
+@attribute [Authorize(Policy = "Approved")]
+
+<PageTitle>SJA In Numbers - Home</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Home</h2>
+
+    <LinkBoxes Size="LinkBoxSize.Small">
+        <LinkBox IsLink="true" Link="/hours">
+            Hours
+        </LinkBox>
+        <AuthorizeView Roles="Lead,Admin">
+            <LinkBox IsLink="true" Link="/trends">
+                Trends
+            </LinkBox>
+            <LinkBox IsLink="true" Link="/people">
+                People
+            </LinkBox>
+            <LinkBox IsLink="true" Link="/vehicles">
+                Vehicles
+            </LinkBox>
+            <LinkBox IsLink="true" Link="/deployments">
+                Deployments
+            </LinkBox>
+            <LinkBox Colour="LinkBoxColour.DarkGreen" IsLink="true" Link="/setup">
+                Setup
+            </LinkBox>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <LinkBox Colour="LinkBoxColour.DarkGreen" IsLink="true" Link="/update">
+                Update
+            </LinkBox>
+            <LinkBox Colour="LinkBoxColour.Yellow" IsLink="true" Link="/access">
+                Access
+            </LinkBox>
+        </AuthorizeView>
+    </LinkBoxes>
+</GeneralErrorHandler>

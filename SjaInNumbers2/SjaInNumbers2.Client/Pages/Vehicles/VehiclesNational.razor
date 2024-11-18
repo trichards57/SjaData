@@ -1,0 +1,83 @@
+﻿@page "/vehicles/national"
+
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model.Vehicles
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject IVehicleService VehicleService
+
+<PageTitle>SJA In Numbers - Vehicle Availability - National</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Vehicle Availability - National</h2>
+    <BackLink Url="/vehicles" />
+
+    <table>
+        @foreach (var make in vehicleTypes.GroupBy(v => v.Make).OrderBy(m => m.Key))
+        {
+            foreach (var model in make.GroupBy(v => v.Model))
+            {
+                <thead>
+                    <tr>
+                        <th class="section-title" colspan="5">
+                            <span>
+                                @make.Key @model.Key
+                            </span>
+                        </th>
+                    </tr>
+                    <tr class="sub-head">
+                        <th class="vehicle-col">Body Type</th>
+                        <th class="status-col">Current Status</th>
+                        <th class="avail-col">12 Month Avail.</th>
+                        <th class="avail-col">6 Month Avail.</th>
+                        <th class="avail-col">3 Month Avail.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bodyType in model)
+                    {
+                        <tr>
+                            <td class="vehicle-label">
+                                @bodyType.BodyType
+                            </td>
+                            <td>
+                                <div class="status-value">
+                                    @bodyType.CurrentlyAvailable / @bodyType.Total
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageTwelveMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageTwelveMonthAvailability)" PreviousValue="@(1 - bodyType.AverageTwelveMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageSixMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageSixMonthAvailability)" PreviousValue="@(1 - bodyType.AverageSixMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                            <td class="trend-col">
+                                <div class="trend-value">
+                                    @($"{1.0 - bodyType.AverageThreeMonthAvailability:p1}")
+                                    <TrendArrow SignificantValue="0.04" Value="@(1 - bodyType.AverageThreeMonthAvailability)" PreviousValue="@(1 - bodyType.AverageThreeMonthMinusOneAvailability)" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+        }
+    </table>
+</GeneralErrorHandler>
+
+@code {
+    private IList<VehicleTypeStatus> vehicleTypes = [];
+
+    protected async override Task OnInitializedAsync()
+    {
+        vehicleTypes = await VehicleService.GetNationalStatus().ToListAsync();
+    }
+}

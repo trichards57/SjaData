@@ -1,0 +1,49 @@
+﻿@using SjaInNumbers.Shared.Model.People
+
+<thead>
+    <tr>
+        <th class="section-title" colspan="3">
+            <span>
+                @Title
+            </span>
+        </th>
+    </tr>
+    <tr class="sub-head">
+        <th class="name-col">Name</th>
+        <th class="name-col">Hub</th>
+        <th class="hours-col">Hours this Year</th>
+        <th>Last 12 Months</th>
+    </tr>
+</thead>
+<tbody>
+    @if (IsLoading == true)
+    {
+        @for (var i = 0; i < 6; i++)
+        {
+            <tr>
+                <td><span class="loading-control fit" /></td>
+                <td><span class="loading-control fit" /></td>
+                <td><span class="loading-control fit" /></td>
+                <td><span class="loading-control fit" /></td>
+            </tr>
+        }
+    }
+    else
+    {
+        @foreach (var r in Reports)
+        {
+            <PersonRow Report="@r" />
+        }
+    }
+</tbody>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public IList<PersonReport> Reports { get; set; } = [];
+
+    [Parameter]
+    public bool? IsLoading { get; set; }
+}

@@ -1,0 +1,92 @@
+﻿@using ApexCharts
+@using SjaInNumbers.Shared.Model.Trends
+
+@if (Trends.TwelveMonthAverage != null)
+{
+    <tr>
+        <td class="area-label">@Label</td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.TwelveMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.TwelveMonthAverage[KeyValue]" PreviousValue="@Trends.TwelveMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.SixMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.SixMonthAverage[KeyValue]" PreviousValue="@Trends.SixMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td>
+            <div class="trend-value">
+                @Round(Trends.ThreeMonthAverage[KeyValue])
+                <TrendArrow Value="@Trends.ThreeMonthAverage[KeyValue]" PreviousValue="@Trends.ThreeMonthMinusOneAverage[KeyValue]" />
+            </div>
+        </td>
+        <td class="graph-cell">
+            <ApexChart TItem="ChartItem" Options="@chartOptions" Height="40" Width="128">
+                <ApexPointSeries TItem="ChartItem"
+                                 Items="@HoursItems"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="c => c.Index"
+                                 YValue="c => (decimal)c.Hours"
+                                 Stroke="@seriesStroke" />
+            </ApexChart>
+        </td>
+    </tr>
+}
+
+@code {
+    [Parameter]
+    public Trends Trends { get; set; }
+
+    [Parameter]
+    public string KeyValue { get; set; } = "";
+
+    [Parameter]
+    public string Label { get; set; } = "";
+
+    private ChartItem[] HoursItems => Trends.Hours[KeyValue]?.Select((d, i) => new ChartItem { Hours = d, Index = i }).ToArray() ?? [];
+
+    private readonly ApexChartOptions<ChartItem> chartOptions = new()
+    {
+        Chart = new()
+        {
+            Sparkline = new()
+            {
+                Enabled = true,
+            },
+        },
+        Tooltip = new()
+        {
+            Enabled = false,
+        },
+        Xaxis = new()
+        {
+            Type = XAxisType.Numeric,
+        }
+    };
+
+    private readonly SeriesStroke seriesStroke = new()
+    {
+        Color = "black",
+        Width = 2,
+    };
+
+    private int Round(double value)
+    {
+        if (value == 0)
+        {
+            return 0;
+        }
+
+        double scale = Math.Pow(10, Math.Floor(Math.Log10(Math.Abs(value))) + 1);
+        return (int)(Math.Round(value / scale, 2) * scale);
+    }
+
+    private class ChartItem
+    {
+        public double Hours { get; set; }
+        public int Index { get; set; }
+    }
+}

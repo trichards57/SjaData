@@ -1,0 +1,62 @@
+﻿@page "/setup/districts/{Id:int}/EditCode"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Services.Interfaces
+@using System.ComponentModel.DataAnnotations
+
+@inject IDistrictsService DistrictsService
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize(Policy = "Lead")]
+
+<PageTitle>SJA In Numbers - Edit District Code</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Edit Vehicle</h2>
+    <BackLink Url="/setup/districts" />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label>District</label>
+            <input type="text" disabled Value="@districtName" id="District" />
+        </div>
+        <div>
+            <label>Code</label>
+            <InputText @bind-Value="Model.Code" id="Code" />
+            <ValidationMessage For="@(() => Model.Code)" />
+        </div>
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    private string districtName = string.Empty;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public EditDistrictCodeModel Model { get; set; } = new();
+
+    private async Task FormSubmit()
+    {
+        await DistrictsService.PostDistrictCode(Id, Model.Code);
+        NavigationManager.NavigateTo("/setup/districts");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var district = await DistrictsService.GetDistrictAsync(Id);
+
+        districtName = district.Name;
+        Model.Code = district.Code;
+    }
+
+    public class EditDistrictCodeModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to enter a code for the district.")]
+        public string Code { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,15 @@
+﻿.area-label {
+    font-family: var(--sja-header-font);
+    padding: 0 5px;
+}
+
+.trend-value {
+    width: 100%;
+    display: inline-flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.activity-trends tbody tr {
+    height: 3rem;
+}

@@ -1,0 +1,8 @@
+﻿.district-label {
+    font-family: var(--sja-header-font);
+    padding: 0 5px;
+}
+
+.peak-value {
+    text-align: center;
+}

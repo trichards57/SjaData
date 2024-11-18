@@ -1,0 +1,132 @@
+﻿@using SjaInNumbers.Client.Converters
+
+<section class="filter-section">
+    <h3>Filter <button @onclick="ClearAreas">Clear</button></h3>
+    <ul class="area-list">
+        <li class="area-section" @onclick="ToggleExpandNhse">
+            <span>
+                @if (expandNhse)
+                {
+                    <img class="icon" src="/img/icons/minus.svg" />
+                }
+                else
+                {
+                    <img class="icon" src="/img/icons/plus.svg" />
+                }
+                NHSE Contract
+            </span>
+            <span>
+                <button @onclick="SelectAllNhse" @onclick:stopPropagation="true">Select All</button>
+            </span>
+        </li>
+        <li>
+            <ul class="@("area-section-list" + (expandNhse ? " expanded" : "" ))">
+                @foreach (var area in actualNhseAreas.OrderBy(s => s))
+                {
+                    var selected = selectedAreas.Contains(area);
+
+                    <li class="@(selected ? "selected" : "")" @onclick="() => ToggleArea(area)">
+                        @if (selectedAreas.Contains(area))
+                        {
+                            <img class="icon" src="/img/icons/check.svg" />
+                        }
+                        else
+                        {
+                            <img class="icon" src="/img/icons/xmark.svg" />
+                        }
+                        @LabelConverters.LabelToDisplay(area)
+                    </li>
+                }
+            </ul>
+        </li>
+        <li class="area-section" @onclick="ToggleExpandRegion">
+            <span>
+                @if (expandRegions)
+                {
+                    <img class="icon" src="/img/icons/minus.svg" />
+                }
+                else
+                {
+                    <img class="icon" src="/img/icons/plus.svg" />
+                }
+                Event Regions
+            </span>
+            <span>
+                <button @onclick="SelectAllRegions" @onclick:stopPropagation="true">Select All</button>
+            </span>
+        </li>
+        <li>
+            <ul class="@("area-section-list" + (expandRegions ? " expanded" : "" ))">
+                @foreach (var area in actualRegions.OrderBy(s => s))
+                {
+                    var selected = selectedAreas.Contains(area);
+
+                    <li class="@(selected ? "selected" : "")" @onclick="() => ToggleArea(area)">
+                        @if (selected)
+                        {
+                            <img class="icon" src="/img/icons/check.svg" />
+                        }
+                        else
+                        {
+                            <img class="icon" src="/img/icons/xmark.svg" />
+                        }
+                        @LabelConverters.LabelToDisplay(area)
+                    </li>
+                }
+            </ul>
+        </li>
+    </ul>
+</section>
+
+@code {
+    private bool expandNhse = false;
+    private bool expandRegions = false;
+    private HashSet<string> selectedAreas = new();
+
+    private IEnumerable<string> actualNhseAreas => ActualAreas.Where(s => LabelConverters.IsTrust(s));
+    private IEnumerable<string> actualRegions => ActualAreas.Where(s => LabelConverters.IsRegion(s));
+
+    [Parameter]
+    public required HashSet<string> ActualAreas { get; set; }
+
+    [Parameter]
+    public EventCallback<HashSet<string>> SelectedAreasChanged { get; set; }
+
+    private void ClearAreas()
+    {
+        selectedAreas.Clear();
+        SelectedAreasChanged.InvokeAsync(selectedAreas);
+    }
+
+    private void SelectAllNhse()
+    {
+        selectedAreas.Clear();
+        selectedAreas.UnionWith(actualNhseAreas);
+        SelectedAreasChanged.InvokeAsync(selectedAreas);
+    }
+
+    private void SelectAllRegions()
+    {
+        selectedAreas.Clear();
+        selectedAreas.UnionWith(actualRegions);
+        SelectedAreasChanged.InvokeAsync(selectedAreas);
+    }
+
+    private void ToggleArea(string area)
+    {
+        if (selectedAreas.Contains(area))
+        {
+            selectedAreas.Remove(area);
+        }
+        else
+        {
+            selectedAreas.Add(area);
+        }
+
+        SelectedAreasChanged.InvokeAsync(selectedAreas);
+    }
+
+    private void ToggleExpandNhse() => expandNhse = !expandNhse;
+
+    private void ToggleExpandRegion() => expandRegions = !expandRegions;
+}

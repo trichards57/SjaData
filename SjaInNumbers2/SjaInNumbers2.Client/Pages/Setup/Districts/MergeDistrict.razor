@@ -1,0 +1,77 @@
+﻿@page "/setup/districts/merge"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Services.Interfaces
+@using System.ComponentModel.DataAnnotations
+@using SjaInNumbers.Shared.Model.Districts
+
+@inject IDistrictsService DistrictsService
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize(Policy = "Lead")]
+
+<PageTitle>SJA In Numbers - Merge Districts</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Merge Districts</h2>
+    <BackLink Url="/setup/districts" />
+
+    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label>Source District</label>
+            <InputSelect @bind-Value="Model.SourceDistrictId">
+                @foreach (var h in districts.OrderBy(h => h.Name).ThenBy(h => h.Region))
+                {
+                    <option value="@h.Id">@h.Name, @SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label>Destination District</label>
+            <InputSelect @bind-Value="Model.DestinationDistrictId">
+                @foreach (var h in districts.OrderBy(h => h.Name).ThenBy(h => h.Region))
+                {
+                    <option value="@h.Id">@h.Name, @SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                }
+            </InputSelect>
+        </div>
+        <button type="submit">Save</button>
+    </EditForm>
+</GeneralErrorHandler>
+
+@code {
+    [SupplyParameterFromQuery(Name = "source")]
+    public int SourceDistrictId { get; set; }
+
+    private EditDistrictNameModel Model { get; set; } = new();
+    private List<DistrictSummary> districts = [];
+
+    protected async override Task OnInitializedAsync()
+    {
+        districts = await DistrictsService.GetDistrictSummariesAsync().ToListAsync();
+    }
+
+
+    protected override void OnParametersSet()
+    {
+        Model.SourceDistrictId = SourceDistrictId;
+    }
+
+    private async Task FormSubmit()
+    {
+        await DistrictsService.PostDistrictMerge(Model.SourceDistrictId, Model.DestinationDistrictId);
+
+        NavigationManager.NavigateTo("/setup/districts");
+    }
+
+    public class EditDistrictNameModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to select a source district.")]
+        public int SourceDistrictId { get; set; }
+
+        [Required(AllowEmptyStrings = false, ErrorMessage = "You need to select a destination district.")]
+        public int DestinationDistrictId { get; set; }
+    }
+}

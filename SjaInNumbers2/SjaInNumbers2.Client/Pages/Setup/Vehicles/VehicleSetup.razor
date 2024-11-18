@@ -1,0 +1,61 @@
+﻿@page "/setup/vehicles"
+
+@using Microsoft.AspNetCore.Authorization
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Vehicles
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject IVehicleService VehicleService
+
+<PageTitle>SJA In Numbers - Setup Vehicles</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Vehicle Setup</h2>
+    <BackLink Url="/setup" />
+
+
+    <div>
+        <label for="filter">Find:</label>
+        <input @oninput="FilterChanged" id="filter" type="search" />
+    </div>
+    
+    <h4>Front Line Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+    <h4>All Wheel Drive Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@AllWheelDrive" />
+    <h4>Off-Road Ambulance</h4>
+    <VehicleTable Filter="@filter" Vehicles="@OffRoad" />
+    <h4>Other</h4>
+    <VehicleTable Filter="@filter" Vehicles="@Other" />
+    <h4>Unknown</h4>
+    <VehicleTable Filter="@filter" Vehicles="@Unknown" />
+    <hr class="line" />
+    <h4>For Disposal</h4>
+    <VehicleTable Filter="@filter" Vehicles="@ForDisposal" />
+</GeneralErrorHandler>
+
+@code {
+    private IList<VehicleSettings> vehicles = [];
+
+    private string filter = string.Empty;
+
+    private IEnumerable<VehicleSettings> FrontLine => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.FrontLineAmbulance);
+    private IEnumerable<VehicleSettings> AllWheelDrive => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.AllWheelDrive);
+    private IEnumerable<VehicleSettings> OffRoad => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.OffRoadAmbulance);
+    private IEnumerable<VehicleSettings> Other => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Other);
+    private IEnumerable<VehicleSettings> Unknown => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Unknown);
+    private IEnumerable<VehicleSettings> ForDisposal => vehicles.Where(v => v.ForDisposal);
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehicleService.GetVehicleSettings().ToListAsync();
+    }
+
+    private void FilterChanged(ChangeEventArgs e)
+    {
+        filter = e.Value?.ToString() ?? "";
+    }
+}

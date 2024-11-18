@@ -1,0 +1,86 @@
+﻿@page "/people/{Region}"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.People
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject NavigationManager NavigationManager
+@inject IPersonService PersonService
+
+<PageTitle>SJA In Numbers - People - @LabelConverters.LabelToDisplay(Region)</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>People - @LabelConverters.LabelToDisplay(Region)</h2>
+    <BackLink Url="/people" />
+    <table class="activity-trends">
+        <PersonGroup IsLoading="@isLoading" Title="@ActivePeopleTitle" Reports="@activePeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@DormantPeopleTitle" Reports="@dormantPeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@InactivePeopleTitle" Reports="@inactivePeople" />
+        <PersonGroup IsLoading="@isLoading" Title="@RetiredPeopleTitle" Reports="@retiredPeople" />
+    </table>
+</GeneralErrorHandler>
+
+@code {
+    private bool isLoading = true;
+    private Region parsedRegion;
+    private IList<PersonReport> activePeople = [];
+    private IList<PersonReport> dormantPeople = [];
+    private IList<PersonReport> inactivePeople = [];
+    private IList<PersonReport> retiredPeople = [];
+
+    private string ActivePeopleTitle => $"Active People ({activePeople.Count}) (<3 months inactive)";
+    private string DormantPeopleTitle => $"Dormant People ({dormantPeople.Count}) (4-6 months inactive)";
+    private string InactivePeopleTitle => $"Inactive People ({inactivePeople.Count}) (7-9 months inactive)";
+    private string RetiredPeopleTitle => $"Retired People ({retiredPeople.Count}) (>9 months inactive)";
+
+    [Parameter]
+    public string Region { get; set; } = "";
+
+    protected override async void OnParametersSet()
+    {
+        isLoading = true;
+
+        if (!Enum.TryParse<Region>(Region, out parsedRegion))
+        {
+            NavigationManager.NavigateTo("/NotFound", replace: true);
+            return;
+        }
+
+        try
+        {
+            var peopleData = await PersonService.GetPeopleReportsAsync(DateOnly.FromDateTime(DateTime.Today), parsedRegion)
+                .ToListAsync();
+
+            activePeople = peopleData.Where(p => p.MonthsSinceLastActive is <= 3).OrderByDescending(p => p.HoursThisYear).ToList();
+            dormantPeople = peopleData.Where(p => p.MonthsSinceLastActive is > 3 and <= 6).OrderByDescending(p => p.HoursThisYear).ToList();
+            inactivePeople = peopleData.Where(p => p.MonthsSinceLastActive is > 6 and <= 9).OrderByDescending(p => p.HoursThisYear).ToList();
+            retiredPeople = peopleData.Where(p => p.MonthsSinceLastActive is > 9).OrderByDescending(p => p.HoursThisYear).ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                NavigationManager.NavigateTo($"api/account/login?provider=Microsoft&returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                NavigationManager.NavigateTo("/accessDenied");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/offline");
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+}

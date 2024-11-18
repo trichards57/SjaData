@@ -1,0 +1,238 @@
+﻿@page "/deployments/capacity"
+
+@using MathNet.Numerics.Distributions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SjaInNumbers.Client.Converters
+@using SjaInNumbers.Client.Maths
+@using SjaInNumbers.Client.Services.Interfaces
+@using SjaInNumbers.Shared.Model
+@using SjaInNumbers.Shared.Model.Deployments
+@using SjaInNumbers.Shared.Model.Vehicles
+@using System.Text.Json
+
+@attribute [Authorize(Policy = "Lead")]
+
+@inject IVehicleService VehicleService
+@inject IDeploymentService DeploymentService
+
+<PageTitle>SJA In Numbers - Front-Line Capacity Prediction</PageTitle>
+
+<GeneralErrorHandler>
+    <h2>Front-Line Capacity Prediction</h2>
+    <BackLink Url="/deployments" />
+
+    <h3>Current Capacity</h3>
+    <table>
+        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Region.Undefined) ?? [])
+        {
+            <thead>
+                <tr>
+                    <th class="section-title" colspan="5">
+                        <span>
+                            @LabelConverters.LabelToDisplay(region.Key)
+                        </span>
+                    </th>
+                </tr>
+                <tr class="sub-head">
+                    <th>District</th>
+                    <th>Peak Load</th>
+                    <th>Capacity</th>
+                    <th>Days Over</th>
+                    <th>Nominal Moves</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
+                {
+                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                    var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
+
+                    <tr>
+                        <td class="district-label">@district.District</td>
+                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
+                        <td class="value-cell">@capacity</td>
+                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Count(d => d.Value > capacity)</td>
+                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+
+    <h3>New Capacity</h3>
+    <table>
+        <thead>
+            <tr class="sub-head">
+                <th></th>
+                <th></th>
+                <th>New Capacity</th>
+                <th>Predicted Days Over</th>
+                <th>Predicted Moves</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="district-label">National</td>
+                <td></td>
+                <td class="value-cell">@districtModels.Sum(s => s.Value.Vehicles)</td>
+                <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedDaysOver) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedDaysOverMargin, 2))).ToString("F2"))</td>
+                <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedMoves) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedMovesMargin, 2))).ToString("F2"))</td>
+            </tr>
+        </tbody>
+        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Region.Undefined) ?? [])
+        {
+            <thead>
+                <tr class="section-title">
+                    <th colspan="5">
+                        <span>
+                            @LabelConverters.LabelToDisplay(region.Key)
+                        </span>
+                    </th>
+                </tr>
+                <tr class="sub-head">
+                    <th>District</th>
+                    <th>Peak Load</th>
+                    <th>New Capacity</th>
+                    <th>Predicted Days Over</th>
+                    <th>Predicted Moves</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
+                {
+                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                    var model = districtModels[district.DistrictId];
+
+                    <tr>
+                        <td class="district-label">@peakReport.District</td>
+                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
+                        <td>
+                            <EditForm Model="model">
+                                <InputNumber class="new-vehicles" @bind-Value="model.Vehicles" />
+                            </EditForm>
+                        </td>
+                        <td class="prediction-cell">@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin.ToString("F2")))</td>
+                        <td class="prediction-cell">@model.PredictedMoves (+- @(model.PredictedMovesMargin.ToString("F2")))</td>
+                    </tr>
+                }
+            </tbody>
+        }
+        <tfoot>
+            <tr>
+                <td colspan="6">
+                    <button disabled="@running" class="run-button btn-small" @onclick="@CalculateCapacity">Run</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</GeneralErrorHandler>
+
+@code
+{
+    private NationalVehicleReport vehicles;
+    private NationalSummary deployments;
+    private IList<DistrictSummary> districts = [];
+    private IContinuousDistribution timeToReturnGenerator = new Gamma(0.84, 0.122); // Numbers from failure analysis
+    private Random random = new();
+    private bool running = false;
+
+    private Dictionary<int, InputModel> districtModels = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehicleService.GetNationalReportAsync();
+        deployments = await DeploymentService.GetNationalSummary();
+
+        districts = vehicles.Districts.Select(d => new DistrictSummary
+            {
+                DistrictId = d.DistrictId,
+                District = d.District,
+                Region = d.Region,
+            }).Union(deployments.Regions.Where(r => r.Key != Region.Undefined)
+                .SelectMany(r => r.Value.Select(d => new DistrictSummary
+                    {
+                        DistrictId = d.DistrictId,
+                        District = d.District,
+                        Region = d.Region,
+                    }))).ToList();
+
+        foreach (var district in districts)
+        {
+            var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+            var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
+
+            districtModels[district.DistrictId] = new InputModel { Vehicles = capacity };
+        }
+    }
+
+    private async Task CalculateCapacity()
+    {
+        running = true;
+        StateHasChanged();
+
+        await Task.Run(() =>
+        {
+            var monteCarloVehicles = new List<MonteCarloVehicle>();
+
+            var failureProbability = 0.0232;
+            var requirements = deployments.Regions
+                .SelectMany(r => r.Value.Select(d => new { d.DistrictId, d.FrontLineAmbulances }))
+                .ToDictionary(r => r.DistrictId, r => r.FrontLineAmbulances);
+
+            foreach (var district in districts)
+            {
+                for (var i = 0; i < districtModels[district.DistrictId].Vehicles; i++)
+                {
+                    monteCarloVehicles.Add(new MonteCarloVehicle(district.DistrictId, failureProbability, timeToReturnGenerator, random));
+                }
+            }
+
+            var model = new MonteCarloSimulation(monteCarloVehicles, requirements);
+
+            var endDate = DateOnly.FromDateTime(DateTime.Today);
+            var startDate = endDate.AddYears(-1);
+
+            var result = model.RunSimulation(startDate, endDate, 30);
+
+            foreach (var r in result.DistrictResults.Keys)
+            {
+                if (!districtModels.ContainsKey(r))
+                {
+                    continue;
+                }
+
+                districtModels[r].PredictedDaysOver = result.DistrictResults[r].DaysShort;
+                districtModels[r].PredictedDaysOverMargin = result.DistrictResults[r].DaysShortStandardDeviation;
+                districtModels[r].PredictedMoves = result.DistrictResults[r].TotalMoves;
+                districtModels[r].PredictedMovesMargin = result.DistrictResults[r].TotalMovesStandardDeviation;
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(MonteCarloVehicle.RepairTimes));
+            Console.WriteLine($"{result.AverageAvailability:p2}");
+
+            running = false;
+            StateHasChanged();
+        });
+    }
+
+    private readonly record struct DistrictSummary
+    {
+        public int DistrictId { get; init; }
+        public string District { get; init; }
+        public Region Region { get; init; }
+    }
+
+    private class InputModel
+    {
+        public int Vehicles { get; set; }
+        public int PredictedDaysOver { get; set; }
+        public double PredictedDaysOverMargin { get; set; }
+        public int PredictedMoves { get; set; }
+        public double PredictedMovesMargin { get; set; }
+    }
+}

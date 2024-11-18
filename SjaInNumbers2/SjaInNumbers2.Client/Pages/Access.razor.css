@@ -1,0 +1,29 @@
+﻿.access-table button {
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+    .access-table button.checked {
+        background-color: var(--sja-green);
+        color: var(--sja-green-text);
+        cursor: default;
+    }
+
+    .access-table button:not(.checked) {
+        background-color: var(--sja-yellow);
+        color: var(--sja-yellow-text);
+    }
+
+    .access-table button:disabled.checked,
+    .access-table button:disabled:not(.checked) {
+        background-color: var(--sja-gray);
+        color: var(--sja-gray-text);
+        cursor: not-allowed;
+    }
