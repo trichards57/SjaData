@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model.Hubs;
+namespace SjaInNumbers2.Client.Model.Hubs;
 
 /// <summary>
 /// Represents the name of a hub.

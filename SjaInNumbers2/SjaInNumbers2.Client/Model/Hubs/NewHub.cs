@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SjaInNumbers.Shared.Model.Hubs;
+namespace SjaInNumbers2.Client.Model.Hubs;
 
 public readonly record struct NewHub
 {

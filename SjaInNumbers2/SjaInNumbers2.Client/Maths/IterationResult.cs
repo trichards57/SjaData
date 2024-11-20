@@ -1,4 +1,4 @@
-﻿namespace SjaInNumbers.Client.Maths;
+﻿namespace SjaInNumbers2.Client.Maths;
 
 public readonly record struct IterationResult
 {

@@ -1,6 +1,6 @@
-﻿using SjaInNumbers.Shared.Model;
+﻿using SjaInNumbers2.Client.Model;
 
-namespace SjaInNumbers.Client.Converters;
+namespace SjaInNumbers2.Client.Converters;
 
 public static class RegionSorter
 {

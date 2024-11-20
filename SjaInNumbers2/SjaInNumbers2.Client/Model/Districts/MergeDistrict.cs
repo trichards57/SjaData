@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model.Districts;
+namespace SjaInNumbers2.Client.Model.Districts;
 
 /// <summary>
 /// Represents a request to merge two districts.

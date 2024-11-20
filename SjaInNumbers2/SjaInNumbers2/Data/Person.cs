@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaInNumbers2.Data;
 
 /// <summary>
 /// Represents a person who does hours.

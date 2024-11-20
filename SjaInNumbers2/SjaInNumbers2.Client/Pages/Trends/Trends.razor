@@ -1,8 +1,5 @@
 ﻿@page "/trends"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Web
-
 @attribute [Authorize(Policy = "Lead")]
 
 <PageTitle>SJA In Numbers - Trends</PageTitle>
@@ -22,7 +19,3 @@
         <LinkBox IsLink="true" Link="/trends/SouthWest">South West</LinkBox>
     </LinkBoxes>
 </GeneralErrorHandler>
-
-@code {
-
-}

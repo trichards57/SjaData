@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Shared.Model;
+using SjaInNumbers2.Client.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaInNumbers2.Data;
 
 /// <summary>
 /// Represents a district in a region.

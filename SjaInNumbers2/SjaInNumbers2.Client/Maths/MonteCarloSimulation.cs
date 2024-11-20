@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Client.Maths;
+namespace SjaInNumbers2.Client.Maths;
 
 public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<int, Dictionary<DateOnly, int>> districtRequirements)
 {

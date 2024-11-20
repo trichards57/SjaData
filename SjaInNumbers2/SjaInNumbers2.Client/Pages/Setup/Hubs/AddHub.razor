@@ -1,12 +1,5 @@
 ﻿@page "/setup/hubs/add"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model.Districts
-@using SjaInNumbers.Shared.Model.Hubs
-@using System.ComponentModel.DataAnnotations
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IDistrictsService DistrictsService
@@ -32,7 +25,7 @@
             <InputSelect @bind-Value="Model.DistrictId">
                 @foreach (var h in districts.OrderBy(h => h.Region).ThenBy(h => h.Name))
                 {
-                    <option value="@h.Id">@h.Name, @SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                    <option value="@h.Id">@h.Name, @LabelConverters.LabelToDisplay(h.Region)</option>
                 }
             </InputSelect>
         </div>
@@ -42,7 +35,7 @@
 </GeneralErrorHandler>
 
 @code {
-    private List<DistrictSummary> districts = new();
+    private List<Model.Districts.DistrictSummary> districts = new();
 
     [SupplyParameterFromForm]
     public NewHubModel Model { get; set; } = new();
@@ -56,7 +49,7 @@
 
     private async Task FormSubmit()
     {
-        await HubService.PostHubAsync(new NewHub { DistrictId = Model.DistrictId, Name = Model.Name });
+        await HubService.PostHubAsync(new Model.Hubs.NewHub { DistrictId = Model.DistrictId, Name = Model.Name });
         NavigationManager.NavigateTo("/setup/hubs");
     }
 

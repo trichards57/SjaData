@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Shared.Model;
+using SjaInNumbers2.Client.Model;
 
-namespace SjaInNumbers.Client.Converters;
+namespace SjaInNumbers2.Client.Converters;
 
 public static class LabelConverters
 {

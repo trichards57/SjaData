@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.Distributions;
 
-namespace SjaInNumbers.Client.Maths;
+namespace SjaInNumbers2.Client.Maths;
 
 public class MonteCarloVehicle(int districtId, double failureProbability, IContinuousDistribution repairTimeGenerator, Random random)
 {

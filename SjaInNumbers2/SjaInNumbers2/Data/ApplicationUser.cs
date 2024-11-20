@@ -5,7 +5,7 @@
 
 using Microsoft.AspNetCore.Identity;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaInNumbers2.Data;
 
 /// <summary>
 /// Represents a user in the application.

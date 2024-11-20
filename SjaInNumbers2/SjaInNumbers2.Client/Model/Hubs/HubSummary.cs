@@ -3,7 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model.Hubs;
+
+// <copyright file="HubSummary.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers2.Client.Model;
+
+namespace SjaInNumbers2.Client.Model.Hubs;
 
 /// <summary>
 /// Represents the summary of a hub.

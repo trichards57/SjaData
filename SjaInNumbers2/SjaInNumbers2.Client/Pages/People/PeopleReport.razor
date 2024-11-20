@@ -1,12 +1,5 @@
 ﻿@page "/people/{Region}"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.People
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject NavigationManager NavigationManager
@@ -28,10 +21,10 @@
 @code {
     private bool isLoading = true;
     private Region parsedRegion;
-    private IList<PersonReport> activePeople = [];
-    private IList<PersonReport> dormantPeople = [];
-    private IList<PersonReport> inactivePeople = [];
-    private IList<PersonReport> retiredPeople = [];
+    private IList<Model.People.PersonReport> activePeople = [];
+    private IList<Model.People.PersonReport> dormantPeople = [];
+    private IList<Model.People.PersonReport> inactivePeople = [];
+    private IList<Model.People.PersonReport> retiredPeople = [];
 
     private string ActivePeopleTitle => $"Active People ({activePeople.Count}) (<3 months inactive)";
     private string DormantPeopleTitle => $"Dormant People ({dormantPeople.Count}) (4-6 months inactive)";

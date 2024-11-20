@@ -4,13 +4,13 @@
 // </copyright>
 
 using Microsoft.AspNetCore.WebUtilities;
-using SjaInNumbers.Client.Services.Interfaces;
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Shared.Model.Hours;
-using SjaInNumbers.Shared.Model.Trends;
+using SjaInNumbers2.Client.Model;
+using SjaInNumbers2.Client.Model.Hours;
+using SjaInNumbers2.Client.Model.Trends;
+using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
 
-namespace SjaInNumbers.Client.Services;
+namespace SjaInNumbers2.Client.Services;
 
 internal class HoursService(HttpClient httpClient) : IHoursService
 {

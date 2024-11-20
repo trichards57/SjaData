@@ -1,4 +1,4 @@
-﻿namespace SjaInNumbers.Shared.Model.Vehicles;
+﻿namespace SjaInNumbers2.Client.Model.Vehicles;
 
 public readonly record struct FailureReport
 {
@@ -23,7 +23,7 @@ public readonly record struct VehicleFailureReport
 
     public double GetDailyFailureProbability()
     {
-        var adjustedAvailableDays = 365 - (AnnualFailures * AverageRepairTime);
+        var adjustedAvailableDays = 365 - AnnualFailures * AverageRepairTime;
         return AnnualFailures / adjustedAvailableDays;
     }
 

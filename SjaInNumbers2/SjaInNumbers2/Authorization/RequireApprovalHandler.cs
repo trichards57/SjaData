@@ -5,9 +5,9 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using SjaInNumbers.Server.Data;
+using SjaInNumbers2.Data;
 
-namespace SjaInNumbers.Server.Authorization;
+namespace SjaInNumbers2.Authorization;
 
 /// <summary>
 /// Handler for the <see cref="RequireApprovalRequirement"/>.

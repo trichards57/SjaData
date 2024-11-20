@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model;
+namespace SjaInNumbers2.Client.Model;
 
 /// <summary>
 /// Represents the type of date.

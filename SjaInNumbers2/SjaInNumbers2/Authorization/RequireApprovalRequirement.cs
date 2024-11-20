@@ -5,7 +5,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 
-namespace SjaInNumbers.Server.Authorization;
+namespace SjaInNumbers2.Authorization;
 
 /// <summary>
 /// Represents a requirement that a user must have their account approved before they can access a resource.

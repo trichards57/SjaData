@@ -4,12 +4,12 @@
 // </copyright>
 
 using Microsoft.AspNetCore.WebUtilities;
-using SjaInNumbers.Client.Services.Interfaces;
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Shared.Model.People;
+using SjaInNumbers2.Client.Model;
+using SjaInNumbers2.Client.Model.People;
+using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
 
-namespace SjaInNumbers.Client.Services;
+namespace SjaInNumbers2.Client.Services;
 
 public class PersonService(HttpClient httpClient) : IPersonService
 {

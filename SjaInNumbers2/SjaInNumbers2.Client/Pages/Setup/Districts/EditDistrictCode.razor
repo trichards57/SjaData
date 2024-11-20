@@ -1,14 +1,9 @@
 ﻿@page "/setup/districts/{Id:int}/EditCode"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using SjaInNumbers.Client.Services.Interfaces
-@using System.ComponentModel.DataAnnotations
+@attribute [Authorize(Policy = "Lead")]
 
 @inject IDistrictsService DistrictsService
 @inject NavigationManager NavigationManager
-
-@attribute [Authorize(Policy = "Lead")]
 
 <PageTitle>SJA In Numbers - Edit District Code</PageTitle>
 

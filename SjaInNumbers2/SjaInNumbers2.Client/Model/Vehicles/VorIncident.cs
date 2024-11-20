@@ -5,7 +5,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaInNumbers.Shared.Model.Vehicles;
+namespace SjaInNumbers2.Client.Model.Vehicles;
 
 /// <summary>
 /// Represents a VOR Incident reported in the VOR Report.

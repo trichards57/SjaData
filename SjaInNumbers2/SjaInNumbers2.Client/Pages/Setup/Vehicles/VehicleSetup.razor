@@ -1,11 +1,5 @@
 ﻿@page "/setup/vehicles"
 
-@using Microsoft.AspNetCore.Authorization
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.Vehicles
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IVehicleService VehicleService
@@ -38,16 +32,16 @@
 </GeneralErrorHandler>
 
 @code {
-    private IList<VehicleSettings> vehicles = [];
+    private IList<Model.Vehicles.VehicleSettings> vehicles = [];
 
     private string filter = string.Empty;
 
-    private IEnumerable<VehicleSettings> FrontLine => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.FrontLineAmbulance);
-    private IEnumerable<VehicleSettings> AllWheelDrive => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.AllWheelDrive);
-    private IEnumerable<VehicleSettings> OffRoad => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.OffRoadAmbulance);
-    private IEnumerable<VehicleSettings> Other => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Other);
-    private IEnumerable<VehicleSettings> Unknown => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Unknown);
-    private IEnumerable<VehicleSettings> ForDisposal => vehicles.Where(v => v.ForDisposal);
+    private IEnumerable<Model.Vehicles.VehicleSettings> FrontLine => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.FrontLineAmbulance);
+    private IEnumerable<Model.Vehicles.VehicleSettings> AllWheelDrive => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.AllWheelDrive);
+    private IEnumerable<Model.Vehicles.VehicleSettings> OffRoad => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.OffRoadAmbulance);
+    private IEnumerable<Model.Vehicles.VehicleSettings> Other => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Other);
+    private IEnumerable<Model.Vehicles.VehicleSettings> Unknown => vehicles.Where(v => !v.ForDisposal && v.VehicleType == VehicleType.Unknown);
+    private IEnumerable<Model.Vehicles.VehicleSettings> ForDisposal => vehicles.Where(v => v.ForDisposal);
 
     protected override async Task OnInitializedAsync()
     {

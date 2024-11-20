@@ -1,12 +1,5 @@
 ﻿@page "/setup/vehicles/{id:int}"
 
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.Hubs
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IHubService HubService
@@ -51,7 +44,7 @@
                 <option value="">Unknown</option>
                 @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
                 {
-                    <option value="@h.Id">@h.Name, @h.District, @SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+                    <option value="@h.Id">@h.Name, @h.District, @LabelConverters.LabelToDisplay(h.Region)</option>
                 }
             </InputSelect>
         </div>
@@ -60,7 +53,7 @@
             <InputSelect @bind-Value="Model.VehicleType">
                 @foreach (var h in Enum.GetValues<VehicleType>())
                 {
-                    <option value="@h">@SjaInNumbers.Client.Converters.LabelConverters.LabelToDisplay(h)</option>
+                    <option value="@h">@LabelConverters.LabelToDisplay(h)</option>
                 }
             </InputSelect>
         </div>
@@ -76,7 +69,7 @@
 
 @code {
     private string registration = string.Empty;
-    private IList<HubSummary> hubs = [];
+    private IList<Model.Hubs.HubSummary> hubs = [];
 
     [Parameter]
     public int Id { get; set; }

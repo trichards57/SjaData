@@ -1,15 +1,6 @@
 ﻿@page "/deployments/capacity"
 
 @using MathNet.Numerics.Distributions
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Maths
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.Deployments
-@using SjaInNumbers.Shared.Model.Vehicles
-@using System.Text.Json
 
 @attribute [Authorize(Policy = "Lead")]
 
@@ -134,8 +125,8 @@
 
 @code
 {
-    private NationalVehicleReport vehicles;
-    private NationalSummary deployments;
+    private Model.Vehicles.NationalVehicleReport vehicles;
+    private Model.Deployments.NationalSummary deployments;
     private IList<DistrictSummary> districts = [];
     private IContinuousDistribution timeToReturnGenerator = new Gamma(0.84, 0.122); // Numbers from failure analysis
     private Random random = new();
@@ -177,7 +168,7 @@
 
         await Task.Run(() =>
         {
-            var monteCarloVehicles = new List<MonteCarloVehicle>();
+            var monteCarloVehicles = new List<Maths.MonteCarloVehicle>();
 
             var failureProbability = 0.0232;
             var requirements = deployments.Regions
@@ -188,11 +179,11 @@
             {
                 for (var i = 0; i < districtModels[district.DistrictId].Vehicles; i++)
                 {
-                    monteCarloVehicles.Add(new MonteCarloVehicle(district.DistrictId, failureProbability, timeToReturnGenerator, random));
+                    monteCarloVehicles.Add(new Maths.MonteCarloVehicle(district.DistrictId, failureProbability, timeToReturnGenerator, random));
                 }
             }
 
-            var model = new MonteCarloSimulation(monteCarloVehicles, requirements);
+            var model = new Maths.MonteCarloSimulation(monteCarloVehicles, requirements);
 
             var endDate = DateOnly.FromDateTime(DateTime.Today);
             var startDate = endDate.AddYears(-1);
@@ -211,9 +202,6 @@
                 districtModels[r].PredictedMoves = result.DistrictResults[r].TotalMoves;
                 districtModels[r].PredictedMovesMargin = result.DistrictResults[r].TotalMovesStandardDeviation;
             }
-
-            Console.WriteLine(JsonSerializer.Serialize(MonteCarloVehicle.RepairTimes));
-            Console.WriteLine($"{result.AverageAvailability:p2}");
 
             running = false;
             StateHasChanged();

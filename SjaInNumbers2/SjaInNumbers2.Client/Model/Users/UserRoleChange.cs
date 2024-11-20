@@ -5,7 +5,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaInNumbers.Shared.Model.Users;
+namespace SjaInNumbers2.Client.Model.Users;
 
 /// <summary>
 /// Represents a change to a user's role.

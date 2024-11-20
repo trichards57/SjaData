@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model.Users;
+namespace SjaInNumbers2.Client.Model.Users;
 
 /// <summary>
 /// Represents the details of a user of the system.

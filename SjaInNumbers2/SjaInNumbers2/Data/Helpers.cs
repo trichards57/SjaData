@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Shared.Model;
+using SjaInNumbers2.Client.Model;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaInNumbers2.Data;
 
 /// <summary>
 /// Contains a set of helper methods for filtering data.
@@ -58,7 +58,7 @@ public static class Helpers
     /// <param name="place">The place to filter for.</param>
     /// <returns>The filtered items.</returns>
     public static IQueryable<VehicleIncident> GetForPlace(this IQueryable<VehicleIncident> incidents, Place place)
-        => GetForPlace(incidents, place.Region, place.DistrictId, place.HubId);
+        => incidents.GetForPlace(place.Region, place.DistrictId, place.HubId);
 
     /// <summary>
     /// Gets all the vehicles in a given place.
@@ -67,7 +67,7 @@ public static class Helpers
     /// <param name="place">The place to filter for.</param>
     /// <returns>The filtered items.</returns>
     public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Place place)
-        => GetForPlace(vehicles, place.Region, place.DistrictId, place.HubId);
+        => vehicles.GetForPlace(place.Region, place.DistrictId, place.HubId);
 
     /// <summary>
     /// Gets all the vehicles in a given place.

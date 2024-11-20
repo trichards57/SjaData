@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using SjaInNumbers.Server.Data;
+using SjaInNumbers2.Data;
 
 #nullable disable
 

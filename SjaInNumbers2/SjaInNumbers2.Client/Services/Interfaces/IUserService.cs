@@ -3,9 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Shared.Model.Users;
 
-namespace SjaInNumbers.Client.Services.Interfaces;
+// <copyright file="IUserService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers2.Client.Model.Users;
+
+namespace SjaInNumbers2.Client.Services.Interfaces;
 
 /// <summary>
 /// Service for managing users.

@@ -1,15 +1,9 @@
 ﻿@page "/access"
-@using System.Security.Claims
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model.Users
+
+@attribute [Authorize(Policy = "Admin")]
 
 @inject IUserService UserService
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
-@attribute [Authorize(Policy = "Admin")]
 
 <PageTitle>SJA In Numbers - Access</PageTitle>
 
@@ -60,14 +54,14 @@
 </GeneralErrorHandler>
 
 @code {
-    private IEnumerable<UserDetails> users = [];
+    private IEnumerable<Model.Users.UserDetails> users = [];
     private string currentUserId = string.Empty;
 
     protected async override Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-        currentUserId = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException();
+        currentUserId = authState.User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException();
 
         users = await UserService.GetAll().ToListAsync();
     }
@@ -92,7 +86,7 @@
 
     private async Task SetToAdmin(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = ["Admin"] };
+        var userUpdate = new Model.Users.UserRoleChange { Id = userId, Roles = ["Admin"] };
 
         await UserService.UpdateUserAsync(userUpdate);
 
@@ -103,7 +97,7 @@
 
     private async Task SetToLead(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = ["Lead"] };
+        var userUpdate = new Model.Users.UserRoleChange { Id = userId, Roles = ["Lead"] };
 
         await UserService.UpdateUserAsync(userUpdate);
 
@@ -114,7 +108,7 @@
 
     private async Task SetToNone(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = [] };
+        var userUpdate = new Model.Users.UserRoleChange { Id = userId, Roles = [] };
 
         await UserService.UpdateUserAsync(userUpdate);
 

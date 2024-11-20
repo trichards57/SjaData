@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using SjaInNumbers.Server.Data;
+using SjaInNumbers2.Data;
 
 namespace SjaInNumbers2.Components.Account;
 internal sealed class IdentityUserAccessor(UserManager<ApplicationUser> userManager, IdentityRedirectManager redirectManager)

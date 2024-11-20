@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace SjaInNumbers.Shared.Model.Vehicles;
+namespace SjaInNumbers2.Client.Model.Vehicles;
 
 /// <summary>
 /// Represents the statistics for vehicles that are VOR.

@@ -1,11 +1,16 @@
+// <copyright file="Program.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers.Server.Authorization;
-using SjaInNumbers.Server.Data;
+using SjaInNumbers2.Authorization;
 using SjaInNumbers2.Components;
 using SjaInNumbers2.Components.Account;
+using SjaInNumbers2.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +52,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();

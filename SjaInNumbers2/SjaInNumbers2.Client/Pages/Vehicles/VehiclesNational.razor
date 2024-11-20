@@ -1,9 +1,5 @@
 ﻿@page "/vehicles/national"
 
-@using Microsoft.AspNetCore.Authorization
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model.Vehicles
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IVehicleService VehicleService
@@ -74,7 +70,7 @@
 </GeneralErrorHandler>
 
 @code {
-    private IList<VehicleTypeStatus> vehicleTypes = [];
+    private IList<Model.Vehicles.VehicleTypeStatus> vehicleTypes = [];
 
     protected async override Task OnInitializedAsync()
     {

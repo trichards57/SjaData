@@ -1,6 +1,6 @@
-﻿using SjaInNumbers.Shared.Model.Deployments;
+﻿using SjaInNumbers2.Client.Model.Deployments;
 
-namespace SjaInNumbers.Client.Services.Interfaces;
+namespace SjaInNumbers2.Client.Services.Interfaces;
 
 public interface IDeploymentService
 {

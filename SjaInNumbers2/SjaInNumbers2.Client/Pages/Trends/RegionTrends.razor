@@ -1,11 +1,5 @@
 ﻿@page "/trends/{Region}"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IHoursService HoursService
@@ -116,8 +110,8 @@
 
 @code {
     private bool isLoading = true;
-    private SjaInNumbers.Shared.Model.Trends.Trends trends = default;
-    private SjaInNumbers.Shared.Model.Trends.Trends nhseTrends = default;
+    private Model.Trends.Trends trends = default;
+    private Model.Trends.Trends nhseTrends = default;
     private Region parsedRegion;
     private IEnumerable<string> districts = new List<string>();
     private IEnumerable<string> nhseDistricts = new List<string>();

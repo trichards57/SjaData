@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using SjaInNumbers.Server.Data;
+using SjaInNumbers2.Data;
 using System.Security.Claims;
 
-namespace Microsoft.AspNetCore.Routing;
+namespace SjaInNumbers2.Components.Account;
 
 internal static class IdentityComponentsEndpointRouteBuilderExtensions
 {

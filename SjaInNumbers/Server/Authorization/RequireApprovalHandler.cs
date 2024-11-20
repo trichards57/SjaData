@@ -12,7 +12,7 @@ namespace SjaInNumbers.Server.Authorization;
 /// <summary>
 /// Handler for the <see cref="RequireApprovalRequirement"/>.
 /// </summary>
-/// <param name="userManager">Manager for acessing user data.</param>
+/// <param name="userManager">Manager for accessing user data.</param>
 public class RequireApprovalHandler(UserManager<ApplicationUser> userManager) : AuthorizationHandler<RequireApprovalRequirement>
 {
     private readonly UserManager<ApplicationUser> userManager = userManager;

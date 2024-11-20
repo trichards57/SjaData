@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Client.Services.Interfaces;
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Shared.Model.Vehicles;
+using SjaInNumbers2.Client.Model;
+using SjaInNumbers2.Client.Model.Vehicles;
+using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
 
-namespace SjaInNumbers.Client.Services;
+namespace SjaInNumbers2.Client.Services;
 
 public class VehicleService(HttpClient client) : IVehicleService
 {

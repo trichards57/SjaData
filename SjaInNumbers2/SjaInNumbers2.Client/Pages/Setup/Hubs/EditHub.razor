@@ -1,11 +1,5 @@
 ﻿@page "/setup/hubs/{id:int}/edit"
 
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using SjaInNumbers.Client.Services.Interfaces
-@using System.Net
-@using System.ComponentModel.DataAnnotations
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IHubService HubService
@@ -45,7 +39,7 @@
 
             Model.Name = item.Name;
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             NavigationManager.NavigateTo("/setup/hubs");
         }

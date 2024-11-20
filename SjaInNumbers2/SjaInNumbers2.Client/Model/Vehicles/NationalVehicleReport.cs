@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Shared.Model.Vehicles;
+namespace SjaInNumbers2.Client.Model.Vehicles;
 
 /// <summary>
 /// Represents a report on the current national fleet.

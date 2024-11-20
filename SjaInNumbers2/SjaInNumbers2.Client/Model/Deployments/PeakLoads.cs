@@ -1,4 +1,6 @@
-﻿namespace SjaInNumbers.Shared.Model.Deployments;
+﻿using SjaInNumbers2.Client.Model;
+
+namespace SjaInNumbers2.Client.Model.Deployments;
 
 public readonly record struct PeakLoads
 {

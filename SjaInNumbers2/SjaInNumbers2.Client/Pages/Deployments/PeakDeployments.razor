@@ -1,11 +1,5 @@
 ﻿@page "/deployments/peaks"
 
-@using Microsoft.AspNetCore.Authorization
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.Deployments
-
 @inject IDeploymentService DeploymentService
 
 @attribute [Authorize(Policy = "Lead")]
@@ -63,7 +57,7 @@
 </GeneralErrorHandler>
 
 @code {
-    private IList<PeakLoads> peaks = [];
+    private IList<Model.Deployments.PeakLoads> peaks = [];
 
     override protected async Task OnInitializedAsync()
     {

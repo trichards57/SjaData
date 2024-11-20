@@ -1,11 +1,8 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.JSInterop
+﻿@page "/update"
+
+@attribute [Authorize(Roles = "Admin")]
 
 @inject IJSRuntime JS
-
-@page "/update"
-@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>SJA In Numbers - Update</PageTitle>
 

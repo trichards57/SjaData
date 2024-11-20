@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using SjaInNumbers.Shared.Model;
-using SjaInNumbers.Shared.Model.People;
+using SjaInNumbers2.Client.Model;
+using SjaInNumbers2.Client.Model.People;
 
-namespace SjaInNumbers.Client.Services.Interfaces;
+namespace SjaInNumbers2.Client.Services.Interfaces;
 
 /// <summary>
 /// Represents a service for managing people.

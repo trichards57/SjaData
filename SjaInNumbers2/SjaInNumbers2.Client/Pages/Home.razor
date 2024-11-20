@@ -1,8 +1,7 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Web
+﻿@page "/"
 
-@page "/"
+@rendermode InteractiveAuto
+
 @attribute [Authorize(Policy = "Approved")]
 
 <PageTitle>SJA In Numbers - Home</PageTitle>

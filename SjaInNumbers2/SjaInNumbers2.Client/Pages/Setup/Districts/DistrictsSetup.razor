@@ -1,11 +1,5 @@
 ﻿@page "/setup/districts"
 
-@using Microsoft.AspNetCore.Authorization
-@using SjaInNumbers.Client.Converters
-@using SjaInNumbers.Client.Services.Interfaces
-@using SjaInNumbers.Shared.Model
-@using SjaInNumbers.Shared.Model.Districts
-
 @attribute [Authorize(Policy = "Lead")]
 
 @inject IDistrictsService DistrictsService
@@ -59,7 +53,7 @@
 </GeneralErrorHandler>
 
 @code {
-    private IList<DistrictSummary> districts = [];
+    private IList<Model.Districts.DistrictSummary> districts = [];
 
     protected override async Task OnInitializedAsync()
     {

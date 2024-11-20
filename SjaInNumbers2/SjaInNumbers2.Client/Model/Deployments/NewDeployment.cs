@@ -5,7 +5,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace SjaInNumbers.Shared.Model.Deployments;
+namespace SjaInNumbers2.Client.Model.Deployments;
 
 public readonly record struct NewDeployment
 {

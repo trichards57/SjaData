@@ -1,8 +1,8 @@
-﻿using SjaInNumbers.Client.Services.Interfaces;
-using SjaInNumbers.Shared.Model.Deployments;
+﻿using SjaInNumbers2.Client.Model.Deployments;
+using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
 
-namespace SjaInNumbers.Client.Services;
+namespace SjaInNumbers2.Client.Services;
 
 public class DeploymentService(HttpClient client) : IDeploymentService
 {
