@@ -1,5 +1,4 @@
-﻿@    using ApexCharts
-@    using SjaInNumbers.Shared.Model.Trends
+﻿@using ApexCharts
 
 @if (Trends.TwelveMonthAverage != null)
 {
@@ -38,7 +37,7 @@
 
 @code {
     [Parameter]
-    public Trends Trends { get; set; }
+    public Model.Trends.Trends Trends { get; set; }
 
     [Parameter]
     public string KeyValue { get; set; } = "";

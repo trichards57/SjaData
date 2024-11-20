@@ -1,4 +1,8 @@
-﻿using SjaInNumbers.Shared.Model.Districts;
+﻿// <copyright file="DistrictsService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using SjaInNumbers2.Client.Model.Districts;
 using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;

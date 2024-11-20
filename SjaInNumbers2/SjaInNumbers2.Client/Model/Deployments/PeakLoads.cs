@@ -1,4 +1,9 @@
-﻿using SjaInNumbers2.Client.Model;
+﻿// <copyright file="PeakLoads.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers2.Client.Model;
 
 namespace SjaInNumbers2.Client.Model.Deployments;
 

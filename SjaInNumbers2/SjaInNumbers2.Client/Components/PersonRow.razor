@@ -1,5 +1,4 @@
-﻿@    using ApexCharts
-@    using SjaInNumbers.Shared.Model.People
+﻿@using ApexCharts
 
 <tr>
     <td class="person-label">@Report.Name</td>
@@ -24,7 +23,7 @@
 
 @code {
     [Parameter]
-    public PersonReport Report { get; set; }
+    public Model.People.PersonReport Report { get; set; }
 
     [Parameter]
     public string Label { get; set; } = "";

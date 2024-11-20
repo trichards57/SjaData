@@ -94,11 +94,6 @@ public class MonteCarloSimulation(List<MonteCarloVehicle> vehicles, Dictionary<i
                         TotalMoves = districtResults[district].TotalMoves + shortage,
                     };
                 }
-
-                //if (district == 231)
-                //{
-                //    Console.WriteLine($"Day: {day}, District: {district}, Required: {requiredVehicles}, Available: {availableVehicles}, Shortages: {districtResults[district].DaysWithShortages}, Moves: {districtResults[district].TotalMoves}");
-                //}
             }
         }
 

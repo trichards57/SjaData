@@ -1,4 +1,9 @@
-﻿using SjaInNumbers2.Client.Model.Deployments;
+﻿// <copyright file="DeploymentService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers2.Client.Model.Deployments;
 using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
 

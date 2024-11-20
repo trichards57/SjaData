@@ -1,4 +1,9 @@
-﻿namespace SjaInNumbers2.Client.Model.Vehicles;
+﻿// <copyright file="FailureReport.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+namespace SjaInNumbers2.Client.Model.Vehicles;
 
 public readonly record struct FailureReport
 {
@@ -23,7 +28,7 @@ public readonly record struct VehicleFailureReport
 
     public double GetDailyFailureProbability()
     {
-        var adjustedAvailableDays = 365 - AnnualFailures * AverageRepairTime;
+        var adjustedAvailableDays = 365 - (AnnualFailures * AverageRepairTime);
         return AnnualFailures / adjustedAvailableDays;
     }
 

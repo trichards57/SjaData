@@ -1,6 +1,4 @@
-﻿@    using SjaInNumbers.Client.Converters
-@    using SjaInNumbers.Shared.Model.Vehicles
-<table>
+﻿<table>
     <thead>
         <tr>
             <th />
@@ -47,5 +45,5 @@
     public string Filter { get; set; } = string.Empty;
 
     [Parameter]
-    public IEnumerable<VehicleSettings> Vehicles { get; set; } = [];
+    public IEnumerable<Model.Vehicles.VehicleSettings> Vehicles { get; set; } = [];
 }

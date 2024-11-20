@@ -1,7 +1,13 @@
+// <copyright file="IdentityRedirectManager.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers2.Components.Account;
+
 internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
 {
     public const string StatusCookieName = "Identity.StatusMessage";
@@ -14,10 +20,12 @@ internal sealed class IdentityRedirectManager(NavigationManager navigationManage
         MaxAge = TimeSpan.FromSeconds(5),
     };
 
+    private string CurrentPath => navigationManager.ToAbsoluteUri(navigationManager.Uri).GetLeftPart(UriPartial.Path);
+
     [DoesNotReturn]
     public void RedirectTo(string? uri)
     {
-        uri ??= "";
+        uri ??= string.Empty;
 
         // Prevent open redirects.
         if (!Uri.IsWellFormedUriString(uri, UriKind.Relative))
@@ -40,18 +48,16 @@ internal sealed class IdentityRedirectManager(NavigationManager navigationManage
     }
 
     [DoesNotReturn]
-    public void RedirectToWithStatus(string uri, string message, HttpContext context)
-    {
-        context.Response.Cookies.Append(StatusCookieName, message, StatusCookieBuilder.Build(context));
-        RedirectTo(uri);
-    }
-
-    private string CurrentPath => navigationManager.ToAbsoluteUri(navigationManager.Uri).GetLeftPart(UriPartial.Path);
-
-    [DoesNotReturn]
     public void RedirectToCurrentPage() => RedirectTo(CurrentPath);
 
     [DoesNotReturn]
     public void RedirectToCurrentPageWithStatus(string message, HttpContext context)
         => RedirectToWithStatus(CurrentPath, message, context);
+
+    [DoesNotReturn]
+    public void RedirectToWithStatus(string uri, string message, HttpContext context)
+    {
+        context.Response.Cookies.Append(StatusCookieName, message, StatusCookieBuilder.Build(context));
+        RedirectTo(uri);
+    }
 }

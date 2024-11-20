@@ -1,8 +1,14 @@
+// <copyright file="PersistentAuthenticationStateProvider.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace SjaInNumbers2.Client;
+
 // This is a client-side AuthenticationStateProvider that determines the user's authentication state by
 // looking for data persisted in the page when it was rendered on the server. This authentication state will
 // be fixed for the lifetime of the WebAssembly application. So, if the user needs to log in or out, a full
@@ -13,10 +19,10 @@ namespace SjaInNumbers2.Client;
 // cookie that will be included on HttpClient requests to the server.
 internal class PersistentAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private static readonly Task<AuthenticationState> defaultUnauthenticatedTask =
+    private static readonly Task<AuthenticationState> DefaultUnauthenticatedTask =
         Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
 
-    private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
+    private readonly Task<AuthenticationState> authenticationStateTask = DefaultUnauthenticatedTask;
 
     public PersistentAuthenticationStateProvider(PersistentComponentState state)
     {
@@ -28,11 +34,9 @@ internal class PersistentAuthenticationStateProvider : AuthenticationStateProvid
         Claim[] claims = [
             new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
             new Claim(ClaimTypes.Name, userInfo.Email),
-            new Claim(ClaimTypes.Email, userInfo.Email) ];
+            new Claim(ClaimTypes.Email, userInfo.Email)];
 
-        authenticationStateTask = Task.FromResult(
-            new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims,
-                authenticationType: nameof(PersistentAuthenticationStateProvider)))));
+        authenticationStateTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, nameof(PersistentAuthenticationStateProvider)))));
     }
 
     public override Task<AuthenticationState> GetAuthenticationStateAsync() => authenticationStateTask;
