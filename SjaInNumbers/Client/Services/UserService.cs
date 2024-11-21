@@ -27,7 +27,7 @@ public class UserService(HttpClient client) : IUserService
 
     public async Task<bool> ApproveUserAsync(string userId)
     {
-        var result = await client.PostAsJsonAsync($"api/user/{userId}/approve", new { });
+        var result = await client.PostAsync($"api/user/{userId}/approve", null);
 
         return result.IsSuccessStatusCode;
     }

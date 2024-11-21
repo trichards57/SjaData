@@ -9,6 +9,7 @@ using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Vehicles;
+using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -159,23 +160,13 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetNationalVorStatusesEtagAsync()
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
+    public Task<StringSegment> GetNationalVorStatusesEtagAsync() => GetLastModifiedEtagAsync();
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
+    public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync()
     {
-        Console.WriteLine(place.CreateQuery());
-
         await foreach (var v in context.Vehicles
             .GetNotDeleted()
-            .GetForPlace(place)
             .AsNoTracking()
             .Select(s => new VehicleSettings
             {
@@ -223,14 +214,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetSettingsEtagAsync(Place place)
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
+    public Task<StringSegment> GetSettingsEtagAsync() => GetLastModifiedEtagAsync();
 
     /// <inheritdoc/>
     public async Task<StringSegment> GetSettingsEtagAsync(int id)
@@ -274,14 +258,7 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetVehicleReportEtagAsync()
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
+    public Task<StringSegment> GetVehicleReportEtagAsync() => GetLastModifiedEtagAsync();
 
     /// <inheritdoc/>
     public async Task<VorStatistics?> GetVorStatisticsAsync(Place place)
@@ -348,22 +325,22 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Region region)
     {
-        if (!Enum.IsDefined(place.Region))
+        if (!Enum.IsDefined(region))
         {
-            throw new ArgumentOutOfRangeException(nameof(place));
+            throw new InvalidEnumArgumentException(nameof(region), (int)region, typeof(Region));
         }
 
-        return GetVorStatusesPrivateAsync(place);
+        return GetVorStatusesPrivateAsync(region);
     }
 
     /// <inheritdoc/>
-    public async Task<StringSegment> GetVorStatusesEtagAsync(Place place)
+    public async Task<StringSegment> GetVorStatusesEtagAsync(Region region)
     {
         var lastModified = await GetLastModifiedAsync();
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{place.Region}-{place.DistrictId}-{place.HubId}-{lastModified}"));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{region}-{lastModified}"));
 
         return $"\"{Convert.ToBase64String(hash)}\"";
     }
@@ -495,14 +472,23 @@ public class VehicleService(ApplicationDbContext context) : IVehicleService
         await context.SaveChangesAsync();
     }
 
-    private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Place place)
+    private async Task<StringSegment> GetLastModifiedEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{lastModified}"));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Region region)
     {
         await foreach (var v in context.Vehicles
             .Include(e => e.Incidents)
             .Include(e => e.Hub)
             .ThenInclude(e => e.District)
             .GetActive()
-            .GetForPlace(place).AsAsyncEnumerable())
+            .GetForPlace(new Place { Region = region }).AsAsyncEnumerable())
         {
             var now = DateTime.Today;
             var thirteenMonthsAgo = now.AddMonths(-13);

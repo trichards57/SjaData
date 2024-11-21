@@ -10,6 +10,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SjaInNumbers.Server.Data;
 
+/// <summary>
+/// Represents the previous names for a district.
+/// </summary>
 public class DistrictPreviousName
 {
     /// <summary>

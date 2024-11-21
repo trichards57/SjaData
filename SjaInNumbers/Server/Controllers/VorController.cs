@@ -29,16 +29,16 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// Gets the VOR statuses for a place.
     /// </summary>
     /// <param name="etag">The Etag for the data currently held by the client.</param>
-    /// <param name="place">The place to search.</param>
+    /// <param name="region">The region to search.</param>
     /// <returns>The list of statuses for the given place.</returns>
     [HttpGet]
     [Authorize(Policy = "Lead")]
     [ProducesResponseType<IAsyncEnumerable<VorStatus>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [RevalidateCache]
-    public async Task<ActionResult<IAsyncEnumerable<VorStatus>>> Get([FromHeader(Name = "If-None-Match")] string? etag, [FromQuery] Place place)
+    public async Task<ActionResult<IAsyncEnumerable<VorStatus>>> Get([FromHeader(Name = "If-None-Match")] string? etag, [FromQuery] Region region)
     {
-        var actualEtagValue = await vehicleService.GetVorStatusesEtagAsync(place);
+        var actualEtagValue = await vehicleService.GetVorStatusesEtagAsync(region);
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
         var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
         var lastUpdate = await vehicleService.GetLastModifiedAsync();
@@ -51,7 +51,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
             return StatusCode(StatusCodes.Status304NotModified);
         }
 
-        return Ok(vehicleService.GetVorStatusesAsync(place));
+        return Ok(vehicleService.GetVorStatusesAsync(region));
     }
 
     /// <summary>
@@ -81,35 +81,6 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
         }
 
         return Ok(vehicleService.GetNationalVorStatusesAsync());
-    }
-
-    /// <summary>
-    /// Gets the VOR statistics for a place.
-    /// </summary>
-    /// <param name="etag">The Etag for the data currently held by the client.</param>
-    /// <param name="place">The place to search.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
-    [HttpGet("statistics")]
-    [Authorize(Policy = "Lead")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status304NotModified)]
-    [RevalidateCache]
-    public async Task<ActionResult<VorStatistics?>> GetStatistics([FromHeader(Name = "If-None-Match")] string? etag, [FromQuery] Place place)
-    {
-        var actualEtagValue = await vehicleService.GetVorStatisticsEtagAsync(place);
-        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
-        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
-        var lastUpdate = await vehicleService.GetLastModifiedAsync();
-
-        Response.GetTypedHeaders().ETag = actualEtag;
-        Response.GetTypedHeaders().LastModified = lastUpdate;
-
-        if (actualEtag.Compare(etagValue, false))
-        {
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        return Ok(await vehicleService.GetVorStatisticsAsync(place));
     }
 
     /// <summary>

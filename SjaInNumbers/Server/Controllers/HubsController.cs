@@ -5,7 +5,6 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Services.Interfaces;
@@ -111,37 +110,5 @@ public class HubsController(IHubService hubService) : ControllerBase
         var hub = await hubService.AddHubAsync(newHub);
 
         return Created($"/api/hubs/{hub.Id}", hub);
-    }
-
-    /// <summary>
-    /// Deletes a hub.
-    /// </summary>
-    /// <param name="id">The ID of the hub.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
-    /// </returns>
-    [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> DeleteHub(int id)
-    {
-        try
-        {
-            var result = await hubService.DeleteHubAsync(id);
-
-            if (result)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-        catch (DbUpdateException)
-        {
-            return Conflict();
-        }
     }
 }

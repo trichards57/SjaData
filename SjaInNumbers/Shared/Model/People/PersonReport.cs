@@ -30,7 +30,13 @@ public readonly record struct PersonReport
     /// </summary>
     public double HoursThisYear { get; init; }
 
+    /// <summary>
+    /// Gets the name of the district the person is in.
+    /// </summary>
     public string District { get; init; }
 
+    /// <summary>
+    /// Gets the name of the hub the person is in.
+    /// </summary>
     public string Hub { get; init; }
 }

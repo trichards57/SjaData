@@ -1,7 +1,19 @@
-﻿using MathNet.Numerics.Distributions;
+﻿// <copyright file="MonteCarloVehicle.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using MathNet.Numerics.Distributions;
 
 namespace SjaInNumbers.Client.Maths;
 
+/// <summary>
+/// Represents a vehicle that can fail and be repaired.
+/// </summary>
+/// <param name="districtId">The ID of the district the vehicle is in.</param>
+/// <param name="failureProbability">The probability of failure for the vehicle.</param>
+/// <param name="repairTimeGenerator">The repair time generator.</param>
+/// <param name="random">A source of random numbers.</param>
 public class MonteCarloVehicle(int districtId, double failureProbability, IContinuousDistribution repairTimeGenerator, Random random)
 {
     private readonly double failureProbability = failureProbability;
@@ -32,9 +44,9 @@ public class MonteCarloVehicle(int districtId, double failureProbability, IConti
                 IsAvailable = false;
                 daysToReturn = (int)Math.Round(repairTimeGenerator.Sample());
 
-                if (RepairTimes.ContainsKey(daysToReturn))
+                if (RepairTimes.TryGetValue(daysToReturn, out int value))
                 {
-                    RepairTimes[daysToReturn]++;
+                    RepairTimes[daysToReturn] = value + 1;
                 }
                 else
                 {

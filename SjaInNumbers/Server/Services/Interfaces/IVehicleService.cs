@@ -50,9 +50,8 @@ public interface IVehicleService
     /// <summary>
     /// Gets the settings for all vehicles at the provided place.
     /// </summary>
-    /// <param name="place">The place to filter by.</param>
     /// <returns>The list of vehicles.</returns>
-    IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place);
+    IAsyncEnumerable<VehicleSettings> GetSettingsAsync();
 
     /// <summary>
     /// Gets the settings for the vehicle with the provided ID.
@@ -67,9 +66,8 @@ public interface IVehicleService
     /// <summary>
     /// Gets the ETag for the settings for the provided place.
     /// </summary>
-    /// <param name="place">The place.</param>
     /// <returns>An ETag representing the current data.</returns>
-    Task<StringSegment> GetSettingsEtagAsync(Place place);
+    Task<StringSegment> GetSettingsEtagAsync();
 
     /// <summary>
     /// Gets the ETag for the setting for the provided vehicle.
@@ -114,14 +112,14 @@ public interface IVehicleService
     /// </summary>
     /// <param name="place">The place to search for.</param>
     /// <returns>The list of statuses.</returns>
-    IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
+    IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Region region);
 
     /// <summary>
     /// Gets the ETag for the VOR statuses for the provided place.
     /// </summary>
     /// <param name="place">The place.</param>
     /// <returns>An ETag representing the current data.</returns>
-    Task<StringSegment> GetVorStatusesEtagAsync(Place place);
+    Task<StringSegment> GetVorStatusesEtagAsync(Region region);
 
     /// <summary>
     /// Updates or creates the settings for the provided vehicle.

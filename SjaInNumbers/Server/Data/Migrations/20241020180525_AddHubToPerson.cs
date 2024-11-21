@@ -70,7 +70,6 @@ public partial class AddHubToPerson : Migration
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-
         migrationBuilder.AddColumn<string>(
             name: "District",
             table: "People",

@@ -1,4 +1,9 @@
-﻿using SjaInNumbers.Client.Services.Interfaces;
+﻿// <copyright file="DeploymentService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Deployments;
 using System.Net.Http.Json;
 
@@ -13,8 +18,8 @@ public class DeploymentService(HttpClient client) : IDeploymentService
         return client.GetFromJsonAsAsyncEnumerable<PeakLoads>("/api/deployments/peaks");
     }
 
-    public Task<NationalSummary> GetNationalSummary()
+    public Task<NationalDeploymentSummary> GetNationalSummary()
     {
-        return client.GetFromJsonAsync<NationalSummary>("/api/deployments/national");
+        return client.GetFromJsonAsync<NationalDeploymentSummary>("/api/deployments/national");
     }
 }

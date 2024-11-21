@@ -33,7 +33,7 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [RevalidateCache]
-    public async Task<ActionResult<NationalVehicleReport>> GetVehiclesAsync([FromHeader(Name = "If-None-Match")] string? etag)
+    public async Task<ActionResult<NationalVehicleReport>> GetNationalReportAsync([FromHeader(Name = "If-None-Match")] string? etag)
     {
         var actualEtagValue = await vehicleService.GetVehicleReportEtagAsync();
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
@@ -55,16 +55,15 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     /// Gets all of the vehicles for a given place.
     /// </summary>
     /// <param name="etag">The Etag for the data currently held by the client.</param>
-    /// <param name="place">The place to search.</param>
     /// <returns>The vehicle settings.</returns>
     [HttpGet]
     [Authorize(Policy = "Lead")]
     [ProducesResponseType(typeof(IAsyncEnumerable<VehicleSettings>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [RevalidateCache]
-    public async Task<ActionResult<IAsyncEnumerable<VehicleSettings>>> GetVehiclesAsync([FromHeader(Name = "If-None-Match")] string? etag, [FromQuery] Place place)
+    public async Task<ActionResult<IAsyncEnumerable<VehicleSettings>>> GetVehiclesAsync([FromHeader(Name = "If-None-Match")] string? etag)
     {
-        var actualEtagValue = await vehicleService.GetSettingsEtagAsync(place);
+        var actualEtagValue = await vehicleService.GetSettingsEtagAsync();
         var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
         var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
         var lastUpdate = await vehicleService.GetLastModifiedAsync();
@@ -77,7 +76,7 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
             return StatusCode(StatusCodes.Status304NotModified);
         }
 
-        return Ok(vehicleService.GetSettingsAsync(place));
+        return Ok(vehicleService.GetSettingsAsync());
     }
 
     /// <summary>

@@ -60,9 +60,9 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
     }
 
     /// <inheritdoc/>
-    public async Task<NationalSummary> GetNationalSummaryAsync(DateOnly startDate, DateOnly endDate)
+    public async Task<NationalDeploymentSummary> GetNationalSummaryAsync(DateOnly startDate, DateOnly endDate)
     {
-        return new NationalSummary
+        return new NationalDeploymentSummary
         {
             Regions = (await context
                 .Deployments
@@ -74,7 +74,7 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
                 {
                     Region = r.Key,
                     Summaries = r.GroupBy(r => r.DistrictId)
-                        .Select(d => new DistrictSummary
+                        .Select(d => new DistrictDeploymentSummary
                         {
                             DistrictId = d.Key,
                             District = d.First().District.Name,

@@ -35,7 +35,7 @@ public interface IDeploymentService
     /// <param name="startDate">The start date to search.</param>
     /// <param name="endDate">The end date to search.</param>
     /// <returns>The national summary.</returns>
-    Task<NationalSummary> GetNationalSummaryAsync(DateOnly startDate, DateOnly endDate);
+    Task<NationalDeploymentSummary> GetNationalSummaryAsync(DateOnly startDate, DateOnly endDate);
 
     /// <summary>
     /// Gets the list of peak loads for all districts.
