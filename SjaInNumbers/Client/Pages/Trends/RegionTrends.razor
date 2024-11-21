@@ -14,106 +14,104 @@
 
 <PageTitle>SJA In Numbers - Trends - @LabelConverters.LabelToDisplay(Region)</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
-    <BackLink Url="/trends" />
-    <table class="activity-trends">
-        <thead>
-            <tr>
-                <th class="section-title" colspan="5">
-                    <span>
-                        All Activity
-                    </span>
-                </th>
-            </tr>
-            <tr class="sub-head">
-                <th class="area-col">Area</th>
-                <th class="trend-col">12 Month Avg</th>
-                <th class="trend-col">6 Month Avg</th>
-                <th class="trend-col">3 Month Avg</th>
-                <th class="graph-col">Last 12 Months</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (isLoading)
-            {
-                @for (var i = 0; i < 6; i++)
-                {
-                    <tr>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <TrendRow Trends="@trends" KeyValue="national" Label="National" />
-                <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-                @foreach (var district in districts)
-                {
-                    <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
-                }
-            }
-        </tbody>
-        <thead>
-            <tr>
-                <th class="section-title" colspan="5">
-                    <span>
-                        NHSE Activity
-                    </span>
-                </th>
-            </tr>
-            <tr class="sub-head">
-                <th>Area</th>
-                <th>12 Month Avg</th>
-                <th>6 Month Avg</th>
-                <th>3 Month Avg</th>
-                <th>Last 12 Months</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (isLoading)
-            {
-                @for (var i = 0; i < 6; i++)
-                {
-                    <tr>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                        <td><span class="loading-control fit" /></td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
-                <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
-                @foreach (var district in nhseDistricts)
-                {
-                    <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
-                }
-            }
-        </tbody>
-    </table>
-    <footer>
-        <p>
-            Hours are all shown as people-hours, to two-significant figures. A
-            change of less than @TrendArrow.DefaultSignificantChange.ToString("P0") or
-            @TrendArrow.DefaultSignificantHours hours (whichever is greater) is considered
-            insignificant.
-        </p>
-        @if (!isLoading)
+<h2>Trends - @LabelConverters.LabelToDisplay(Region)</h2>
+<BackLink Url="/trends" />
+<table class="activity-trends">
+    <thead>
+        <tr>
+            <th class="section-title" colspan="5">
+                <span>
+                    All Activity
+                </span>
+            </th>
+        </tr>
+        <tr class="sub-head">
+            <th class="area-col">Area</th>
+            <th class="trend-col">12 Month Avg</th>
+            <th class="trend-col">6 Month Avg</th>
+            <th class="trend-col">3 Month Avg</th>
+            <th class="graph-col">Last 12 Months</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (isLoading)
         {
-            <p class="last-update">
-                Data up until @trends.ReportDate.ToLongDateString()
-            </p>
+            @for (var i = 0; i < 6; i++)
+            {
+                <tr>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                </tr>
+            }
         }
-    </footer>
-</GeneralErrorHandler>
+        else
+        {
+            <TrendRow Trends="@trends" KeyValue="national" Label="National" />
+            <TrendRow Trends="@trends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+            @foreach (var district in districts)
+            {
+                <TrendRow Trends="@trends" KeyValue="@district" Label="@district" />
+            }
+        }
+    </tbody>
+    <thead>
+        <tr>
+            <th class="section-title" colspan="5">
+                <span>
+                    NHSE Activity
+                </span>
+            </th>
+        </tr>
+        <tr class="sub-head">
+            <th>Area</th>
+            <th>12 Month Avg</th>
+            <th>6 Month Avg</th>
+            <th>3 Month Avg</th>
+            <th>Last 12 Months</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (isLoading)
+        {
+            @for (var i = 0; i < 6; i++)
+            {
+                <tr>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                    <td><span class="loading-control fit" /></td>
+                </tr>
+            }
+        }
+        else
+        {
+            <TrendRow Trends="@nhseTrends" KeyValue="national" Label="National" />
+            <TrendRow Trends="@nhseTrends" KeyValue="region" Label="@LabelConverters.LabelToDisplay(Region)" />
+            @foreach (var district in nhseDistricts)
+            {
+                <TrendRow Trends="@nhseTrends" KeyValue="@district" Label="@district" />
+            }
+        }
+    </tbody>
+</table>
+<footer>
+    <p>
+        Hours are all shown as people-hours, to two-significant figures. A
+        change of less than @TrendArrow.DefaultSignificantChange.ToString("P0") or
+        @TrendArrow.DefaultSignificantHours hours (whichever is greater) is considered
+        insignificant.
+    </p>
+    @if (!isLoading)
+    {
+        <p class="last-update">
+            Data up until @trends.ReportDate.ToLongDateString()
+        </p>
+    }
+</footer>
 
 @code {
     private bool isLoading = true;

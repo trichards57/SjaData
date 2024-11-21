@@ -19,119 +19,117 @@
 
 <PageTitle>SJA In Numbers - Front-Line Capacity Prediction</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Front-Line Capacity Prediction</h2>
-    <BackLink Url="/deployments" />
+<h2>Front-Line Capacity Prediction</h2>
+<BackLink Url="/deployments" />
 
-    <h3>Current Capacity</h3>
-    <table>
-        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
-        {
-            <thead>
-                <tr>
-                    <th class="section-title" colspan="5">
-                        <span>
-                            @LabelConverters.LabelToDisplay(region.Key)
-                        </span>
-                    </th>
-                </tr>
-                <tr class="sub-head">
-                    <th>District</th>
-                    <th>Peak Load</th>
-                    <th>Capacity</th>
-                    <th>Days Over</th>
-                    <th>Nominal Moves</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
-                {
-                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
-                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
-                    var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
-
-                    <tr>
-                        <td class="district-label">@district.District</td>
-                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
-                        <td class="value-cell">@capacity</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Count(d => d.Value > capacity)</td>
-                        <td class="value-cell">@peakReport.FrontLineAmbulances?.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
-                    </tr>
-                }
-            </tbody>
-        }
-    </table>
-
-    <h3>New Capacity</h3>
-    <table>
+<h3>Current Capacity</h3>
+<table>
+    @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
+    {
         <thead>
+            <tr>
+                <th class="section-title" colspan="5">
+                    <span>
+                        @LabelConverters.LabelToDisplay(region.Key)
+                    </span>
+                </th>
+            </tr>
             <tr class="sub-head">
-                <th></th>
-                <th></th>
+                <th>District</th>
+                <th>Peak Load</th>
+                <th>Capacity</th>
+                <th>Days Over</th>
+                <th>Nominal Moves</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
+            {
+                var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                var capacity = vehicleReport.FrontLineAmbulances + vehicleReport.AllWheelDriveAmbulances;
+
+                <tr>
+                    <td class="district-label">@district.District</td>
+                    <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
+                    <td class="value-cell">@capacity</td>
+                    <td class="value-cell">@peakReport.FrontLineAmbulances?.Count(d => d.Value > capacity)</td>
+                    <td class="value-cell">@peakReport.FrontLineAmbulances?.Where(d => d.Value > capacity).Sum(d => d.Value - capacity)</td>
+                </tr>
+            }
+        </tbody>
+    }
+</table>
+
+<h3>New Capacity</h3>
+<table>
+    <thead>
+        <tr class="sub-head">
+            <th></th>
+            <th></th>
+            <th>New Capacity</th>
+            <th>Predicted Days Over</th>
+            <th>Predicted Moves</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="district-label">National</td>
+            <td></td>
+            <td class="value-cell">@districtModels.Sum(s => s.Value.Vehicles)</td>
+            <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedDaysOver) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedDaysOverMargin, 2))).ToString("F2"))</td>
+            <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedMoves) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedMovesMargin, 2))).ToString("F2"))</td>
+        </tr>
+    </tbody>
+    @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
+    {
+        <thead>
+            <tr class="section-title">
+                <th colspan="5">
+                    <span>
+                        @LabelConverters.LabelToDisplay(region.Key)
+                    </span>
+                </th>
+            </tr>
+            <tr class="sub-head">
+                <th>District</th>
+                <th>Peak Load</th>
                 <th>New Capacity</th>
                 <th>Predicted Days Over</th>
                 <th>Predicted Moves</th>
             </tr>
         </thead>
+
         <tbody>
-            <tr>
-                <td class="district-label">National</td>
-                <td></td>
-                <td class="value-cell">@districtModels.Sum(s => s.Value.Vehicles)</td>
-                <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedDaysOver) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedDaysOverMargin, 2))).ToString("F2"))</td>
-                <td class="prediction-cell">@districtModels.Sum(s => s.Value.PredictedMoves) (+- @Math.Sqrt(districtModels.Sum(s => Math.Pow(s.Value.PredictedMovesMargin, 2))).ToString("F2"))</td>
-            </tr>
+            @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
+            {
+                var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
+                var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
+                var model = districtModels[district.DistrictId];
+
+                <tr>
+                    <td class="district-label">@peakReport.District</td>
+                    <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
+                    <td>
+                        <EditForm Model="model">
+                            <InputNumber class="new-vehicles" @bind-Value="model.Vehicles" />
+                        </EditForm>
+                    </td>
+                    <td class="prediction-cell">@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin.ToString("F2")))</td>
+                    <td class="prediction-cell">@model.PredictedMoves (+- @(model.PredictedMovesMargin.ToString("F2")))</td>
+                </tr>
+            }
         </tbody>
-        @foreach (var region in districts.GroupBy(v => v.Region).Where(r => r.Key != Shared.Model.Region.Undefined) ?? [])
-        {
-            <thead>
-                <tr class="section-title">
-                    <th colspan="5">
-                        <span>
-                            @LabelConverters.LabelToDisplay(region.Key)
-                        </span>
-                    </th>
-                </tr>
-                <tr class="sub-head">
-                    <th>District</th>
-                    <th>Peak Load</th>
-                    <th>New Capacity</th>
-                    <th>Predicted Days Over</th>
-                    <th>Predicted Moves</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var district in region.Where(r => deployments.Regions.ContainsKey(r.Region)).OrderBy(d => d.District))
-                {
-                    var vehicleReport = vehicles.Districts.FirstOrDefault(v => v.DistrictId == district.DistrictId);
-                    var peakReport = deployments.Regions.ContainsKey(district.Region) ? deployments.Regions[district.Region].FirstOrDefault(v => v.DistrictId == district.DistrictId) : default;
-                    var model = districtModels[district.DistrictId];
-
-                    <tr>
-                        <td class="district-label">@peakReport.District</td>
-                        <td class="value-cell">@(peakReport.FrontLineAmbulances?.Any() == true ? peakReport.FrontLineAmbulances.Max(v => v.Value) : 0)</td>
-                        <td>
-                            <EditForm Model="model">
-                                <InputNumber class="new-vehicles" @bind-Value="model.Vehicles" />
-                            </EditForm>
-                        </td>
-                        <td class="prediction-cell">@model.PredictedDaysOver (+- @(model.PredictedDaysOverMargin.ToString("F2")))</td>
-                        <td class="prediction-cell">@model.PredictedMoves (+- @(model.PredictedMovesMargin.ToString("F2")))</td>
-                    </tr>
-                }
-            </tbody>
-        }
-        <tfoot>
-            <tr>
-                <td colspan="6">
-                    <button disabled="@running" class="run-button btn-small" @onclick="@CalculateCapacity">Run</button>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-</GeneralErrorHandler>
+    }
+    <tfoot>
+        <tr>
+            <td colspan="6">
+                <button disabled="@running" class="run-button btn-small" @onclick="@CalculateCapacity">Run</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
 
 @code
 {

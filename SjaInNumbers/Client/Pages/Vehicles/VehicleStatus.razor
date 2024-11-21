@@ -13,68 +13,66 @@
 
 <PageTitle>SJA In Numbers - Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</h2>
-    <BackLink Url="/vehicles" />
+<h2>Vehicle Availability - @LabelConverters.LabelToDisplay(Region)</h2>
+<BackLink Url="/vehicles" />
 
-    <table class="vehicle-status">
-        @foreach (var district in vehicles.GroupBy(v => v.District).OrderBy(v => v.Key))
+<table class="vehicle-status">
+    @foreach (var district in vehicles.GroupBy(v => v.District).OrderBy(v => v.Key))
+    {
+        @foreach (var hub in district.GroupBy(d => d.Hub))
         {
-            @foreach (var hub in district.GroupBy(d => d.Hub))
-            {
-                <thead>
+            <thead>
+                <tr>
+                    <th class="section-title" colspan="6">
+                        <span>
+                            @district.Key - @hub.Key
+                        </span>
+                    </th>
+                </tr>
+                <tr class="sub-head">
+                    <th class="vehicle-col">Vehicle</th>
+                    <th class="status-col">Status</th>
+                    <th class="due-back-col">Due Back</th>
+                    <th class="avail-col">12 Month Avail.</th>
+                    <th class="avail-col">6 Month Avail.</th>
+                    <th class="avail-col">3 Month Avail.</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vehicle in hub)
+                {
                     <tr>
-                        <th class="section-title" colspan="6">
-                            <span>
-                                @district.Key - @hub.Key
+                        <td class="vehicle-label">@vehicle.Registration (@vehicle.CallSign)</td>
+                        <td>
+                            <span class=@($"vehicle-status-marker {(vehicle.IsVor ? "vehicle-status-vor" : "vehicle-status-operational")}")>
+                                @(vehicle.IsVor ? "VOR" : "Operational")
                             </span>
-                        </th>
+                        </td>
+                        <td>@(vehicle.IsVor ? vehicle.DueBack : "")</td>
+                        <td class="trend-col">
+                            <div class="trend-value">
+                                @($"{1.0 - vehicle.TwelveMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.TwelveMonthVorCount)" PreviousValue="@(1 - vehicle.TwelveMonthMinusOneVorCount)" />
+                            </div>
+                        </td>
+                        <td class="trend-col">
+                            <div class="trend-value">
+                                @($"{1.0 - vehicle.SixMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.SixMonthVorCount)" PreviousValue="@(1 - vehicle.SixMonthMinusOneVorCount)" />
+                            </div>
+                        </td>
+                        <td class="trend-col">
+                            <div class="trend-value">
+                                @($"{1.0 - vehicle.ThreeMonthVorCount:p1}")
+                                <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.ThreeMonthVorCount)" PreviousValue="@(1 - vehicle.ThreeMonthMinusOneVorCount)" />
+                            </div>
+                        </td>
                     </tr>
-                    <tr class="sub-head">
-                        <th class="vehicle-col">Vehicle</th>
-                        <th class="status-col">Status</th>
-                        <th class="due-back-col">Due Back</th>
-                        <th class="avail-col">12 Month Avail.</th>
-                        <th class="avail-col">6 Month Avail.</th>
-                        <th class="avail-col">3 Month Avail.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var vehicle in hub)
-                    {
-                        <tr>
-                            <td class="vehicle-label">@vehicle.Registration (@vehicle.CallSign)</td>
-                            <td>
-                                <span class=@($"vehicle-status-marker {(vehicle.IsVor ? "vehicle-status-vor" : "vehicle-status-operational")}")>
-                                    @(vehicle.IsVor ? "VOR" : "Operational")
-                                </span>
-                            </td>
-                            <td>@(vehicle.IsVor ? vehicle.DueBack : "")</td>
-                            <td class="trend-col">
-                                <div class="trend-value">
-                                    @($"{1.0 - vehicle.TwelveMonthVorCount:p1}")
-                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.TwelveMonthVorCount)" PreviousValue="@(1 - vehicle.TwelveMonthMinusOneVorCount)" />
-                                </div>
-                            </td>
-                            <td class="trend-col">
-                                <div class="trend-value">
-                                    @($"{1.0 - vehicle.SixMonthVorCount:p1}")
-                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.SixMonthVorCount)" PreviousValue="@(1 - vehicle.SixMonthMinusOneVorCount)" />
-                                </div>
-                            </td>
-                            <td class="trend-col">
-                                <div class="trend-value">
-                                    @($"{1.0 - vehicle.ThreeMonthVorCount:p1}")
-                                    <TrendArrow SignificantValue="0.04" Value="@(1 - vehicle.ThreeMonthVorCount)" PreviousValue="@(1 - vehicle.ThreeMonthMinusOneVorCount)" />
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            }
+                }
+            </tbody>
         }
-    </table>
-</GeneralErrorHandler>
+    }
+</table>
 
 @code {
     private IList<VorStatus> vehicles = [];

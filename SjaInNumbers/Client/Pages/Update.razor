@@ -10,42 +10,40 @@
 
 <PageTitle>SJA In Numbers - Update</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Update</h2>
-    <HomeLink />
+<h2>Update</h2>
+<HomeLink />
 
-    @if (showUploading)
-    {
-        <div class="working-message">One moment please...</div>
-    }
-    @if (showInvalidFile)
-    {
-        <div class="error-message">
-            That is not a recognised file.
-        </div>
-    }
-    @if (showUploadFailed)
-    {
-        <div class="error-message">
-            Unable to upload that file.
-        </div>
-    }
-    @if (showUploadSuccess)
-    {
-        <div class="success-message">
-            Uploaded @uploadCount @uploadItem.
-        </div>
-    }
-    <div class="@dropSiteClass" id="drop-site"
-         @ondragover="DragOver" @ondragover:stopPropagation="true" @ondragover:preventDefault="true"
-         @ondragleave="DragLeave" @ondragleave:stopPropagation="true" @ondragleave:preventDefault="true"
-         @ondrop="FileDrop" @ondrop:stopPropagation="true" @ondrop:preventDefault="true">
-        <div class="drop-message">Drop Your File Here</div>
-        <button onClick={pickFile} class="file-button">
-            Choose File
-        </button>
+@if (showUploading)
+{
+    <div class="working-message">One moment please...</div>
+}
+@if (showInvalidFile)
+{
+    <div class="error-message">
+        That is not a recognised file.
     </div>
-</GeneralErrorHandler>
+}
+@if (showUploadFailed)
+{
+    <div class="error-message">
+        Unable to upload that file.
+    </div>
+}
+@if (showUploadSuccess)
+{
+    <div class="success-message">
+        Uploaded @uploadCount @uploadItem.
+    </div>
+}
+<div class="@dropSiteClass" id="drop-site"
+     @ondragover="DragOver" @ondragover:stopPropagation="true" @ondragover:preventDefault="true"
+     @ondragleave="DragLeave" @ondragleave:stopPropagation="true" @ondragleave:preventDefault="true"
+     @ondrop="FileDrop" @ondrop:stopPropagation="true" @ondrop:preventDefault="true">
+    <div class="drop-message">Drop Your File Here</div>
+    <button onClick={pickFile} class="file-button">
+        Choose File
+    </button>
+</div>
 
 @code {
     private bool showUploading = false;

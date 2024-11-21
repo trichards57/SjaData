@@ -14,22 +14,20 @@
 
 <PageTitle>SJA In Numbers - Edit Hub</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Edit Hub</h2>
-    <BackLink Url="/setup/hubs" />
+<h2>Edit Hub</h2>
+<BackLink Url="/setup/hubs" />
 
-    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
-        <DataAnnotationsValidator />
+<EditForm Model="@Model" OnValidSubmit="FormSubmit">
+    <DataAnnotationsValidator />
 
-        <div>
-            <label>Name</label>
-            <InputText @bind-Value="Model.Name" id="Name" />
-            <ValidationMessage For="@(() => Model.Name)" />
-        </div>
+    <div>
+        <label>Name</label>
+        <InputText @bind-Value="Model.Name" id="Name" />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </div>
 
-        <button type="submit">Save</button>
-    </EditForm>
-</GeneralErrorHandler>
+    <button type="submit">Save</button>
+</EditForm>
 
 @code {
     [Parameter]

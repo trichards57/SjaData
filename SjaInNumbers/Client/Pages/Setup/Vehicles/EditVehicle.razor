@@ -16,64 +16,62 @@
 
 <PageTitle>SJA In Numbers - Edit Vehicle</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Edit Vehicle</h2>
-    <BackLink Url="/setup/vehicles" />
+<h2>Edit Vehicle</h2>
+<BackLink Url="/setup/vehicles" />
 
-    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
-        <DataAnnotationsValidator />
-        <div>
-            <label>Call Sign</label>
-            <InputText @bind-Value="Model.CallSign" id="CallSign" />
-            <ValidationMessage For="@(() => Model.CallSign)" />
-        </div>
-        <div>
-            <label>Registration</label>
-            <input type="text" disabled Value="@registration" id="Registration" />
-        </div>
-        <div>
-            <label>Make</label>
-            <InputText @bind-Value="Model.Make" id="Make" />
-            <ValidationMessage For="@(() => Model.Make)" />
-        </div>
-        <div>
-            <label>Model</label>
-            <InputText @bind-Value="Model.Model" id="Model" />
-            <ValidationMessage For="@(() => Model.Model)" />
-        </div>
-        <div>
-            <label>Body Type</label>
-            <InputText @bind-Value="Model.BodyType" id="BodyType" />
-            <ValidationMessage For="@(() => Model.BodyType)" />
-        </div>
-        <div>
-            <label>Hub</label>
-            <InputSelect @bind-Value="Model.Hub">
-                <option value="">Unknown</option>
-                @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
-                {
-                    <option value="@h.Id">@h.Name, @h.District, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
-                }
-            </InputSelect>
-        </div>
-        <div>
-            <label>Type</label>
-            <InputSelect @bind-Value="Model.VehicleType">
-                @foreach (var h in Enum.GetValues<VehicleType>())
-                {
-                    <option value="@h">@Converters.LabelConverters.LabelToDisplay(h)</option>
-                }
-            </InputSelect>
-        </div>
-        <div>
-            <label class="checkbox">
-                For Disposal
-                <InputCheckbox @bind-Value="Model.ForDisposal" />
-            </label>
-        </div>
-        <button type="submit">Save</button>
-    </EditForm>
-</GeneralErrorHandler>
+<EditForm Model="@Model" OnValidSubmit="FormSubmit">
+    <DataAnnotationsValidator />
+    <div>
+        <label>Call Sign</label>
+        <InputText @bind-Value="Model.CallSign" id="CallSign" />
+        <ValidationMessage For="@(() => Model.CallSign)" />
+    </div>
+    <div>
+        <label>Registration</label>
+        <input type="text" disabled Value="@registration" id="Registration" />
+    </div>
+    <div>
+        <label>Make</label>
+        <InputText @bind-Value="Model.Make" id="Make" />
+        <ValidationMessage For="@(() => Model.Make)" />
+    </div>
+    <div>
+        <label>Model</label>
+        <InputText @bind-Value="Model.Model" id="Model" />
+        <ValidationMessage For="@(() => Model.Model)" />
+    </div>
+    <div>
+        <label>Body Type</label>
+        <InputText @bind-Value="Model.BodyType" id="BodyType" />
+        <ValidationMessage For="@(() => Model.BodyType)" />
+    </div>
+    <div>
+        <label>Hub</label>
+        <InputSelect @bind-Value="Model.Hub">
+            <option value="">Unknown</option>
+            @foreach (var h in hubs.OrderBy(h => h.Name).ThenBy(h => h.District).ThenBy(h => h.Region))
+            {
+                <option value="@h.Id">@h.Name, @h.District, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label>Type</label>
+        <InputSelect @bind-Value="Model.VehicleType">
+            @foreach (var h in Enum.GetValues<VehicleType>())
+            {
+                <option value="@h">@Converters.LabelConverters.LabelToDisplay(h)</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label class="checkbox">
+            For Disposal
+            <InputCheckbox @bind-Value="Model.ForDisposal" />
+        </label>
+    </div>
+    <button type="submit">Save</button>
+</EditForm>
 
 @code {
     private string registration = string.Empty;
@@ -88,16 +86,16 @@
     private async Task FormSubmit()
     {
         await VehicleService.PostVehicleSettingsAsync(new()
-        {
-            CallSign = Model.CallSign,
-            ForDisposal = Model.ForDisposal,
-            HubId = Model.Hub,
-            Registration = registration,
-            VehicleType = Model.VehicleType,
-            Make = Model.Make,
-            Model = Model.Model,
-            BodyType = Model.BodyType
-        });
+            {
+                CallSign = Model.CallSign,
+                ForDisposal = Model.ForDisposal,
+                HubId = Model.Hub,
+                Registration = registration,
+                VehicleType = Model.VehicleType,
+                Make = Model.Make,
+                Model = Model.Model,
+                BodyType = Model.BodyType
+            });
         NavigationManager.NavigateTo("/setup/vehicles");
     }
 

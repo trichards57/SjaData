@@ -14,24 +14,22 @@
 
 <PageTitle>SJA In Numbers - Edit District Name</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Edit District</h2>
-    <BackLink Url="/setup/districts" />
+<h2>Edit District</h2>
+<BackLink Url="/setup/districts" />
 
-    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
-        <DataAnnotationsValidator />
-        <div>
-            <label>Region</label>
-            <input type="text" disabled Value="@regionName" />
-        </div>
-        <div>
-            <label>Name</label>
-            <InputText @bind-Value="Model.Name" id="Name" />
-            <ValidationMessage For="@(() => Model.Name)" />
-        </div>
-        <button type="submit">Save</button>
-    </EditForm>
-</GeneralErrorHandler>
+<EditForm Model="@Model" OnValidSubmit="FormSubmit">
+    <DataAnnotationsValidator />
+    <div>
+        <label>Region</label>
+        <input type="text" disabled Value="@regionName" />
+    </div>
+    <div>
+        <label>Name</label>
+        <InputText @bind-Value="Model.Name" id="Name" />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </div>
+    <button type="submit">Save</button>
+</EditForm>
 
 @code {
     private string regionName = string.Empty;

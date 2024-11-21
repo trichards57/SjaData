@@ -12,30 +12,28 @@
 
 <PageTitle>SJA In Numbers - Setup Vehicles</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Vehicle Setup</h2>
-    <BackLink Url="/setup" />
+<h2>Vehicle Setup</h2>
+<BackLink Url="/setup" />
 
 
-    <div>
-        <label for="filter">Find:</label>
-        <input @oninput="FilterChanged" id="filter" type="search" />
-    </div>
-    
-    <h4>Front Line Ambulance</h4>
-    <VehicleTable Filter="@filter" Vehicles="@FrontLine" />
-    <h4>All Wheel Drive Ambulance</h4>
-    <VehicleTable Filter="@filter" Vehicles="@AllWheelDrive" />
-    <h4>Off-Road Ambulance</h4>
-    <VehicleTable Filter="@filter" Vehicles="@OffRoad" />
-    <h4>Other</h4>
-    <VehicleTable Filter="@filter" Vehicles="@Other" />
-    <h4>Unknown</h4>
-    <VehicleTable Filter="@filter" Vehicles="@Unknown" />
-    <hr class="line" />
-    <h4>For Disposal</h4>
-    <VehicleTable Filter="@filter" Vehicles="@ForDisposal" />
-</GeneralErrorHandler>
+<div>
+    <label for="filter">Find:</label>
+    <input @oninput="FilterChanged" id="filter" type="search" />
+</div>
+
+<h4>Front Line Ambulance</h4>
+<VehicleTable Filter="@filter" Vehicles="@FrontLine" />
+<h4>All Wheel Drive Ambulance</h4>
+<VehicleTable Filter="@filter" Vehicles="@AllWheelDrive" />
+<h4>Off-Road Ambulance</h4>
+<VehicleTable Filter="@filter" Vehicles="@OffRoad" />
+<h4>Other</h4>
+<VehicleTable Filter="@filter" Vehicles="@Other" />
+<h4>Unknown</h4>
+<VehicleTable Filter="@filter" Vehicles="@Unknown" />
+<hr class="line" />
+<h4>For Disposal</h4>
+<VehicleTable Filter="@filter" Vehicles="@ForDisposal" />
 
 @code {
     private IList<VehicleSettings> vehicles = [];

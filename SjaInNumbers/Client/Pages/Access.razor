@@ -14,51 +14,49 @@
 
 <PageTitle>SJA In Numbers - Access</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Access</h2>
-    <HomeLink />
+<h2>Access</h2>
+<HomeLink />
 
-    <table class="access-table">
-        <thead>
+<table class="access-table">
+    <thead>
+        <tr>
+            <th />
+            <th>Approved</th>
+            <th>Role</th>
+            <th />
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in users)
+        {
+            var isCurrentUser = user.Id == currentUserId;
+
             <tr>
-                <th />
-                <th>Approved</th>
-                <th>Role</th>
-                <th />
+                <td>@user.Email</td>
+                <td>
+                    <button @onclick="() => ApproveUser(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.IsApproved ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">
+                        @if (user.IsApproved)
+                        {
+                            <text>Approved</text>
+                        }
+                        else
+                        {
+                            <text>Approve User</text>
+                        }
+                    </button>
+                </td>
+                <td>
+                    <button @onclick="() => SetToAdmin(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Any(r => r.Equals("admin", StringComparison.InvariantCultureIgnoreCase)) ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">Admin</button>
+                    <button @onclick="() => SetToLead(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Any(r => r.Equals("lead", StringComparison.InvariantCultureIgnoreCase)) ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">Lead</button>
+                    <button @onclick="() => SetToNone(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Count == 0 ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">None</button>
+                </td>
+                <td>
+                    <button @onclick="() => DeleteUser(user.Id)" disabled="@(isCurrentUser ? "true" : null)" title="@(isCurrentUser ? "You cannot control your own account." : null )">Delete</button>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in users)
-            {
-                var isCurrentUser = user.Id == currentUserId;
-
-                <tr>
-                    <td>@user.Email</td>
-                    <td>
-                        <button @onclick="() => ApproveUser(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.IsApproved ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">
-                            @if (user.IsApproved)
-                            {
-                                <text>Approved</text>
-                            }
-                            else
-                            {
-                                <text>Approve User</text>
-                            }
-                        </button>
-                    </td>
-                    <td>
-                        <button @onclick="() => SetToAdmin(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Any(r => r.Equals("admin", StringComparison.InvariantCultureIgnoreCase)) ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">Admin</button>
-                        <button @onclick="() => SetToLead(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Any(r => r.Equals("lead", StringComparison.InvariantCultureIgnoreCase)) ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">Lead</button>
-                        <button @onclick="() => SetToNone(user.Id)" disabled="@(isCurrentUser ? "true" : null)" class="@(user.Roles.Count == 0 ? "checked" : "")" title="@(isCurrentUser ? "You cannot control your own account." : null )">None</button>
-                    </td>
-                    <td>
-                        <button @onclick="() => DeleteUser(user.Id)" disabled="@(isCurrentUser ? "true" : null)" title="@(isCurrentUser ? "You cannot control your own account." : null )">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</GeneralErrorHandler>
+        }
+    </tbody>
+</table>
 
 @code {
     private IEnumerable<UserDetails> users = [];

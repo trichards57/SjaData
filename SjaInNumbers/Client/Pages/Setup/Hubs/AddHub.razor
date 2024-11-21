@@ -16,31 +16,29 @@
 
 <PageTitle>SJA In Numbers - Add Hub</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Add Hub</h2>
-    <BackLink Url="/setup/hubs" />
+<h2>Add Hub</h2>
+<BackLink Url="/setup/hubs" />
 
-    <EditForm Model="@Model" OnValidSubmit="FormSubmit">
-        <DataAnnotationsValidator />
+<EditForm Model="@Model" OnValidSubmit="FormSubmit">
+    <DataAnnotationsValidator />
 
-        <div>
-            <label>Name</label>
-            <InputText @bind-Value="Model.Name" id="Name" />
-            <ValidationMessage For="@(() => Model.Name)" />
-        </div>
-        <div>
-            <label>District</label>
-            <InputSelect @bind-Value="Model.DistrictId">
-                @foreach (var h in districts.OrderBy(h => h.Region).ThenBy(h => h.Name))
-                {
-                    <option value="@h.Id">@h.Name, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
-                }
-            </InputSelect>
-        </div>
+    <div>
+        <label>Name</label>
+        <InputText @bind-Value="Model.Name" id="Name" />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </div>
+    <div>
+        <label>District</label>
+        <InputSelect @bind-Value="Model.DistrictId">
+            @foreach (var h in districts.OrderBy(h => h.Region).ThenBy(h => h.Name))
+            {
+                <option value="@h.Id">@h.Name, @Converters.LabelConverters.LabelToDisplay(h.Region)</option>
+            }
+        </InputSelect>
+    </div>
 
-        <button type="submit">Save</button>
-    </EditForm>
-</GeneralErrorHandler>
+    <button type="submit">Save</button>
+</EditForm>
 
 @code {
     private List<DistrictSummary> districts = new();

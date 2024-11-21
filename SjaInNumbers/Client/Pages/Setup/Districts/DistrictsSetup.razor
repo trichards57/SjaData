@@ -13,51 +13,49 @@
 
 <PageTitle>SJA In Numbers - Setup Districts</PageTitle>
 
-<GeneralErrorHandler>
-    <h2>Districts</h2>
-    <BackLink Url="/setup" />
-    <table>
+<h2>Districts</h2>
+<BackLink Url="/setup" />
+<table>
 
-        @foreach (var region in Enum.GetValues<Region>())
+    @foreach (var region in Enum.GetValues<Region>())
+    {
+        if (region == Region.All)
         {
-            if (region == Region.All)
-            {
-                continue;
-            }
-
-            <thead>
-                <tr>
-                    <th colspan="3">@LabelConverters.LabelToDisplay(region)</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var district in districts.Where(h => h.Region == region).OrderBy(h => h.Name))
-                {
-                    <tr>
-                        <td>
-                        </td>
-                        <td>
-                            <a href="@($"/setup/districts/{district.Id}/editName")">
-                                <img class="icon" src="/img/icons/pencil.svg" title="Edit Name" />
-                            </a>
-                            <a href="@($"/setup/districts/merge?source={district.Id}")">
-                                <img class="icon" src="/img/icons/link.svg" title="Merge" />
-                            </a>
-                            @district.Name
-                        </td>
-                        <td>
-                            @district.Code
-                            <a href="@($"/setup/districts/{district.Id}/editCode")">
-                                <img class="icon" src="/img/icons/pencil.svg" title="Edit Code" />
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
+            continue;
         }
-    </table>
-</GeneralErrorHandler>
+
+        <thead>
+            <tr>
+                <th colspan="3">@LabelConverters.LabelToDisplay(region)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var district in districts.Where(h => h.Region == region).OrderBy(h => h.Name))
+            {
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                        <a href="@($"/setup/districts/{district.Id}/editName")">
+                            <img class="icon" src="/img/icons/pencil.svg" title="Edit Name" />
+                        </a>
+                        <a href="@($"/setup/districts/merge?source={district.Id}")">
+                            <img class="icon" src="/img/icons/link.svg" title="Merge" />
+                        </a>
+                        @district.Name
+                    </td>
+                    <td>
+                        @district.Code
+                        <a href="@($"/setup/districts/{district.Id}/editCode")">
+                            <img class="icon" src="/img/icons/pencil.svg" title="Edit Code" />
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    }
+</table>
 
 @code {
     private IList<DistrictSummary> districts = [];
