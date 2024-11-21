@@ -16,13 +16,13 @@ internal class HoursService(HttpClient httpClient) : IHoursService
 {
     private readonly HttpClient httpClient = httpClient;
 
-    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false)
+    public async Task<HoursCount> CountAsync(DateOnly date, DateType? dateType = DateType.Month, bool future = false)
     {
         var uri = QueryHelpers.AddQueryString(
             "/api/hours/count",
             new Dictionary<string, string?>()
             {
-                { "date", date?.ToString("o") },
+                { "date", date.ToString("o") },
                 { "date-type", dateType?.ToString() },
                 { "future", future.ToString() },
             });

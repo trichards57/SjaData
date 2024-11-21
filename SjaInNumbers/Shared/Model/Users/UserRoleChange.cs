@@ -22,5 +22,5 @@ public readonly record struct UserRoleChange
     /// Gets the new role for the user.
     /// </summary>
     [Required]
-    public IList<string> Roles { get; init; }
+    public string Role { get; init; }
 }

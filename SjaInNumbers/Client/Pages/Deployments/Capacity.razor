@@ -145,7 +145,7 @@
     protected override async Task OnInitializedAsync()
     {
         vehicles = await VehicleService.GetNationalReportAsync();
-        deployments = await DeploymentService.GetNationalSummary();
+        deployments = await DeploymentService.GetNationalSummaryAsync();
 
         districts = vehicles.Districts.Select(d => new DistrictSummary
             {

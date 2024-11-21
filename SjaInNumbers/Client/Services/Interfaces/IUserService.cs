@@ -50,9 +50,10 @@ internal interface IUserService
     /// <summary>
     /// Updates the user's role.
     /// </summary>
-    /// <param name="userDetails">The new role details for the user.</param>
+    /// <param name="id">The ID of the user to update.</param>
+    /// <param name="newRole">The new role for the user.</param>
     /// <returns>
     /// <see langword="true" /> if the user existed and was updated, <see langword="false" /> otherwise.
     /// </returns>
-    Task<bool> UpdateUserAsync(UserRoleChange userDetails);
+    Task<bool> UpdateUserAsync(string id, string newRole);
 }

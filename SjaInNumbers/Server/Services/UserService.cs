@@ -107,25 +107,19 @@ public class UserService(IDbContextFactory<ApplicationDbContext> contextFactory,
 
         var actualRoles = await userManager.GetRolesAsync(user);
 
-        foreach (var role in userDetails.Roles)
+        if (string.IsNullOrEmpty(userDetails.Role) && actualRoles.Count > 0)
         {
-            if (actualRoles.Contains(role))
-            {
-                continue;
-            }
-
-            await userManager.AddToRoleAsync(user, role);
+            await userManager.RemoveFromRolesAsync(user, actualRoles);
+            return true;
         }
 
-        foreach (var role in actualRoles)
+        if (actualRoles.Count == 1 && actualRoles.Contains(userDetails.Role))
         {
-            if (userDetails.Roles.Contains(role))
-            {
-                continue;
-            }
-
-            await userManager.RemoveFromRoleAsync(user, role);
+            return true;
         }
+
+        await userManager.RemoveFromRolesAsync(user, actualRoles);
+        await userManager.AddToRoleAsync(user, userDetails.Role);
 
         return true;
     }

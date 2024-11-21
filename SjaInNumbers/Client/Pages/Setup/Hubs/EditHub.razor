@@ -42,7 +42,7 @@
         {
             var item = await HubService.GetHubNameAsync(Id);
 
-            Model.Name = item.Name;
+            Model.Name = item;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
@@ -52,7 +52,7 @@
 
     private async Task FormSubmit()
     {
-        await HubService.PostHubNameAsync(Id, new() { Name = Model.Name });
+        await HubService.PostHubNameAsync(Id, Model.Name);
         NavigationManager.NavigateTo("/setup/hubs");
     }
 

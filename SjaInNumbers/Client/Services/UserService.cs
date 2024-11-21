@@ -18,9 +18,9 @@ public class UserService(HttpClient client) : IUserService
         return client.GetFromJsonAsAsyncEnumerable<UserDetails>("api/user");
     }
 
-    public async Task<bool> UpdateUserAsync(UserRoleChange userDetails)
+    public async Task<bool> UpdateUserAsync(string id, string newRole)
     {
-        var result = await client.PostAsJsonAsync("api/user", userDetails);
+        var result = await client.PostAsJsonAsync("api/user", new UserRoleChange { Id = id, Role = newRole });
 
         return result.IsSuccessStatusCode;
     }

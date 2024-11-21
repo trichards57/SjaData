@@ -91,9 +91,7 @@
 
     private async Task SetToAdmin(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = ["Admin"] };
-
-        await UserService.UpdateUserAsync(userUpdate);
+        await UserService.UpdateUserAsync(userId, "Admin");
 
         users = await UserService.GetAll().ToListAsync();
 
@@ -102,9 +100,7 @@
 
     private async Task SetToLead(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = ["Lead"] };
-
-        await UserService.UpdateUserAsync(userUpdate);
+        await UserService.UpdateUserAsync(userId, "Lead");
 
         users = await UserService.GetAll().ToListAsync();
 
@@ -113,9 +109,7 @@
 
     private async Task SetToNone(string userId)
     {
-        var userUpdate = new UserRoleChange { Id = userId, Roles = [] };
-
-        await UserService.UpdateUserAsync(userUpdate);
+        await UserService.UpdateUserAsync(userId, string.Empty);
 
         users = await UserService.GetAll().ToListAsync();
 

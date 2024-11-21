@@ -23,7 +23,7 @@ internal interface IHoursService
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
-    Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
+    Task<HoursCount> CountAsync(DateOnly date, DateType? dateType = DateType.Month, bool future = false);
 
     /// <summary>
     /// Gets the current NHSE target.

@@ -18,11 +18,11 @@ public interface IDeploymentService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the national deployment summary.
     /// </returns>
-    Task<NationalDeploymentSummary> GetNationalSummary();
+    Task<NationalDeploymentSummary> GetNationalSummaryAsync();
 
     /// <summary>
     /// Gets the national peak load reports.
     /// </summary>
     /// <returns>The list of peak loads.</returns>
-    IAsyncEnumerable<PeakLoads> GetPeakLoads();
+    IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync();
 }
