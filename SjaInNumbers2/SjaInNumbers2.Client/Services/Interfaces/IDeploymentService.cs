@@ -9,6 +9,8 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 
 public interface IDeploymentService
 {
+    Task AddDeploymentAsync(NewDeployment newDeployment);
+
     Task<NationalSummary> GetNationalSummaryAsync();
 
     IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync();

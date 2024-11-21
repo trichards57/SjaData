@@ -4,8 +4,8 @@
 // </copyright>
 
 using AutoMapper;
-using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers2.Client.Model.Deployments;
+using SjaInNumbers2.Model.Deployments;
 
 namespace SjaInNumbers2.Model;
 

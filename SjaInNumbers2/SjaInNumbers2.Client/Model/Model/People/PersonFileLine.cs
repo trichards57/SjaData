@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Server.Model.People;
+namespace SjaInNumbers2.Model.People;
 
 /// <summary>
 /// Represents a line in the person file.

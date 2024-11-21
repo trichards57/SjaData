@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SjaInNumbers.Server.Helpers;
+namespace SjaInNumbers2.Helpers;
 
 /// <summary>
 /// Options to configure swagger generation.

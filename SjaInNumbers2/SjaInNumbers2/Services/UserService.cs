@@ -9,7 +9,7 @@ using SjaInNumbers2.Client.Model.Users;
 using SjaInNumbers2.Client.Services.Interfaces;
 using SjaInNumbers2.Data;
 
-namespace SjaInNumbers.Server.Services;
+namespace SjaInNumbers2.Services;
 
 /// <summary>
 /// Service for managing user information.

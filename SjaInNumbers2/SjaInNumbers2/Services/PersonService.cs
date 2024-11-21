@@ -4,11 +4,11 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers.Server.Model.People;
 using SjaInNumbers2.Client.Model;
 using SjaInNumbers2.Client.Model.People;
 using SjaInNumbers2.Client.Services.Interfaces;
 using SjaInNumbers2.Data;
+using SjaInNumbers2.Model.People;
 using System.Security.Cryptography;
 using System.Text;
 

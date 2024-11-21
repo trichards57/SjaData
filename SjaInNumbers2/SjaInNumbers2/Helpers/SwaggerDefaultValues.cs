@@ -8,7 +8,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json;
 
-namespace SjaInNumbers.Server.Helpers;
+namespace SjaInNumbers2.Helpers;
 
 /// <summary>
 /// Represents the default values used for swagger operations.

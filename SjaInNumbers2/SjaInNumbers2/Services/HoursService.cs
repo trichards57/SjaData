@@ -4,13 +4,13 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using SjaInNumbers.Server.Helpers;
-using SjaInNumbers.Server.Model.Hours;
 using SjaInNumbers2.Client.Model;
 using SjaInNumbers2.Client.Model.Hours;
 using SjaInNumbers2.Client.Model.Trends;
 using SjaInNumbers2.Client.Services.Interfaces;
 using SjaInNumbers2.Data;
+using SjaInNumbers2.Helpers;
+using SjaInNumbers2.Model.Hours;
 using System.Security.Cryptography;
 using System.Text;
 

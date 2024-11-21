@@ -6,7 +6,6 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
-using SjaInNumbers.Server.Model.Deployments;
 using System.Globalization;
 
 namespace SjaInNumbers2.Model.Deployments;

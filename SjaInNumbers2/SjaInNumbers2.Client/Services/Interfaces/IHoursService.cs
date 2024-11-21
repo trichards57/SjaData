@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Microsoft.Extensions.Primitives;
 using SjaInNumbers2.Client.Model;
 using SjaInNumbers2.Client.Model.Hours;
 using SjaInNumbers2.Client.Model.Trends;
+using SjaInNumbers2.Model.Hours;
 
 namespace SjaInNumbers2.Client.Services.Interfaces;
 
@@ -14,6 +16,8 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 /// </summary>
 public interface IHoursService
 {
+    Task<int> AddHours(IAsyncEnumerable<HoursFileLine> asyncEnumerable, string userId);
+
     /// <summary>
     /// Counts the hours that match the given query.
     /// </summary>
@@ -24,6 +28,8 @@ public interface IHoursService
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
     Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
+    Task<StringSegment> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future);
+    Task<DateTimeOffset?> GetLastModifiedAsync();
 
     /// <summary>
     /// Gets the current NHSE target.
@@ -32,6 +38,8 @@ public interface IHoursService
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the target.
     /// </returns>
     Task<int> GetNhseTargetAsync();
+    Task<StringSegment> GetNhseTargetEtagAsync();
+    Task<DateTimeOffset?> GetNhseTargetLastModifiedAsync();
 
     /// <summary>
     /// Gets the activity trends for a region.

@@ -4,7 +4,6 @@
 // </copyright>
 
 using CsvHelper.Configuration;
-using SjaInNumbers.Server.Model.People;
 
 namespace SjaInNumbers2.Model.People;
 

@@ -5,7 +5,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace SjaInNumbers.Server.Model;
+namespace SjaInNumbers2.Model;
 
 /// <summary>
 /// Represents a response to an API request that returns a count.

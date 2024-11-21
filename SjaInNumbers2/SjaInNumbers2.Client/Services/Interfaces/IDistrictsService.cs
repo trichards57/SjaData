@@ -21,4 +21,6 @@ public interface IDistrictsService
     Task<bool> SetDistrictNameAsync(int id, string name);
 
     Task<int?> GetIdByNameAsync(string name, Region region);
+
+    Task<DistrictSummary?> GetIdByDistrictCodeAsync(string district);
 }

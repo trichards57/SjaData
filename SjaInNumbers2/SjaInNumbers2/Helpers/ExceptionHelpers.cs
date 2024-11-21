@@ -5,7 +5,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace SjaInNumbers.Server.Helpers;
+namespace SjaInNumbers2.Helpers;
 
 /// <summary>
 /// Helpers to simplify operations with exceptions.
