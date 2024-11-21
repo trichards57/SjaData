@@ -37,8 +37,8 @@ public class UserService(HttpClient client) : IUserService
         await client.DeleteAsync($"api/user/{userId}");
     }
 
-    public async Task<UserDetails> GetCurrentUserAsync()
+    public async Task<UserDetails?> GetUserAsync(string userId)
     {
-        return await client.GetFromJsonAsync<UserDetails>($"api/user/me");
+        return await client.GetFromJsonAsync<UserDetails>($"api/user/{userId}");
     }
 }

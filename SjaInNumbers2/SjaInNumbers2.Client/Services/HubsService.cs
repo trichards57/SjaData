@@ -16,12 +16,19 @@ public class HubsService(HttpClient httpClient) : IHubService
     public IAsyncEnumerable<HubSummary> GetHubSummariesAsync()
         => httpClient.GetFromJsonAsAsyncEnumerable<HubSummary>("/api/hubs");
 
-    public async Task<HubName> GetHubNameAsync(int id)
+    public async Task<HubName?> GetHubNameAsync(int id)
         => await httpClient.GetFromJsonAsync<HubName>($"/api/hubs/{id}/name");
 
-    public Task PostHubNameAsync(int id, HubName name)
-        => httpClient.PostAsJsonAsync($"/api/hubs/{id}/name", name);
+    public async Task<bool> SetHubNameAsync(int id, HubName name)
+    {
+        await httpClient.PostAsJsonAsync($"/api/hubs/{id}/name", name);
+        return true;
+    }
 
-    public Task PostHubAsync(NewHub hub)
-        => httpClient.PostAsJsonAsync("/api/hubs", hub);
+    public async Task<HubSummary> AddHubAsync(NewHub hub)
+    {
+        var res = await httpClient.PostAsJsonAsync("/api/hubs", hub);
+
+        return await res.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<HubSummary>();
+    }
 }

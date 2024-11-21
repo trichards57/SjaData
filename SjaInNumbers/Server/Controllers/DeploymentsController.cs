@@ -110,7 +110,7 @@ public partial class DeploymentsController(IDistrictService districtService, IDe
     [LoggerMessage(2001, LogLevel.Error, "Could not process the uploaded CSV data.")]
     private partial void LogCouldNotProcessCsvData(Exception exception);
 
-    [LoggerMessage(1003, LogLevel.Information, "Requeed the national summary from {startDate} to {endDate}.")]
+    [LoggerMessage(1003, LogLevel.Information, "Requested the national summary from {startDate} to {endDate}.")]
     private partial void LogRequestedNationalSummary(DateOnly startDate, DateOnly endDate);
 
     [LoggerMessage(1002, LogLevel.Information, "Requested the peak loads from {startDate} to {endDate}.")]

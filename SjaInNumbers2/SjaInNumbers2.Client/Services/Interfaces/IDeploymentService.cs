@@ -9,7 +9,7 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 
 public interface IDeploymentService
 {
-    Task<NationalSummary> GetNationalSummary();
+    Task<NationalSummary> GetNationalSummaryAsync();
 
-    IAsyncEnumerable<PeakLoads> GetPeakLoads();
+    IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync();
 }

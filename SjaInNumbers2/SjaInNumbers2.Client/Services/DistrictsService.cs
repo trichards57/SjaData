@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers2.Client.Model;
 using SjaInNumbers2.Client.Model.Districts;
 using SjaInNumbers2.Client.Services.Interfaces;
 using System.Net.Http.Json;
@@ -16,15 +17,31 @@ public class DistrictsService(HttpClient httpClient) : IDistrictsService
     public IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync()
         => httpClient.GetFromJsonAsAsyncEnumerable<DistrictSummary>("/api/districts");
 
-    public Task<DistrictSummary> GetDistrictAsync(int id)
-        => httpClient.GetFromJsonAsync<DistrictSummary>($"/api/districts/{id}");
+    public async Task<DistrictSummary?> GetDistrictAsync(int id)
+        => await httpClient.GetFromJsonAsync<DistrictSummary>($"/api/districts/{id}");
 
-    public Task PostDistrictCode(int id, string code)
-        => httpClient.PostAsJsonAsync($"/api/districts/{id}/code", code);
+    public async Task<bool> SetDistrictCodeAsync(int id, string code)
+    {
+        await httpClient.PostAsJsonAsync($"/api/districts/{id}/code", code);
+        return true;
+    }
 
-    public Task PostDistrictName(int id, string name)
-        => httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
+    public async Task<bool> SetDistrictNameAsync(int id, string name)
+    {
+        await httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
 
-    public Task PostDistrictMerge(int sourceId, int destinationId)
-        => httpClient.PostAsJsonAsync($"/api/districts/merge", new MergeDistrict { SourceDistrictId = sourceId, DestinationDistrictId = destinationId });
+        return true;
+    }
+
+    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    {
+        await httpClient.PostAsJsonAsync($"/api/districts/merge", mergeDistrict);
+
+        return true;
+    }
+
+    public Task<int?> GetIdByNameAsync(string name, Region region)
+    {
+        throw new NotImplementedException();
+    }
 }

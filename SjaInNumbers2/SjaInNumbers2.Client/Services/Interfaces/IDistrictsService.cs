@@ -3,19 +3,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers2.Client.Model;
 using SjaInNumbers2.Client.Model.Districts;
 
 namespace SjaInNumbers2.Client.Services.Interfaces;
 
 public interface IDistrictsService
 {
-    Task<DistrictSummary> GetDistrictAsync(int id);
+    Task<DistrictSummary?> GetDistrictAsync(int id);
 
     IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync();
 
-    Task PostDistrictCode(int id, string code);
+    Task<bool> SetDistrictCodeAsync(int id, string code);
 
-    Task PostDistrictMerge(int sourceId, int destinationId);
+    Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict);
 
-    Task PostDistrictName(int id, string name);
+    Task<bool> SetDistrictNameAsync(int id, string name);
+
+    Task<int?> GetIdByNameAsync(string name, Region region);
 }

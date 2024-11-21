@@ -12,7 +12,7 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 /// <summary>
 /// Represents a service for managing hours entries.
 /// </summary>
-internal interface IHoursService
+public interface IHoursService
 {
     /// <summary>
     /// Counts the hours that match the given query.

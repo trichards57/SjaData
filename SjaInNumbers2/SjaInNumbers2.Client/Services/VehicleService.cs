@@ -20,7 +20,7 @@ public class VehicleService(HttpClient client) : IVehicleService
     public async Task<NationalVehicleReport> GetNationalReportAsync()
         => await client.GetFromJsonAsync<NationalVehicleReport>("/api/vehicles/all");
 
-    public async Task<VehicleSettings> GetVehicleSettingsAsync(int id) => await client.GetFromJsonAsync<VehicleSettings>($"/api/vehicles/{id}");
+    public async Task<VehicleSettings?> GetVehicleSettingsAsync(int id) => await client.GetFromJsonAsync<VehicleSettings>($"/api/vehicles/{id}");
 
     public async Task PostVehicleSettingsAsync(UpdateVehicleSettings settings) => await client.PostAsJsonAsync($"/api/vehicles", settings);
 

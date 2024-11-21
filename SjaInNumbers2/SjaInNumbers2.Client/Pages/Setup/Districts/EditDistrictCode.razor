@@ -1,4 +1,5 @@
 ﻿@page "/setup/districts/{Id:int}/EditCode"
+@using SjaInNumbers2.Client.Model.Districts
 
 @attribute [Authorize(Policy = "Lead")]
 
@@ -37,13 +38,13 @@
 
     private async Task FormSubmit()
     {
-        await DistrictsService.PostDistrictCode(Id, Model.Code);
+        await DistrictsService.SetDistrictCodeAsync(Id, Model.Code);
         NavigationManager.NavigateTo("/setup/districts");
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var district = await DistrictsService.GetDistrictAsync(Id);
+        var district = (DistrictSummary)await DistrictsService.GetDistrictAsync(Id);
 
         districtName = district.Name;
         Model.Code = district.Code;

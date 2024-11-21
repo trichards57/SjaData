@@ -11,7 +11,7 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 /// <summary>
 /// Represents a service for managing people.
 /// </summary>
-internal interface IPersonService
+public interface IPersonService
 {
     /// <summary>
     /// Gets the people activity reports for a specific end-date and region.

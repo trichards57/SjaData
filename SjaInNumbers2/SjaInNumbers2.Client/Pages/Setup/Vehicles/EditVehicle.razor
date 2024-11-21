@@ -97,7 +97,7 @@
     {
         hubs = await HubService.GetHubSummariesAsync().ToListAsync();
 
-        var vehicle = await VehicleService.GetVehicleSettingsAsync(Id);
+        var vehicle = (Model.Vehicles.VehicleSettings)await VehicleService.GetVehicleSettingsAsync(Id);
 
         registration = vehicle.Registration;
         Model.CallSign = vehicle.CallSign;

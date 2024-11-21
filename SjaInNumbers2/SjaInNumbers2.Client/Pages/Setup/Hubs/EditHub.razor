@@ -1,4 +1,5 @@
 ﻿@page "/setup/hubs/{id:int}/edit"
+@using SjaInNumbers2.Client.Model.Hubs
 
 @attribute [Authorize(Policy = "Lead")]
 
@@ -35,7 +36,7 @@
     {
         try
         {
-            var item = await HubService.GetHubNameAsync(Id);
+            var item = (HubName)await HubService.GetHubNameAsync(Id);
 
             Model.Name = item.Name;
         }
@@ -47,7 +48,7 @@
 
     private async Task FormSubmit()
     {
-        await HubService.PostHubNameAsync(Id, new() { Name = Model.Name });
+        await HubService.SetHubNameAsync(Id, new() { Name = Model.Name });
         NavigationManager.NavigateTo("/setup/hubs");
     }
 

@@ -10,7 +10,7 @@ namespace SjaInNumbers2.Client.Services.Interfaces;
 /// <summary>
 /// Service for managing users.
 /// </summary>
-internal interface IUserService
+public interface IUserService
 {
     /// <summary>
     /// Marks a user as approved.
@@ -40,12 +40,12 @@ internal interface IUserService
     IAsyncEnumerable<UserDetails> GetAll();
 
     /// <summary>
-    /// Gets details about the currently logged in user.
+    /// Gets details about the given user.
     /// </summary>
     /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the details of the currently logged in user.
+    /// A <see cref="Task"/> representing the asynchronous operation.
     /// </returns>
-    Task<UserDetails> GetCurrentUserAsync();
+    Task<UserDetails?> GetUserAsync(string userId);
 
     /// <summary>
     /// Updates the user's role.

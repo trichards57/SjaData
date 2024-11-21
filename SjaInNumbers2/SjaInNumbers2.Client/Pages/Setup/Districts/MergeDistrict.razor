@@ -38,7 +38,7 @@
 @code {
     private EditDistrictNameModel Model { get; set; } = new();
     private List<Model.Districts.DistrictSummary> districts = [];
-  
+
     [SupplyParameterFromQuery(Name = "source")]
     public int SourceDistrictId { get; set; }
 
@@ -55,7 +55,7 @@
 
     private async Task FormSubmit()
     {
-        await DistrictsService.PostDistrictMerge(Model.SourceDistrictId, Model.DestinationDistrictId);
+        await DistrictsService.MergeDistrictsAsync(new Model.Districts.MergeDistrict { SourceDistrictId = Model.SourceDistrictId, DestinationDistrictId = Model.DestinationDistrictId });
 
         NavigationManager.NavigateTo("/setup/districts");
     }

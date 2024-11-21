@@ -49,7 +49,7 @@
 
     private async Task FormSubmit()
     {
-        await HubService.PostHubAsync(new Model.Hubs.NewHub { DistrictId = Model.DistrictId, Name = Model.Name });
+        await HubService.AddHubAsync(new Model.Hubs.NewHub { DistrictId = Model.DistrictId, Name = Model.Name });
         NavigationManager.NavigateTo("/setup/hubs");
     }
 

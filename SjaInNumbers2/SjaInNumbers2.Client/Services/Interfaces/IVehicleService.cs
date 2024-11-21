@@ -32,7 +32,7 @@ public interface IVehicleService
     /// </summary>
     /// <param name="id">The ID of the vehicle.</param>
     /// <returns>The vehicle's settings.</returns>
-    Task<VehicleSettings> GetVehicleSettingsAsync(int id);
+    Task<VehicleSettings?> GetVehicleSettingsAsync(int id);
 
     /// <summary>
     /// Gets the VOR status for a specific region.
