@@ -120,7 +120,7 @@ public sealed partial class DistrictsController(IDistrictService districtService
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Merge([FromBody] MergeDistrict mergeDistrict)
     {
-        if (await districtService.MergeDistrictsAsync(mergeDistrict))
+        if (await districtService.MergeDistrictsAsync(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId))
         {
             return NoContent();
         }

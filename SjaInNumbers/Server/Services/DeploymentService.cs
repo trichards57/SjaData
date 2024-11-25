@@ -5,6 +5,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
+using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Deployments;
 
@@ -18,45 +19,36 @@ public class DeploymentService(ApplicationDbContext context) : IDeploymentServic
     private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
-    public async Task AddDeploymentAsync(NewDeployment deployment)
+    public async Task<int> AddDeploymentsAsync(IEnumerable<DeploymentsFileLine> deployments)
     {
-        var deploymentItem = await context.Deployments.FirstOrDefaultAsync(d => d.DipsReference == deployment.DipsReference && d.Date == deployment.Date);
-
-        if (deploymentItem == null)
+        foreach (var deployment in deployments)
         {
-            deploymentItem = new Deployment();
-            context.Deployments.Add(deploymentItem);
+            var district = await context.Districts.FirstOrDefaultAsync(d => d.Code == deployment.District);
+
+            if (district == null)
+            {
+                continue;
+            }
+
+            var deploymentItem = await context.Deployments.FirstOrDefaultAsync(d => d.DipsReference == deployment.DipsNumber && d.Date == deployment.Date);
+
+            if (deploymentItem == null)
+            {
+                deploymentItem = new Deployment();
+                context.Deployments.Add(deploymentItem);
+            }
+
+            deploymentItem.AllWheelDriveAmbulances = deployment.AllWheelDriveAmbulances;
+            deploymentItem.Date = deployment.Date;
+            deploymentItem.DipsReference = deployment.DipsNumber!.Value;
+            deploymentItem.DistrictId = district.Id;
+            deploymentItem.FrontLineAmbulances = deployment.Ambulances;
+            deploymentItem.Name = deployment.Name;
+            deploymentItem.OffRoadAmbulances = deployment.OffRoadAmbulances;
+            deploymentItem.LastModified = DateTime.UtcNow;
         }
 
-        deploymentItem.AllWheelDriveAmbulances = deployment.AllWheelDriveAmbulances;
-        deploymentItem.Date = deployment.Date;
-        deploymentItem.DipsReference = deployment.DipsReference;
-        deploymentItem.DistrictId = deployment.DistrictId;
-        deploymentItem.FrontLineAmbulances = deployment.FrontLineAmbulances;
-        deploymentItem.Name = deployment.Name;
-        deploymentItem.OffRoadAmbulances = deployment.OffRoadAmbulances;
-        deploymentItem.LastModified = DateTime.UtcNow;
-
-        await context.SaveChangesAsync();
-    }
-
-    /// <inheritdoc/>
-    public IAsyncEnumerable<DeploymentSummary> GetAllAsync(DateOnly startDate, DateOnly endDate)
-    {
-        return context.Deployments
-            .Where(d => d.Date >= startDate && d.Date <= endDate)
-            .Select(d => new DeploymentSummary
-            {
-                AllWheelDriveAmbulances = d.AllWheelDriveAmbulances,
-                Date = d.Date,
-                District = d.District.Name,
-                DistrictId = d.DistrictId,
-                FrontLineAmbulances = d.FrontLineAmbulances,
-                Name = d.Name,
-                OffRoadAmbulances = d.OffRoadAmbulances,
-                Region = d.District.Region,
-            })
-            .AsAsyncEnumerable();
+        return await context.SaveChangesAsync();
     }
 
     /// <inheritdoc/>

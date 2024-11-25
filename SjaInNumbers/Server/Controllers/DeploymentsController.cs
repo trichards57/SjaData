@@ -20,12 +20,10 @@ namespace SjaInNumbers.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/deployments")]
-public partial class DeploymentsController(IDistrictService districtService, IDeploymentService deploymentService, IMapper mapper, ILogger<DeploymentsController> logger) : ControllerBase
+public partial class DeploymentsController(IDeploymentService deploymentService, ILogger<DeploymentsController> logger) : ControllerBase
 {
     private readonly IDeploymentService deploymentService = deploymentService;
-    private readonly IDistrictService districtService = districtService;
     private readonly ILogger logger = logger;
-    private readonly IMapper mapper = mapper;
 
     /// <summary>
     /// Gets the national deployments summary.
@@ -75,22 +73,11 @@ public partial class DeploymentsController(IDistrictService districtService, IDe
         using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
         csv.Context.RegisterClassMap<DeploymentsFileLineMap>();
 
-        var updatedCount = 0;
-
         try
         {
-            await foreach (var record in csv.GetRecordsAsync<DeploymentsFileLine>())
-            {
-                var district = await districtService.GetIdByDistrictCodeAsync(record.District);
-
-                if (district == null || record.DipsNumber == 0)
-                {
-                    continue;
-                }
-
-                await deploymentService.AddDeploymentAsync(mapper.Map<NewDeployment>(record));
-                updatedCount++;
-            }
+            var records = csv.GetRecords<DeploymentsFileLine>()
+                .Where(d => d.District != null && d.DipsNumber != 0);
+            var updatedCount = await deploymentService.AddDeploymentsAsync(records);
 
             LogAddedOrUpdatedDeployments(updatedCount);
 

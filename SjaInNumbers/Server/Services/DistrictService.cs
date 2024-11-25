@@ -128,10 +128,10 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     }
 
     /// <inheritdoc/>
-    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    public async Task<bool> MergeDistrictsAsync(int sourceDistrictId, int destinationDistrictId)
     {
-        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
-        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
+        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == sourceDistrictId);
+        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == destinationDistrictId);
 
         if (sourceDistrict == null || destinationDistrict == null)
         {

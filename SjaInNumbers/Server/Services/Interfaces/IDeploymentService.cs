@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Shared.Model.Deployments;
 
 namespace SjaInNumbers.Server.Services.Interfaces;
@@ -13,21 +14,11 @@ namespace SjaInNumbers.Server.Services.Interfaces;
 public interface IDeploymentService
 {
     /// <summary>
-    /// Adds a deployment to the database.
+    /// Adds deployments to the database.
     /// </summary>
-    /// <param name="deployment">The deployment to add.</param>
+    /// <param name="deployments">The deployments to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddDeploymentAsync(NewDeployment deployment);
-
-    /// <summary>
-    /// Gets all of the deployments between the given dates.
-    /// </summary>
-    /// <param name="startDate">The start date to search.</param>
-    /// <param name="endDate">The end date to search.</param>
-    /// <returns>
-    /// The list of deployments between the given dates.
-    /// </returns>
-    IAsyncEnumerable<DeploymentSummary> GetAllAsync(DateOnly startDate, DateOnly endDate);
+    Task<int> AddDeploymentsAsync(IEnumerable<DeploymentsFileLine> deployments);
 
     /// <summary>
     /// Gets the national events summary.

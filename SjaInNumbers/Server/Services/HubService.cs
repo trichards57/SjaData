@@ -50,16 +50,17 @@ public class HubService(ApplicationDbContext context) : IHubService
     }
 
     /// <inheritdoc/>
-    public async Task<HubName?> GetNameAsync(int id)
+    public async Task<string?> GetNameAsync(int id)
     {
-        return await context.Hubs.Where(s => s.Id == id).Select(s => new HubName
-        {
-            Name = s.Name,
-        }).Cast<HubName?>().FirstOrDefaultAsync();
+        return await context.Hubs
+            .Where(s => s.Id == id)
+            .Select(s => s.Name)
+            .Cast<string?>()
+            .FirstOrDefaultAsync();
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetNameAsync(int id, HubName hubName)
+    public async Task<bool> SetNameAsync(int id, string name)
     {
         var hub = await context.Hubs
             .AsNoTracking()
@@ -71,7 +72,7 @@ public class HubService(ApplicationDbContext context) : IHubService
             return false;
         }
 
-        if (hub.Name != hubName.Name)
+        if (hub.Name != name)
         {
             var update = new Hub
             {
@@ -80,7 +81,7 @@ public class HubService(ApplicationDbContext context) : IHubService
 
             context.Attach(update);
 
-            update.Name = hubName.Name;
+            update.Name = name;
 
             await context.SaveChangesAsync();
         }

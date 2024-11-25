@@ -91,23 +91,6 @@ public interface IVehicleService
     Task<StringSegment> GetVehicleReportEtagAsync();
 
     /// <summary>
-    /// Gets the VOR statistics for the provided place.
-    /// </summary>
-    /// <param name="place">The place to search for.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves
-    /// to the requested statistics, or <see langword="null" /> if the place was not found.
-    /// </returns>
-    Task<VorStatistics?> GetVorStatisticsAsync(Place place);
-
-    /// <summary>
-    /// Gets the ETag for the VOR statistics for the provided place.
-    /// </summary>
-    /// <param name="place">The place.</param>
-    /// <returns>An ETag representing the current data.</returns>
-    Task<StringSegment> GetVorStatisticsEtagAsync(Place place);
-
-    /// <summary>
     /// Gets the VOR statuses for the provided place.
     /// </summary>
     /// <param name="place">The place to search for.</param>

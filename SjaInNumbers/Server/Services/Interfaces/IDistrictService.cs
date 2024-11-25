@@ -60,11 +60,12 @@ public interface IDistrictService
     /// <summary>
     /// Merges two districts by moving all items from one source to destination to another and then removing the source.
     /// </summary>
-    /// <param name="mergeDistrict">The districts to merge.</param>
+    /// <param name="sourceDistrictId">The ID of the source district.</param>
+    /// <param name="destinationDistrictId">The ID of the destination district.</param>
     /// <returns>
     /// <see langword="true" /> if the districts were merged, otherwise, <see langword="false"/>.
     /// </returns>
-    Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict);
+    Task<bool> MergeDistrictsAsync(int sourceDistrictId, int destinationDistrictId);
 
     /// <summary>
     /// Sets the district code for the given district.

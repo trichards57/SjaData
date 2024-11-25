@@ -199,10 +199,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     }
 
     /// <inheritdoc/>
-    public Task<int> GetNhseTargetAsync()
-    {
-        return Task.FromResult(4000);
-    }
+    public Task<int> GetNhseTargetAsync() => Task.FromResult(4000);
 
     /// <inheritdoc/>
     public async Task<string> GetNhseTargetEtagAsync()
@@ -216,10 +213,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     }
 
     /// <inheritdoc/>
-    public Task<DateTimeOffset> GetNhseTargetLastModifiedAsync()
-    {
-        return Task.FromResult(DateTimeOffset.UtcNow);
-    }
+    public Task<DateTimeOffset> GetNhseTargetLastModifiedAsync() => Task.FromResult(DateTimeOffset.UtcNow);
 
     /// <inheritdoc/>
     public async Task<Trends> GetTrendsAsync(Region region, bool nhse)

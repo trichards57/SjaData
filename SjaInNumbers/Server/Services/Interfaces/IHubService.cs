@@ -51,15 +51,15 @@ public interface IHubService
     /// </summary>
     /// <param name="id">The ID of the hub.</param>
     /// <returns>The hub's name.</returns>
-    Task<HubName?> GetNameAsync(int id);
+    Task<string?> GetNameAsync(int id);
 
     /// <summary>
     /// Sets the name of the given hub.
     /// </summary>
     /// <param name="id">The ID of the hub.</param>
-    /// <param name="hubName">The new name.</param>
+    /// <param name="name">The new name.</param>
     /// <returns>
     /// <see langword="true"/> if the name was set; otherwise, <see langword="false"/>.
     /// </returns>
-    Task<bool> SetNameAsync(int id, HubName hubName);
+    Task<bool> SetNameAsync(int id, string name);
 }
