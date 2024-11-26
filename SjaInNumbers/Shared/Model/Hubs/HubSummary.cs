@@ -34,9 +34,4 @@ public readonly record struct HubSummary
     /// Gets the number of vehicles in the hub.
     /// </summary>
     public int VehicleCount { get; init; }
-
-    /// <summary>
-    /// Gets the number of people in the hub.
-    /// </summary>
-    public int PeopleCount { get; init; }
 }

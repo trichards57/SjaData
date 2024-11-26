@@ -45,7 +45,6 @@ public class HubService(ApplicationDbContext context) : IHubService
             Id = s.Id,
             Region = s.District.Region,
             VehicleCount = s.Vehicles.Count,
-            PeopleCount = s.People.Count,
         }).AsAsyncEnumerable();
     }
 

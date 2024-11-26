@@ -899,12 +899,8 @@ namespace SjaData.Server.Migrations
             modelBuilder.Entity("SjaInNumbers.Server.Data.Person", b =>
                 {
                     b.HasOne("SjaInNumbers.Server.Data.District", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId");
-
-                    b.HasOne("SjaInNumbers.Server.Data.Hub", null)
                         .WithMany("People")
-                        .HasForeignKey("HubId");
+                        .HasForeignKey("DistrictId");
 
                     b.HasOne("SjaInNumbers.Server.Data.ApplicationUser", "UpdatedBy")
                         .WithMany()
@@ -954,13 +950,13 @@ namespace SjaData.Server.Migrations
                 {
                     b.Navigation("Hubs");
 
+                    b.Navigation("People");
+
                     b.Navigation("PreviousNames");
                 });
 
             modelBuilder.Entity("SjaInNumbers.Server.Data.Hub", b =>
                 {
-                    b.Navigation("People");
-
                     b.Navigation("Vehicles");
                 });
 

@@ -52,4 +52,9 @@ public class District
     /// Gets or sets the previous names of the district.
     /// </summary>
     public IList<DistrictPreviousName> PreviousNames { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the people in the hub.
+    /// </summary>
+    public IList<Person> People { get; set; } = [];
 }

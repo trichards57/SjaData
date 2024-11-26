@@ -51,9 +51,4 @@ public class Hub
     /// Gets or sets the vehicles in the hub.
     /// </summary>
     public IList<Vehicle> Vehicles { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the people in the hub.
-    /// </summary>
-    public IList<Person> People { get; set; } = [];
 }
