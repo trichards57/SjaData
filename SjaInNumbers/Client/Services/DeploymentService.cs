@@ -13,8 +13,8 @@ public class DeploymentService(HttpClient client) : IDeploymentService
 {
     private readonly HttpClient client = client;
 
-    public IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync()
-        => client.GetFromJsonAsAsyncEnumerable<PeakLoads>("/api/deployments/peaks");
+    public Task<NationalPeakLoads> GetPeakLoadsAsync()
+        => client.GetFromJsonAsync<NationalPeakLoads>("/api/deployments/peaks");
 
     public Task<NationalDeploymentSummary> GetNationalSummaryAsync()
         => client.GetFromJsonAsync<NationalDeploymentSummary>("/api/deployments/national");

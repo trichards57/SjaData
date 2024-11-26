@@ -24,5 +24,5 @@ public interface IDeploymentService
     /// Gets the national peak load reports.
     /// </summary>
     /// <returns>The list of peak loads.</returns>
-    IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync();
+    Task<NationalPeakLoads> GetPeakLoadsAsync();
 }

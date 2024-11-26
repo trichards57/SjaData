@@ -65,6 +65,6 @@
 
     override protected async Task OnInitializedAsync()
     {
-        peaks = await DeploymentService.GetPeakLoadsAsync().ToListAsync();
+        peaks = (await DeploymentService.GetPeakLoadsAsync()).Loads.ToList();
     }
 }

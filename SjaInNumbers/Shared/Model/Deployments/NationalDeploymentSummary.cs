@@ -8,10 +8,16 @@ namespace SjaInNumbers.Shared.Model.Deployments;
 /// <summary>
 /// Represents a summary of the national deployment data.
 /// </summary>
-public readonly record struct NationalDeploymentSummary
+public readonly record struct NationalDeploymentSummary : IDateMarked
 {
     /// <summary>
     /// Gets the regions and their deployment summaries.
     /// </summary>
     public Dictionary<Region, List<DistrictDeploymentSummary>> Regions { get; init; }
+
+    /// <inheritdoc/>
+    public DateTimeOffset LastModified { get; init; }
+
+    /// <inheritdoc/>
+    public string ETag { get; init; }
 }

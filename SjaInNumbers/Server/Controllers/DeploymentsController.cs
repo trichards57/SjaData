@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-using AutoMapper;
 using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Server.Services.Interfaces;
@@ -28,18 +29,22 @@ public partial class DeploymentsController(IDeploymentService deploymentService,
     /// <summary>
     /// Gets the national deployments summary.
     /// </summary>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the national deployments summary.
     /// </returns>
     [HttpGet("national")]
-    public async Task<ActionResult<NationalDeploymentSummary>> GetNationalSummary()
+    [ProducesResponseType<NationalDeploymentSummary>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [RevalidateCache]
+    public async Task<ActionResult<NationalDeploymentSummary>> GetNationalDeploymentSummary([FromHeader(Name = "If-None-Match")] string? etag)
     {
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startDate = endDate.AddYears(-1);
 
-        LogRequestedNationalSummary(startDate, endDate);
+        LogRequestedNationalDeploymentSummary(startDate, endDate);
 
-        return await deploymentService.GetNationalSummaryAsync(startDate, endDate);
+        return await deploymentService.GetNationalSummaryAsync(startDate, endDate, etag ?? string.Empty);
     }
 
     /// <summary>
@@ -47,15 +52,17 @@ public partial class DeploymentsController(IDeploymentService deploymentService,
     /// </summary>
     /// <returns>The list of peak loads.</returns>
     [HttpGet("peaks")]
-    [ProducesResponseType(typeof(IEnumerable<PeakLoads>), StatusCodes.Status200OK)]
-    public IAsyncEnumerable<PeakLoads> GetPeakLoads()
+    [ProducesResponseType<NationalPeakLoads>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [RevalidateCache]
+    public async Task<ActionResult<NationalPeakLoads>> GetPeakLoads([FromHeader(Name = "If-None-Match")] string? etag)
     {
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startDate = endDate.AddYears(-1);
 
         LogRequestedPeakLoads(startDate, endDate);
 
-        return deploymentService.GetPeakLoadsAsync(startDate, endDate);
+        return await deploymentService.GetPeakLoadsAsync(startDate, endDate, etag ?? string.Empty);
     }
 
     /// <summary>
@@ -97,9 +104,12 @@ public partial class DeploymentsController(IDeploymentService deploymentService,
     [LoggerMessage(2001, LogLevel.Error, "Could not process the uploaded CSV data.")]
     private partial void LogCouldNotProcessCsvData(Exception exception);
 
-    [LoggerMessage(1003, LogLevel.Information, "Requested the national summary from {startDate} to {endDate}.")]
-    private partial void LogRequestedNationalSummary(DateOnly startDate, DateOnly endDate);
+    [LoggerMessage(1003, LogLevel.Information, "Requested the national deployment summary from {startDate} to {endDate}.")]
+    private partial void LogRequestedNationalDeploymentSummary(DateOnly startDate, DateOnly endDate);
 
     [LoggerMessage(1002, LogLevel.Information, "Requested the peak loads from {startDate} to {endDate}.")]
     private partial void LogRequestedPeakLoads(DateOnly startDate, DateOnly endDate);
+
+    [LoggerMessage(3001, LogLevel.Information, "National deployment summary has not changed.")]
+    private partial void LogNationalDeploymentSummaryNotChanged();
 }
