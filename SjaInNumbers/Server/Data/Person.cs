@@ -76,13 +76,13 @@ public class Person
     public string UpdatedById { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the hub for the person.
+    /// Gets or sets the district the person is associated with.
     /// </summary>
-    [ForeignKey(nameof(HubId))]
-    public Hub? Hub { get; set; }
+    [ForeignKey(nameof(DistrictId))]
+    public District? District { get; set; }
 
     /// <summary>
-    /// Gets or sets the ID of the hub the person is associated with.
+    /// Gets or sets the ID of the district the person is associated with.
     /// </summary>
-    public int? HubId { get; set; }
+    public int? DistrictId { get; set; }
 }

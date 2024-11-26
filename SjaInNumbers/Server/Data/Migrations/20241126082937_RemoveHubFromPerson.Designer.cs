@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SjaInNumbers.Server.Data;
 
@@ -11,9 +12,11 @@ using SjaInNumbers.Server.Data;
 namespace SjaData.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241126082937_RemoveHubFromPerson")]
+    partial class RemoveHubFromPerson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -646,6 +649,9 @@ namespace SjaData.Server.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("HubId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsVolunteer")
                         .HasColumnType("bit");
 
@@ -669,6 +675,8 @@ namespace SjaData.Server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DistrictId");
+
+                    b.HasIndex("HubId");
 
                     b.HasIndex("UpdatedById");
 

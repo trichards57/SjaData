@@ -33,7 +33,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     {
         using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
-        var existingPeople = await dataContext.People.ToDictionaryAsync(s => s.Id, s => s);
+        var existingPeople = await dataContext.People.Include(d => d.District).ToDictionaryAsync(s => s.Id, s => s);
 
         var hoursList = await hours.ToListAsync();
 
@@ -55,7 +55,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             if (!existingPeople.TryGetValue(id, out var person))
             {
                 var nameParts = h.Name.Split(' ', 2);
-                person = new Person { Id = id, FirstName = nameParts[1], LastName = nameParts[0], HubId = null, UpdatedById = userId };
+                person = new Person { Id = id, FirstName = nameParts[1], LastName = nameParts[0], DistrictId = null, UpdatedById = userId };
                 dataContext.Add(person);
                 existingPeople.Add(id, person);
             }
@@ -92,7 +92,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
                 existingItem.UpdatedById = userId;
             }
 
-            var region = (h.CrewType.Equals("Event Cover Amb", StringComparison.InvariantCultureIgnoreCase) && person.Hub != null) ? person.Hub.District.Region : Region.Undefined;
+            var region = (h.CrewType.Equals("Event Cover Amb", StringComparison.InvariantCultureIgnoreCase) && person.District != null) ? person.District.Region : Region.Undefined;
 
             if (existingItem.Region != region)
             {
@@ -220,7 +220,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     {
         using var dataContext = await dataContextFactory.CreateDbContextAsync();
 
-        var districts = await dataContext.People.Where(p => p.Hub != null && p.Hub.District.Region == region).Select(p => p.Hub.District).Distinct().ToListAsync();
+        var districts = await dataContext.People.Where(p => p.District != null && p.District.Region == region).Select(p => p.District).Distinct().ToListAsync();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
         var reportDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
@@ -238,8 +238,8 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
 
         var nationalAverages = await GetAverages(hours, reportDate);
         var nationalAveragesMinusOne = await GetAverages(hours, reportDate.AddMonths(-1));
-        var regionAverages = await GetAverages(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District.Region == region), reportDate);
-        var regionAveragesMinusOne = await GetAverages(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District.Region == region), reportDate.AddMonths(-1));
+        var regionAverages = await GetAverages(hours.Where(h => h.Person.District != null && h.Person.District.Region == region), reportDate);
+        var regionAveragesMinusOne = await GetAverages(hours.Where(h => h.Person.District != null && h.Person.District.Region == region), reportDate.AddMonths(-1));
 
         var twelveMonthAverages = new Dictionary<string, double>
         {
@@ -274,15 +274,20 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
         var hoursResult = new Dictionary<string, double[]>
         {
             { "national", await GetOverTime(hours, reportDate) },
-            { "region", await GetOverTime(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District.Region == region), reportDate) },
+            { "region", await GetOverTime(hours.Where(h => h.Person.District != null && h.Person.District.Region == region), reportDate) },
         };
 
         foreach (var d in districts)
         {
             try
             {
-                var districtAverages = await GetAverages(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District == d), reportDate);
-                var districtAverageMinusOne = await GetAverages(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District == d), reportDate.AddMonths(-1));
+                if (d == null)
+                {
+                    continue;
+                }
+
+                var districtAverages = await GetAverages(hours.Where(h => h.Person.District == d), reportDate);
+                var districtAverageMinusOne = await GetAverages(hours.Where(h => h.Person.District == d), reportDate.AddMonths(-1));
 
                 twelveMonthAverages[d.Name] = districtAverages.TwelveMonthAverage;
                 twelveMonthMinusOneAverages[d.Name] = districtAverageMinusOne.TwelveMonthAverage;
@@ -290,7 +295,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
                 sixMonthMinusOneAverages[d.Name] = districtAverageMinusOne.SixMonthAverage;
                 threeMonthAverages[d.Name] = districtAverages.ThreeMonthAverage;
                 threeMonthMinusOneAverages[d.Name] = districtAverageMinusOne.ThreeMonthAverage;
-                hoursResult[d.Name] = await GetOverTime(hours.Where(h => h.Person.Hub != null && h.Person.Hub.District == d), reportDate);
+                hoursResult[d.Name] = await GetOverTime(hours.Where(h => h.Person.District == d), reportDate);
             }
             catch (Exception ex)
             {

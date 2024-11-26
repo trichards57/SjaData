@@ -34,16 +34,14 @@ public class PersonService(IDistrictService districtService, ApplicationDbContex
 
             var districtId = await districtService.GetIdByNameAsync(district, region);
 
-            var place = districtId.HasValue ? await context.Hubs.FirstOrDefaultAsync(h => h.DistrictId == districtId) : null;
-
-            if (place == null)
+            if (districtId == null)
             {
                 var newDistrict = new District { Name = district, Region = region };
-                place = new Hub { Name = $"AutoHubFor_{district}", District = newDistrict };
 
                 context.Districts.Add(newDistrict);
-                context.Hubs.Add(place);
                 await context.SaveChangesAsync();
+
+                districtId = newDistrict.Id;
             }
 
             var name = p.Name.Split(',');
@@ -53,7 +51,7 @@ public class PersonService(IDistrictService districtService, ApplicationDbContex
                 Id = p.MyDataNumber,
                 FirstName = name[1].Trim(),
                 LastName = name[0].Trim(),
-                HubId = place.Id,
+                DistrictId = districtId,
                 Role = p.JobRoleTitle,
                 IsVolunteer = p.IsVolunteer,
             });
@@ -75,10 +73,9 @@ public class PersonService(IDistrictService districtService, ApplicationDbContex
                     existingPerson.LastName = p.LastName;
                 }
 
-                if (existingPerson.HubId != p.HubId)
+                if (existingPerson.DistrictId != p.DistrictId)
                 {
-                    existingPerson.Hub = p.Hub;
-                    existingPerson.HubId = p.HubId;
+                    existingPerson.DistrictId = p.DistrictId;
                 }
 
                 if (existingPerson.Role != p.Role)
@@ -139,15 +136,14 @@ public class PersonService(IDistrictService districtService, ApplicationDbContex
     {
         var people = context.People
             .AsNoTracking()
-            .Where(p => p.Hub != null && p.Hub.District.Region == region && p.DeletedAt == null)
+            .Where(p => p.District != null && p.District.Region == region && p.DeletedAt == null)
             .Include(p => p.Hours)
-            .Include(p => p.Hub)
+            .Include(p => p.District)
             .Select(p => new
             {
                 Name = $"{p.FirstName} {p.LastName}",
                 Hours = p.Hours.Where(h => h.DeletedAt == null && h.Date <= date && Math.Abs(EF.Functions.DateDiffMonth(date, h.Date)) < 13).ToList(),
-                District = p.Hub != null ? p.Hub.District.Name : string.Empty,
-                Hub = p.Hub != null ? p.Hub.Name : string.Empty,
+                District = p.District != null ? p.District.Name : string.Empty,
             }).AsAsyncEnumerable();
 
         await foreach (var p in people)
@@ -159,7 +155,6 @@ public class PersonService(IDistrictService districtService, ApplicationDbContex
                 MonthsSinceLastActive = (int)Math.Round((DateTime.Today.Date - p.Hours.Select(h => h.Date).DefaultIfEmpty(DateOnly.MinValue).Max(h => h).ToDateTime(new TimeOnly(0, 0, 0))).TotalDays / 28),
                 Hours = GetOverTime(p.Hours),
                 District = p.District,
-                Hub = p.Hub,
             };
 
             yield return report;
