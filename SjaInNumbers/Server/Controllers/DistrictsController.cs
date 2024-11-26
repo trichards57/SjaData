@@ -122,9 +122,11 @@ public sealed partial class DistrictsController(IDistrictService districtService
     {
         if (await districtService.MergeDistrictsAsync(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId))
         {
+            LogDistrictsMerged(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId);
             return NoContent();
         }
 
+        LogDistrictNotFound(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId);
         return NotFound();
     }
 
@@ -134,8 +136,14 @@ public sealed partial class DistrictsController(IDistrictService districtService
     [LoggerMessage(1004, LogLevel.Information, "District name for {districtId} updated.")]
     private partial void LogDistrictNameUpdated(int districtId, string name);
 
+    [LoggerMessage(1005, LogLevel.Information, "Merged District {sourceDistrictId} into {destinationDistrictId}.")]
+    private partial void LogDistrictsMerged(int sourceDistrictId, int destinationDistrictId);
+
     [LoggerMessage(2001, LogLevel.Warning, "Could not find a district with the ID {districtId}.")]
     private partial void LogDistrictNotFound(int districtId);
+
+    [LoggerMessage(2002, LogLevel.Warning, "Could not find a district with the ID {sourceDistrictId} or {destinationDistrictId}.")]
+    private partial void LogDistrictNotFound(int sourceDistrictId, int destinationDistrictId);
 
     [LoggerMessage(1002, LogLevel.Information, "Retrieved all the district summaries.")]
     private partial void LogRetrievedAllDistrictSummaries();

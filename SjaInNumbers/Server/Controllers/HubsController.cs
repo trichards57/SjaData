@@ -70,7 +70,7 @@ public class HubsController(IHubService hubService) : ControllerBase
             return NotFound();
         }
 
-        return hubName;
+        return new HubName { Name = hubName };
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class HubsController(IHubService hubService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PostName(int id, [FromBody] HubName hubName)
     {
-        var result = await hubService.SetNameAsync(id, hubName);
+        var result = await hubService.SetNameAsync(id, hubName.Name);
 
         if (!result)
         {
