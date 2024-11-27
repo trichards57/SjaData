@@ -8,7 +8,7 @@ namespace SjaInNumbers.Shared.Model.Hours;
 /// <summary>
 /// Represents an hours target for a specific date.
 /// </summary>
-public readonly record struct HoursTarget
+public readonly record struct HoursTarget : IDateMarked
 {
     /// <summary>
     /// Gets the hours target.
@@ -19,4 +19,10 @@ public readonly record struct HoursTarget
     /// Gets the identifying date for the target.
     /// </summary>
     public DateOnly Date { get; init; }
+
+    /// <inheritdoc/>
+    public DateTimeOffset LastModified { get; init; }
+
+    /// <inheritdoc/>
+    public string ETag { get; init; }
 }

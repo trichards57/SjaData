@@ -3,12 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+
 namespace SjaInNumbers.Shared.Model.Districts;
 
 /// <summary>
 /// Represents a summary of a district.
 /// </summary>
-public readonly record struct DistrictSummary
+public readonly record struct DistrictSummary : IDateMarked
 {
     /// <summary>
     /// Gets the ID of the district.
@@ -29,4 +30,10 @@ public readonly record struct DistrictSummary
     /// Gets the code of the district.
     /// </summary>
     public string Code { get; init; }
+
+    /// <inheritdoc/>
+    public DateTimeOffset LastModified { get; init; }
+
+    /// <inheritdoc/>
+    public string ETag { get; init; }
 }

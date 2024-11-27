@@ -3,11 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
 using SjaInNumbers.Shared.Model.Districts;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SjaInNumbers.Server.Services;
 
@@ -55,9 +58,9 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     }
 
     /// <inheritdoc/>
-    public Task<DistrictSummary?> GetDistrict(int id)
+    public async Task<DistrictSummary?> GetDistrict(int id)
     {
-        return context.Districts
+        var item = await context.Districts
             .Where(d => d.Id == id)
             .Select(s => new DistrictSummary
             {
@@ -65,9 +68,20 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
                 Id = s.Id,
                 Name = s.Name,
                 Region = s.Region,
+                LastModified = s.LastModified,
             })
             .Cast<DistrictSummary?>()
             .FirstOrDefaultAsync();
+
+        if (item != null)
+        {
+            item = (DistrictSummary)item with
+            {
+                ETag = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(item.Value.LastModified.ToString()))),
+            };
+        }
+
+        return item;
     }
 
     /// <inheritdoc/>

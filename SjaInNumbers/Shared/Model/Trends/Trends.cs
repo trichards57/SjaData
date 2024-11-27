@@ -8,7 +8,7 @@ namespace SjaInNumbers.Shared.Model.Trends;
 /// <summary>
 /// Represents the hours trends for a region.
 /// </summary>
-public readonly record struct Trends
+public readonly record struct Trends : IDateMarked
 {
     /// <summary>
     /// Gets the twelve-month average ending at <see cref="ReportDate"/>.
@@ -49,4 +49,10 @@ public readonly record struct Trends
     /// Gets the threshold date for the trends.
     /// </summary>
     public DateOnly ReportDate { get; init; }
+
+    /// <inheritdoc/>
+    public DateTimeOffset LastModified { get; init; }
+
+    /// <inheritdoc/>
+    public string ETag { get; init; }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Mvc;
+using SjaInNumbers.Server.Controllers.Filters;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Districts;
 
@@ -27,8 +28,10 @@ public sealed partial class DistrictsController(IDistrictService districtService
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the district with the specified ID.
     /// </returns>
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<DistrictSummary>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [RevalidateCache]
     public async Task<ActionResult<DistrictSummary>> Get(int id)
     {
         var district = await districtService.GetDistrict(id);
@@ -42,7 +45,7 @@ public sealed partial class DistrictsController(IDistrictService districtService
 
         LogRetrievedDistrictSummary(id);
 
-        return Ok(district);
+        return district;
     }
 
     /// <summary>
@@ -68,6 +71,7 @@ public sealed partial class DistrictsController(IDistrictService districtService
     [HttpPost("{id}/code")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [NotCachedFilter]
     public async Task<IActionResult> UpdateCode(int id, [FromBody] string code)
     {
         if (await districtService.SetDistrictCodeAsync(id, code))
@@ -93,6 +97,7 @@ public sealed partial class DistrictsController(IDistrictService districtService
     [HttpPost("{id}/name")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [NotCachedFilter]
     public async Task<IActionResult> UpdateName(int id, [FromBody] string name)
     {
         if (await districtService.SetDistrictNameAsync(id, name))
@@ -118,6 +123,7 @@ public sealed partial class DistrictsController(IDistrictService districtService
     [HttpPost("merge")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [NotCachedFilter]
     public async Task<IActionResult> Merge([FromBody] MergeDistrict mergeDistrict)
     {
         if (await districtService.MergeDistrictsAsync(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId))

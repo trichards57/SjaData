@@ -74,6 +74,7 @@ public partial class DeploymentsController(IDeploymentService deploymentService,
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
     public async Task<ActionResult<CountResponse>> ReceiveDeploymentsFile(IFormFile file)
     {
         using var reader = new StreamReader(file.OpenReadStream());

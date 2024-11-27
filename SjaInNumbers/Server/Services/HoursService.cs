@@ -5,7 +5,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using SjaInNumbers.Server.Data;
-using SjaInNumbers.Server.Helpers;
 using SjaInNumbers.Server.Model.Hours;
 using SjaInNumbers.Server.Services.Interfaces;
 using SjaInNumbers.Shared.Model;
@@ -20,27 +19,25 @@ namespace SjaInNumbers.Server.Services;
 /// Service for managing hours entries.
 /// </summary>
 /// <param name="timeProvider">The provider for the current time.</param>
-/// <param name="dataContextFactory">The factory for a data context containing the hours data.</param>
+/// <param name="context">The data context containing the hours data.</param>
 /// <param name="logger">The logger to write to.</param>
-public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<ApplicationDbContext> dataContextFactory, ILogger<HoursService> logger) : IHoursService
+public partial class HoursService(TimeProvider timeProvider, ApplicationDbContext context, ILogger<HoursService> logger) : IHoursService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> dataContextFactory = dataContextFactory;
+    private readonly ApplicationDbContext context = context;
     private readonly ILogger<HoursService> logger = logger;
     private readonly TimeProvider timeProvider = timeProvider;
 
     /// <inheritdoc/>
     public async Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId)
     {
-        using var dataContext = await dataContextFactory.CreateDbContextAsync();
-
-        var existingPeople = await dataContext.People.Include(d => d.District).ToDictionaryAsync(s => s.Id, s => s);
+        var existingPeople = await context.People.Include(d => d.District).ToDictionaryAsync(s => s.Id, s => s);
 
         var hoursList = await hours.ToListAsync();
 
         var startDate = hoursList.Min(h => h.ShiftDate);
         var endDate = hoursList.Max(h => h.ShiftDate);
 
-        var existingItems = await dataContext.Hours.Where(h => h.Date >= startDate && h.Date <= endDate)
+        var existingItems = await context.Hours.Where(h => h.Date >= startDate && h.Date <= endDate)
             .ToListAsync();
 
         foreach (var h in hoursList.Where(h => !string.IsNullOrWhiteSpace(h.IdNumber)).OrderBy(h => h.ShiftDate).ThenBy(d => d.ShiftLength))
@@ -56,7 +53,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             {
                 var nameParts = h.Name.Split(' ', 2);
                 person = new Person { Id = id, FirstName = nameParts[1], LastName = nameParts[0], DistrictId = null, UpdatedById = userId };
-                dataContext.Add(person);
+                context.Add(person);
                 existingPeople.Add(id, person);
             }
 
@@ -66,7 +63,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             {
                 existingItem = new HoursEntry();
                 existingItems.Add(existingItem);
-                dataContext.Hours.Add(existingItem);
+                context.Hours.Add(existingItem);
 
                 existingItem.PersonId = id;
                 existingItem.Date = h.ShiftDate;
@@ -113,28 +110,33 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             }
         }
 
-        return await dataContext.SaveChangesAsync();
+        return await context.SaveChangesAsync();
     }
 
     /// <inheritdoc/>
-    public async Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false)
+    public async Task<HoursCount> CountAsync(DateOnly date, DateType dateType, bool future, string etag)
     {
-        using var dataContext = await dataContextFactory.CreateDbContextAsync();
+        var lastModified = await context.Deployments.Select(d => (DateTimeOffset?)d.LastModified)
+            .MaxAsync() ?? DateTimeOffset.MinValue;
+        var actualEtag = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}")));
 
-        var items = dataContext.Hours.AsNoTracking()
-            .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Region.Undefined || i.Trust != Trust.Undefined));
-
-        if (!date.HasValue)
+        if (etag == $"W/\"{actualEtag}\"")
         {
-            date = DateOnly.FromDateTime(DateTime.Today);
-            dateType = DateType.Year;
+            return new HoursCount
+            {
+                LastModified = lastModified,
+                ETag = actualEtag,
+            };
         }
+
+        var items = context.Hours.AsNoTracking()
+            .Where(i => i.DeletedAt == null && i.Person.IsVolunteer && (i.Region != Region.Undefined || i.Trust != Trust.Undefined));
 
         items = dateType switch
         {
-            DateType.Day => items.Where(h => h.Date == date.Value),
-            DateType.Month => items.Where(h => h.Date.Month == date.Value.Month && h.Date.Year == date.Value.Year),
-            _ => items.Where(h => h.Date.Year == date.Value.Year),
+            DateType.Day => items.Where(h => h.Date == date),
+            DateType.Month => items.Where(h => h.Date.Month == date.Month && h.Date.Year == date.Year),
+            _ => items.Where(h => h.Date.Year == date.Year),
         };
 
         if (future)
@@ -151,20 +153,21 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             h.Region,
             h.Trust,
             h.Hours,
-        }).ToListAsync()).Select(h => new
-        {
-            Label = h.Trust == Trust.Undefined ? h.Region.ToString() : h.Trust.ToString(),
-            h.Hours,
-        })
-        .Where(c => !string.IsNullOrEmpty(c.Label))
-        .GroupBy(h => h.Label)
-        .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours)));
-        var lastUpdate = await GetLastModifiedAsync();
+        }).ToListAsync())
+            .Select(h => new
+            {
+                Label = h.Trust == Trust.Undefined ? h.Region.ToString() : h.Trust.ToString(),
+                h.Hours,
+            })
+            .Where(c => !string.IsNullOrEmpty(c.Label))
+            .GroupBy(h => h.Label)
+            .ToDictionary(h => h.Key, h => TimeSpan.FromHours(h.Sum(i => i.Hours)));
 
         var result = new HoursCount
         {
             Counts = [],
-            LastUpdate = lastUpdate,
+            LastModified = lastModified,
+            ETag = actualEtag,
         };
 
         foreach (var kvp in hoursCount)
@@ -176,56 +179,44 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetHoursCountEtagAsync(DateOnly date, DateType dateType, bool future)
+    public Task<HoursTarget> GetNhseTargetAsync()
     {
-        var lastModified = await GetLastModifiedAsync();
+        var lastModified = timeProvider.GetUtcNow();
+        var date = new DateOnly(lastModified.Year, lastModified.Month, 1);
+        var actualEtag = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes($"{date}-{lastModified}")));
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"{dateType}-{date}-{future}-{lastModified}"));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
-
-    /// <inheritdoc/>
-    public async Task<DateTimeOffset> GetLastModifiedAsync()
-    {
-        using var dataContext = await dataContextFactory.CreateDbContextAsync();
-
-        if (await dataContext.Hours.AnyAsync())
+        return Task.FromResult(new HoursTarget
         {
-            return await dataContext.Hours.MaxAsync(p => p.DeletedAt ?? p.UpdatedAt);
-        }
-
-        return DateTimeOffset.MinValue;
+            Date = date,
+            LastModified = lastModified,
+            Target = 4000,
+            ETag = actualEtag,
+        });
     }
 
     /// <inheritdoc/>
-    public Task<int> GetNhseTargetAsync() => Task.FromResult(4000);
-
-    /// <inheritdoc/>
-    public async Task<string> GetNhseTargetEtagAsync()
+    public async Task<Trends> GetTrendsAsync(Region region, bool nhse, string etag)
     {
-        var lastModified = await GetNhseTargetLastModifiedAsync();
-        var date = new DateOnly(timeProvider.GetLocalNow().Year, timeProvider.GetLocalNow().Month, 1);
-        var marker = $"{date}-{lastModified}";
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(marker));
+        var lastModified = await context.Deployments.Select(d => (DateTimeOffset?)d.LastModified)
+            .MaxAsync() ?? DateTimeOffset.MinValue;
 
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
-
-    /// <inheritdoc/>
-    public Task<DateTimeOffset> GetNhseTargetLastModifiedAsync() => Task.FromResult(DateTimeOffset.UtcNow);
-
-    /// <inheritdoc/>
-    public async Task<Trends> GetTrendsAsync(Region region, bool nhse)
-    {
-        using var dataContext = await dataContextFactory.CreateDbContextAsync();
-
-        var districts = await dataContext.People.Where(p => p.District != null && p.District.Region == region).Select(p => p.District).Distinct().ToListAsync();
-
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().Date);
         var reportDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
 
-        IQueryable<HoursEntry> hours = dataContext.Hours.AsNoTracking();
+        var marker = $"{region}-{nhse}-{reportDate}-{lastModified}";
+        var actualEtag = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(marker)));
+
+        if (etag == $"W/\"{actualEtag}\"")
+        {
+            return new Trends
+            {
+                LastModified = lastModified,
+                ETag = actualEtag,
+            };
+        }
+
+        var districts = await context.People.Where(p => p.District != null && p.District.Region == region).Select(p => p.District).Distinct().ToListAsync();
+        IQueryable<HoursEntry> hours = context.Hours.AsNoTracking();
 
         if (nhse)
         {
@@ -313,25 +304,11 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
             ThreeMonthAverage = threeMonthAverages,
             ThreeMonthMinusOneAverage = threeMonthMinusOneAverages,
             Hours = hoursResult,
+            LastModified = lastModified,
+            ETag = actualEtag,
         };
 
         return trends;
-    }
-
-    /// <inheritdoc/>
-    public async Task<string> GetTrendsEtagAsync(Region region, bool nhse)
-    {
-        ExceptionHelpers.ThrowIfUndefined(region);
-
-        var lastModified = await GetLastModifiedAsync();
-
-        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().Date);
-        var startDate = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
-
-        var marker = $"{region}-{nhse}-{startDate}-{lastModified}";
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(marker));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
     }
 
     private static Trust CalculateTrust(HoursFileLine hour) => hour.CrewType switch

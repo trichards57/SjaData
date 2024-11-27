@@ -8,15 +8,14 @@ namespace SjaInNumbers.Shared.Model.Hours;
 /// <summary>
 /// A count of hours for each area.
 /// </summary>
-public readonly record struct HoursCount
+public readonly record struct HoursCount : IDateMarked
 {
     /// <summary>
     /// Gets the counts of hours for each area.
     /// </summary>
     public Dictionary<string, TimeSpan> Counts { get; init; }
 
-    /// <summary>
-    /// Gets the date and time of the last update.
-    /// </summary>
-    public DateTimeOffset LastUpdate { get; init; }
+    public DateTimeOffset LastModified { get; init; }
+
+    public string ETag { get; init; }
 }
