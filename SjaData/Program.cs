@@ -1,8 +1,14 @@
+// <copyright file="Program.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using HealthChecks.ApplicationStatus.DependencyInjection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SjaData.Authorization;
 using SjaData.Data;
-using SjaInNumbers.Server.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +27,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>()
+builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -54,6 +60,8 @@ builder.Services.AddHealthChecks()
     .AddSqlServer(connectionString)
     .AddApplicationStatus()
     .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
+builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 
 builder.Services.AddRazorPages();
 

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using SjaData.Data;
 
-namespace SjaInNumbers.Server.Authorization;
+namespace SjaData.Authorization;
 
 /// <summary>
 /// Handler for the <see cref="RequireApprovalRequirement"/>.

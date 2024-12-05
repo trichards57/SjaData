@@ -4,7 +4,37 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Home</h2>
+
+<div class="link-boxes link-boxes-small" Size="LinkBoxSize.Small">
+    <a class="link-box link-box-green" asp-page="/hours">
+        Hours
+    </a>
+    @if (User.IsInRole("Lead") || User.IsInRole("Admin"))
+    {
+        <a class="link-box link-box-green" asp-page="/trends">
+            Trends
+        </a>
+        <a class="link-box link-box-green" asp-page="/people">
+            People
+        </a>
+        <a class="link-box link-box-green" asp-page="/vehicles">
+            Vehicles
+        </a>
+        <a class="link-box link-box-green" asp-page="/deployments">
+            Deployments
+        </a>
+        <a class="link-box link-box-dark-green" asp-page="/setup">
+            Setup
+        </a>
+    }
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="link-box link-box-dark-green" asp-page="/update">
+            Update
+        </a>
+        <a class="link-box link-box-yellow" asp-page="/access">
+            Access
+        </a>
+    }
 </div>
