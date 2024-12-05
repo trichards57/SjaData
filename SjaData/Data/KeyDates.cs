@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaData.Data;
 
 /// <summary>
 /// Represents key dates stored in the database.

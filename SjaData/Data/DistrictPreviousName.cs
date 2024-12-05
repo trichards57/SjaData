@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaData.Data;
 
 /// <summary>
 /// Represents the previous names for a district.

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaData.Data;
 
 /// <summary>
 /// Represents an item that can be soft-deleted.

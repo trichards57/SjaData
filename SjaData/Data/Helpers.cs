@@ -5,7 +5,7 @@
 
 using SjaInNumbers.Shared.Model;
 
-namespace SjaInNumbers.Server.Data;
+namespace SjaData.Data;
 
 /// <summary>
 /// Contains a set of helper methods for filtering data.
