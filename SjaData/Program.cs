@@ -1,8 +1,19 @@
+using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SjaData.Data;
+using SjaInNumbers.Server.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.EnableEnrichment();
+
+builder.Services.AddApplicationMetadata(x =>
+{
+    x.ApplicationName = "SJA in Numbers";
+    x.EnvironmentName = builder.Environment.EnvironmentName;
+    x.BuildVersion = typeof(Program).Assembly.GetName().Version?.ToString();
+});
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -10,9 +21,45 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
+{
+    var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? throw new InvalidOperationException("No Microsoft Tenant ID");
+    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? throw new InvalidOperationException("No Microsoft Client ID");
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? throw new InvalidOperationException("No Microsoft Client Secret");
+    microsoftOptions.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+    microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+});
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
+
+builder.Services.AddApplicationInsightsTelemetry(o =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        o.DeveloperMode = true;
+    }
+
+    o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString)
+    .AddApplicationStatus()
+    .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
 builder.Services.AddRazorPages();
+
+builder.Logging.AddApplicationInsights(
+    configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
+    configureApplicationInsightsLoggerOptions: (options) => { });
 
 var app = builder.Build();
 
@@ -31,10 +78,13 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.MapHealthChecks("/health");
+
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.Run();
+await app.RunAsync();
