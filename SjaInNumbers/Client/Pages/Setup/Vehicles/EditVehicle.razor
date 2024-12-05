@@ -75,7 +75,7 @@
 
 @code {
     private string registration = string.Empty;
-    private IList<HubSummary> hubs = [];
+    private IEnumerable<HubSummary> hubs = [];
 
     [Parameter]
     public int Id { get; set; }
@@ -101,7 +101,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        hubs = await HubService.GetHubSummariesAsync().ToListAsync();
+        hubs = (await HubService.GetHubSummariesAsync()).Hubs;
 
         var vehicle = await VehicleService.GetVehicleSettingsAsync(Id);
 

@@ -32,19 +32,7 @@ public interface IHubService
     /// Gets all of the registered hubs.
     /// </summary>
     /// <returns>A list of all hubs.</returns>
-    IAsyncEnumerable<HubSummary> GetAllAsync();
-
-    /// <summary>
-    /// Gets the ETAG for the list of all hubs.
-    /// </summary>
-    /// <returns>An ETag representing the current data.</returns>
-    Task<string> GetAllEtagAsync();
-
-    /// <summary>
-    /// Gets the last modified date for the hub data.
-    /// </summary>
-    /// <returns>The date the hub data was last updated.</returns>
-    Task<DateTimeOffset> GetLastModifiedAsync();
+    Task<NationalHubSummary> GetAllAsync(string etag);
 
     /// <summary>
     /// Gets the name of the given hub.

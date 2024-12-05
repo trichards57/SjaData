@@ -20,32 +20,36 @@ public class HubService(ApplicationDbContext context) : IHubService
     private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
-    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    public async Task<NationalHubSummary> GetAllAsync(string etag)
     {
-        return await context.Hubs.AnyAsync() ? await context.Hubs.MaxAsync(h => h.UpdatedAt) : DateTimeOffset.MinValue;
-    }
+        var lastModified = await context.Hubs.Select(d => (DateTimeOffset?)d.UpdatedAt)
+           .Concat(context.Districts.Select(d => (DateTimeOffset?)d.LastModified))
+           .Concat(context.Vehicles.Select(d => (DateTimeOffset?)d.LastModified))
+           .MaxAsync() ?? DateTimeOffset.MinValue;
+        var actualEtag = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(lastModified.ToString())));
 
-    /// <inheritdoc/>
-    public async Task<string> GetAllEtagAsync()
-    {
-        var lastModified = await GetLastModifiedAsync();
-
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(lastModified.ToString()));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
-    }
-
-    /// <inheritdoc/>
-    public IAsyncEnumerable<HubSummary> GetAllAsync()
-    {
-        return context.Hubs.Select(s => new HubSummary
+        if (etag == $"W/\"{actualEtag}\"")
         {
-            District = s.District.Name,
-            Name = s.Name,
-            Id = s.Id,
-            Region = s.District.Region,
-            VehicleCount = s.Vehicles.Count,
-        }).AsAsyncEnumerable();
+            return new NationalHubSummary
+            {
+                LastModified = lastModified,
+                ETag = actualEtag,
+            };
+        }
+
+        return new NationalHubSummary()
+        {
+            Hubs = context.Hubs.Select(s => new HubSummary
+            {
+                District = s.District.Name,
+                Name = s.Name,
+                Id = s.Id,
+                Region = s.District.Region,
+                VehicleCount = s.Vehicles.Count,
+            }),
+            ETag = actualEtag,
+            LastModified = lastModified,
+        };
     }
 
     /// <inheritdoc/>
@@ -81,6 +85,7 @@ public class HubService(ApplicationDbContext context) : IHubService
             context.Attach(update);
 
             update.Name = name;
+            update.UpdatedAt = DateTimeOffset.UtcNow;
 
             await context.SaveChangesAsync();
         }

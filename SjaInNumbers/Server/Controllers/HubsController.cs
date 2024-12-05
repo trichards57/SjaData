@@ -31,25 +31,11 @@ public class HubsController(IHubService hubService) : ControllerBase
     /// </returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
-    [ProducesResponseType<IAsyncEnumerable<HubSummary>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<NationalHubSummary>(StatusCodes.Status200OK)]
     [RevalidateCache]
-    public async Task<ActionResult<IAsyncEnumerable<HubSummary>>> GetHubSummaries([FromHeader(Name = "If-None-Match")] string? etag)
-    {
-        var actualEtagValue = await hubService.GetAllEtagAsync();
-        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
-        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
-        var lastUpdate = await hubService.GetLastModifiedAsync();
-
-        Response.GetTypedHeaders().ETag = actualEtag;
-        Response.GetTypedHeaders().LastModified = lastUpdate;
-
-        if (actualEtag.Compare(etagValue, false))
-        {
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        return Ok(hubService.GetAllAsync());
-    }
+    public async Task<ActionResult<NationalHubSummary>> GetHubSummaries(
+        [FromHeader(Name = "If-None-Match")] string? etag)
+        => await hubService.GetAllAsync(etag ?? string.Empty);
 
     /// <summary>
     /// Gets the name of a hub.
@@ -110,5 +96,22 @@ public class HubsController(IHubService hubService) : ControllerBase
         var hub = await hubService.AddHubAsync(newHub);
 
         return Created($"/api/hubs/{hub.Id}", hub);
+    }
+
+    /// <summary>
+    /// Deletes the given hub.
+    /// </summary>
+    /// <param name="id">The ID of the hub to delete.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeleteHub(int id)
+    {
+        var result = await hubService.DeleteHubAsync(id);
+
+        return result ? NoContent() : Conflict();
     }
 }

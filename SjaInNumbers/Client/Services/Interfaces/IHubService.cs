@@ -31,7 +31,7 @@ public interface IHubService
     /// Gets a list of all hubs.
     /// </summary>
     /// <returns>The list of hubs.</returns>
-    IAsyncEnumerable<HubSummary> GetHubSummariesAsync();
+    Task<NationalHubSummary> GetHubSummariesAsync();
 
     /// <summary>
     /// Posts a new hub to the server.
@@ -40,4 +40,11 @@ public interface IHubService
     /// <param name="name">The name of the new hub.</param>
     /// <returns>A task representing the asynchronous activity.</returns>
     Task PostHubAsync(int districtId, string name);
+
+    /// <summary>
+    /// Deletes a hub from the server.
+    /// </summary>
+    /// <param name="id">The ID of the hub to delete.</param>
+    /// <returns>A task representing the asynchronous activity.</returns>
+    Task DeleteHubAsync(int id);
 }

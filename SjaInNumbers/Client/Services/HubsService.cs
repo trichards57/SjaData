@@ -13,8 +13,8 @@ public class HubsService(HttpClient httpClient) : IHubService
 {
     private readonly HttpClient httpClient = httpClient;
 
-    public IAsyncEnumerable<HubSummary> GetHubSummariesAsync()
-        => httpClient.GetFromJsonAsAsyncEnumerable<HubSummary>("/api/hubs");
+    public Task<NationalHubSummary> GetHubSummariesAsync()
+        => httpClient.GetFromJsonAsync<NationalHubSummary>("/api/hubs");
 
     public async Task<string> GetHubNameAsync(int id)
         => (await httpClient.GetFromJsonAsync<HubName>($"/api/hubs/{id}/name")).Name;
@@ -24,4 +24,7 @@ public class HubsService(HttpClient httpClient) : IHubService
 
     public Task PostHubAsync(int districtId, string name)
         => httpClient.PostAsJsonAsync("/api/hubs", new NewHub { DistrictId = districtId, Name = name });
+
+    public Task DeleteHubAsync(int id)
+        => httpClient.DeleteAsync($"/api/hubs/{id}");
 }
