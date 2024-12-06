@@ -58,20 +58,21 @@ h3 > a {
     flex-direction: row;
     justify-content: start;
     align-items: center;
-}
 
-    h3 > a:visited {
+
+   &:visited {
         color: var(--sja-black);
     }
 
-    h3 > a:hover {
+    &:hover {
         color: var(--sja-gray);
     }
 
-    h3 > a > img {
+    & > img {
         height: 1rem;
         margin-right: var(--root-padding);
     }
+}
 
 .form-label {
     font-weight: 500;
@@ -191,23 +192,23 @@ a.btn-large {
     background-size: 200% 100%; /* Makes the gradient twice the width */
     animation: wave 4s infinite ease-in-out;
     border-radius: 4px; /* Slightly rounded corners */
-}
 
-    .loading-control.light {
+    &.light {
         background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
         background-size: 200% 100%; /* Makes the gradient twice the width */
         animation: wave 4s infinite ease-in-out;
     }
 
-    .loading-control.wide {
+    &.wide {
         width: 300px;
     }
 
-    .loading-control.fit {
+    &.fit {
         width: calc(100% - 10px);
         margin-left: 5px;
         margin-right: 5px;
     }
+}
 
 
 
