@@ -1,4 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿// <copyright file="20241030214356_DistrictCodes.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -15,7 +20,7 @@ namespace SjaData.Server.Migrations
                 table: "Districts",
                 type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: string.Empty);
         }
 
         /// <inheritdoc />

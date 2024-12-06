@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SjaInNumbers.Shared", "SjaI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VorUploader", "SjaInNumbers\VorUploader\VorUploader.csproj", "{550FCAE5-E50E-4B62-8536-01645D2C0DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjaData.Server", "SjaData\SjaData.Server\SjaData.Server.csproj", "{4D81B09D-4E45-4C60-91AA-22C0EBF0CB43}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "sjadata.client", "SjaData\sjadata.client\sjadata.client.esproj", "{39BD9895-96D7-4752-B46C-003480ADEBC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,16 @@ Global
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{550FCAE5-E50E-4B62-8536-01645D2C0DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D81B09D-4E45-4C60-91AA-22C0EBF0CB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D81B09D-4E45-4C60-91AA-22C0EBF0CB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D81B09D-4E45-4C60-91AA-22C0EBF0CB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D81B09D-4E45-4C60-91AA-22C0EBF0CB43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39BD9895-96D7-4752-B46C-003480ADEBC4}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
