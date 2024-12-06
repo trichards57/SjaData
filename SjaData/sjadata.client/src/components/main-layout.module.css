@@ -1,0 +1,12 @@
+h1 {
+    background-color: var(--sja-black);
+    color: var(--sja-black-text);
+    font-family: var(--sja-header-font);
+    font-weight: 600;
+    width: auto;
+    padding: var(--root-padding) calc(var(--root-padding) * 2);
+    display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: fit-content;
+}
