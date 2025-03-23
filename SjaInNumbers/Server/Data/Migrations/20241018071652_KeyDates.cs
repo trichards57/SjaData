@@ -11,6 +11,13 @@ namespace SjaData.Server.Migrations;
 public partial class KeyDates : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "KeyDates");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -30,12 +37,5 @@ public partial class KeyDates : Migration
             table: "KeyDates",
             columns: ["Id", "LastUpdateFile"],
             values: [1, new DateOnly(1, 1, 1)]);
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "KeyDates");
     }
 }

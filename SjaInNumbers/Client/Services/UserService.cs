@@ -13,18 +13,6 @@ public class UserService(HttpClient client) : IUserService
 {
     private readonly HttpClient client = client;
 
-    public IAsyncEnumerable<UserDetails> GetAll()
-    {
-        return client.GetFromJsonAsAsyncEnumerable<UserDetails>("api/user");
-    }
-
-    public async Task<bool> UpdateUserAsync(UserRoleChange userDetails)
-    {
-        var result = await client.PostAsJsonAsync("api/user", userDetails);
-
-        return result.IsSuccessStatusCode;
-    }
-
     public async Task<bool> ApproveUserAsync(string userId)
     {
         var result = await client.PostAsJsonAsync($"api/user/{userId}/approve", new { });
@@ -37,8 +25,20 @@ public class UserService(HttpClient client) : IUserService
         await client.DeleteAsync($"api/user/{userId}");
     }
 
+    public IAsyncEnumerable<UserDetails> GetAll()
+    {
+        return client.GetFromJsonAsAsyncEnumerable<UserDetails>("api/user");
+    }
+
     public async Task<UserDetails> GetCurrentUserAsync()
     {
         return await client.GetFromJsonAsync<UserDetails>($"api/user/me");
+    }
+
+    public async Task<bool> UpdateUserAsync(UserRoleChange userDetails)
+    {
+        var result = await client.PostAsJsonAsync("api/user", userDetails);
+
+        return result.IsSuccessStatusCode;
     }
 }

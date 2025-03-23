@@ -13,6 +13,14 @@ namespace SjaData.Server.Migrations
     public partial class UserApproval : Migration
     {
         /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "IsApproved",
+                table: "AspNetUsers");
+        }
+
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
@@ -21,14 +29,6 @@ namespace SjaData.Server.Migrations
                 type: "bit",
                 nullable: false,
                 defaultValue: false);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "IsApproved",
-                table: "AspNetUsers");
         }
     }
 }

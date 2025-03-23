@@ -28,43 +28,8 @@ namespace SjaInNumbers.Server.Controllers;
 [Route("api/hours")]
 public class HoursController(IHoursService hoursService, ILogger<HoursController> logger) : ControllerBase
 {
-    private readonly ILogger logger = logger;
     private readonly IHoursService hoursService = hoursService;
-
-    /// <summary>
-    /// Gets the current NHSE Target.
-    /// </summary>
-    /// <param name="etag">The Etag for the data currently held by the client.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
-    /// </returns>
-    [HttpGet("target")]
-    [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status304NotModified)]
-    [RevalidateCache]
-    [Authorize(Policy = "Approved")]
-    public async Task<ActionResult<HoursTarget>> GetTargetAsync([FromHeader(Name = "If-None-Match")] string? etag)
-    {
-        var target = await hoursService.GetNhseTargetAsync();
-        var actualEtagValue = await hoursService.GetNhseTargetEtagAsync();
-        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
-        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
-        var lastModified = await hoursService.GetNhseTargetLastModifiedAsync();
-
-        Response.GetTypedHeaders().ETag = actualEtag;
-        Response.GetTypedHeaders().LastModified = lastModified;
-
-        if (actualEtag.Compare(etagValue, false))
-        {
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        return Ok(new HoursTarget
-        {
-            Target = target,
-            Date = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1),
-        });
-    }
+    private readonly ILogger logger = logger;
 
     /// <summary>
     /// Gets the count of hours around a given date.
@@ -107,43 +72,38 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
     }
 
     /// <summary>
-    /// Accepts a CSV file of hours and processes it.
+    /// Gets the current NHSE Target.
     /// </summary>
-    /// <param name="file">The uploaded file data.</param>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
     /// </returns>
-    [HttpPost]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<CountResponse>(StatusCodes.Status200OK)]
-    [Authorize(Policy = "Admin")]
-    [NotCachedFilter]
-    public async Task<ActionResult<CountResponse>> ReceiveHoursFile(IFormFile file)
+    [HttpGet("target")]
+    [ProducesResponseType<HoursTarget>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [RevalidateCache]
+    [Authorize(Policy = "Approved")]
+    public async Task<ActionResult<HoursTarget>> GetTargetAsync([FromHeader(Name = "If-None-Match")] string? etag)
     {
-        using var reader = new StreamReader(file.OpenReadStream());
-        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
-        csv.Context.RegisterClassMap<HoursFileLineMap>();
+        var target = await hoursService.GetNhseTargetAsync();
+        var actualEtagValue = await hoursService.GetNhseTargetEtagAsync();
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+        var lastModified = await hoursService.GetNhseTargetLastModifiedAsync();
 
-        try
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastModified;
+
+        if (actualEtag.Compare(etagValue, false))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Could not get the current user.");
-            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>(), userId);
-
-            return Ok(new CountResponse { Count = updatedCount });
+            return StatusCode(StatusCodes.Status304NotModified);
         }
-        catch (CsvHelperException ex)
+
+        return Ok(new HoursTarget
         {
-            logger.LogError(ex, "There was an error reading the CSV file.");
-
-            var problemDetails = new ProblemDetails()
-            {
-                Detail = ex.Message,
-                Title = "The uploaded CSV data was invalid.",
-                Status = StatusCodes.Status400BadRequest,
-            };
-
-            return BadRequest(problemDetails);
-        }
+            Target = target,
+            Date = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1),
+        });
     }
 
     /// <summary>
@@ -185,5 +145,45 @@ public class HoursController(IHoursService hoursService, ILogger<HoursController
         var trends = await hoursService.GetTrendsAsync(region, nhse);
 
         return Ok(trends);
+    }
+
+    /// <summary>
+    /// Accepts a CSV file of hours and processes it.
+    /// </summary>
+    /// <param name="file">The uploaded file data.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<CountResponse>(StatusCodes.Status200OK)]
+    [Authorize(Policy = "Admin")]
+    [NotCachedFilter]
+    public async Task<ActionResult<CountResponse>> ReceiveHoursFile(IFormFile file)
+    {
+        using var reader = new StreamReader(file.OpenReadStream());
+        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
+        csv.Context.RegisterClassMap<HoursFileLineMap>();
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Could not get the current user.");
+            var updatedCount = await hoursService.AddHours(csv.GetRecordsAsync<HoursFileLine>(), userId);
+
+            return Ok(new CountResponse { Count = updatedCount });
+        }
+        catch (CsvHelperException ex)
+        {
+            logger.LogError(ex, "There was an error reading the CSV file.");
+
+            var problemDetails = new ProblemDetails()
+            {
+                Detail = ex.Message,
+                Title = "The uploaded CSV data was invalid.",
+                Status = StatusCodes.Status400BadRequest,
+            };
+
+            return BadRequest(problemDetails);
+        }
     }
 }

@@ -19,26 +19,9 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
-    public Task<int?> GetIdByNameAsync(string name, Region region)
+    public async Task<bool> CheckDistrictCodeAvailable(int id, string code)
     {
-        name = name.Trim();
-
-        return context.Districts
-            .Include(d => d.PreviousNames)
-            .Where(d => d.Region == region && (d.Name == name || d.PreviousNames.Any(e => e.OldName == name)))
-            .Select(s => s.Id)
-            .Cast<int?>()
-            .FirstOrDefaultAsync();
-    }
-
-    /// <inheritdoc/>
-    public Task<int?> GetIdByDistrictCodeAsync(string code)
-    {
-        return context.Districts
-            .Where(d => d.Code == code)
-            .Select(s => s.Id)
-            .Cast<int?>()
-            .FirstOrDefaultAsync();
+        return !await context.Districts.AnyAsync(d => d.Id != id && d.Code == code);
     }
 
     /// <inheritdoc/>
@@ -71,6 +54,59 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     }
 
     /// <inheritdoc/>
+    public Task<int?> GetIdByDistrictCodeAsync(string code)
+    {
+        return context.Districts
+            .Where(d => d.Code == code)
+            .Select(s => s.Id)
+            .Cast<int?>()
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public Task<int?> GetIdByNameAsync(string name, Region region)
+    {
+        name = name.Trim();
+
+        return context.Districts
+            .Include(d => d.PreviousNames)
+            .Where(d => d.Region == region && (d.Name == name || d.PreviousNames.Any(e => e.OldName == name)))
+            .Select(s => s.Id)
+            .Cast<int?>()
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    {
+        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
+        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
+
+        if (sourceDistrict == null || destinationDistrict == null)
+        {
+            return false;
+        }
+
+        foreach (var hub in sourceDistrict.Hubs)
+        {
+            hub.DistrictId = destinationDistrict.Id;
+        }
+
+        foreach (var name in sourceDistrict.PreviousNames)
+        {
+            name.DistrictId = destinationDistrict.Id;
+        }
+
+        destinationDistrict.PreviousNames.Add(new DistrictPreviousName { DistrictId = destinationDistrict.Id, OldName = sourceDistrict.Name });
+
+        context.Districts.Remove(sourceDistrict);
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> SetDistrictCodeAsync(int id, string code)
     {
         var district = new District
@@ -86,12 +122,6 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
         var count = await context.SaveChangesAsync();
 
         return count == 1;
-    }
-
-    /// <inheritdoc/>
-    public async Task<bool> CheckDistrictCodeAvailable(int id, string code)
-    {
-        return !await context.Districts.AnyAsync(d => d.Id != id && d.Code == code);
     }
 
     /// <inheritdoc/>
@@ -121,36 +151,6 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
         }
 
         district.LastModified = DateTimeOffset.UtcNow;
-
-        await context.SaveChangesAsync();
-
-        return true;
-    }
-
-    /// <inheritdoc/>
-    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
-    {
-        var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
-        var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
-
-        if (sourceDistrict == null || destinationDistrict == null)
-        {
-            return false;
-        }
-
-        foreach (var hub in sourceDistrict.Hubs)
-        {
-            hub.DistrictId = destinationDistrict.Id;
-        }
-
-        foreach (var name in sourceDistrict.PreviousNames)
-        {
-            name.DistrictId = destinationDistrict.Id;
-        }
-
-        destinationDistrict.PreviousNames.Add(new DistrictPreviousName { DistrictId = destinationDistrict.Id, OldName = sourceDistrict.Name });
-
-        context.Districts.Remove(sourceDistrict);
 
         await context.SaveChangesAsync();
 

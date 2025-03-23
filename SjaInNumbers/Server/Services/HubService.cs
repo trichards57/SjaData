@@ -20,19 +20,33 @@ public class HubService(ApplicationDbContext context) : IHubService
     private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
-    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    public async Task<HubSummary> AddHubAsync(NewHub newHub)
     {
-        return await context.Hubs.AnyAsync() ? await context.Hubs.MaxAsync(h => h.UpdatedAt) : DateTimeOffset.MinValue;
+        var hub = new Hub
+        {
+            Name = newHub.Name,
+            DistrictId = newHub.DistrictId,
+            UpdatedAt = DateTimeOffset.UtcNow,
+        };
+
+        context.Hubs.Add(hub);
+        await context.SaveChangesAsync();
+
+        return await context.Hubs.Select(s => new HubSummary
+        {
+            District = s.District.Name,
+            Name = s.Name,
+            Id = s.Id,
+            Region = s.District.Region,
+        }).FirstOrDefaultAsync(h => h.Id == hub.Id);
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetAllEtagAsync()
+    public async Task<bool> DeleteHubAsync(int id)
     {
-        var lastModified = await GetLastModifiedAsync();
+        var res = await context.Hubs.Where(h => h.Id == id).ExecuteDeleteAsync();
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(lastModified.ToString()));
-
-        return $"\"{Convert.ToBase64String(hash)}\"";
+        return res > 0;
     }
 
     /// <inheritdoc/>
@@ -47,6 +61,22 @@ public class HubService(ApplicationDbContext context) : IHubService
             VehicleCount = s.Vehicles.Count,
             PeopleCount = s.People.Count,
         }).AsAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetAllEtagAsync()
+    {
+        var lastModified = await GetLastModifiedAsync();
+
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(lastModified.ToString()));
+
+        return $"\"{Convert.ToBase64String(hash)}\"";
+    }
+
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset> GetLastModifiedAsync()
+    {
+        return await context.Hubs.AnyAsync() ? await context.Hubs.MaxAsync(h => h.UpdatedAt) : DateTimeOffset.MinValue;
     }
 
     /// <inheritdoc/>
@@ -86,35 +116,5 @@ public class HubService(ApplicationDbContext context) : IHubService
         }
 
         return true;
-    }
-
-    /// <inheritdoc/>
-    public async Task<HubSummary> AddHubAsync(NewHub newHub)
-    {
-        var hub = new Hub
-        {
-            Name = newHub.Name,
-            DistrictId = newHub.DistrictId,
-            UpdatedAt = DateTimeOffset.UtcNow,
-        };
-
-        context.Hubs.Add(hub);
-        await context.SaveChangesAsync();
-
-        return await context.Hubs.Select(s => new HubSummary
-        {
-            District = s.District.Name,
-            Name = s.Name,
-            Id = s.Id,
-            Region = s.District.Region,
-        }).FirstOrDefaultAsync(h => h.Id == hub.Id);
-    }
-
-    /// <inheritdoc/>
-    public async Task<bool> DeleteHubAsync(int id)
-    {
-        var res = await context.Hubs.Where(h => h.Id == id).ExecuteDeleteAsync();
-
-        return res > 0;
     }
 }

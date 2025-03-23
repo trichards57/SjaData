@@ -48,19 +48,6 @@ public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
         Map(h => h.Path).Name("Path");
     }
 
-    private sealed class DateTimeConverter : DefaultTypeConverter
-    {
-        public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return DateTime.MinValue;
-            }
-
-            return DateTime.Parse(text, CultureInfo.GetCultureInfo("en-GB"));
-        }
-    }
-
     private sealed class DateOnlyConverter : DefaultTypeConverter
     {
         public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
@@ -74,18 +61,16 @@ public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
         }
     }
 
-    private sealed class TimeOnlyConverter : DefaultTypeConverter
+    private sealed class DateTimeConverter : DefaultTypeConverter
     {
-        public override object? ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
+        public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
-                return TimeOnly.MinValue;
+                return DateTime.MinValue;
             }
 
-            var str = text.Replace(".", string.Empty).Replace(":", string.Empty).Replace(";", string.Empty).PadLeft(4, '0').Trim()[..4];
-
-            return TimeOnly.ParseExact(str, "HHmm", CultureInfo.InvariantCulture);
+            return DateTime.Parse(text, CultureInfo.GetCultureInfo("en-GB"));
         }
     }
 
@@ -117,6 +102,21 @@ public class DeploymentsFileLineMap : ClassMap<DeploymentsFileLine>
             }
 
             return int.Parse(text);
+        }
+    }
+
+    private sealed class TimeOnlyConverter : DefaultTypeConverter
+    {
+        public override object? ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return TimeOnly.MinValue;
+            }
+
+            var str = text.Replace(".", string.Empty).Replace(":", string.Empty).Replace(";", string.Empty).PadLeft(4, '0').Trim()[..4];
+
+            return TimeOnly.ParseExact(str, "HHmm", CultureInfo.InvariantCulture);
         }
     }
 }

@@ -20,14 +20,6 @@ public interface IHubService
     Task<HubName> GetHubNameAsync(int id);
 
     /// <summary>
-    /// Updates the name of the given hub.
-    /// </summary>
-    /// <param name="id">The ID of the hub.</param>
-    /// <param name="name">The new name details.</param>
-    /// <returns>A task representing the asynchronous activity.</returns>
-    Task PostHubNameAsync(int id, HubName name);
-
-    /// <summary>
     /// Gets a list of all hubs.
     /// </summary>
     /// <returns>The list of hubs.</returns>
@@ -39,4 +31,12 @@ public interface IHubService
     /// <param name="hub">The new hub.</param>
     /// <returns>A task representing the asynchronous activity.</returns>
     Task PostHubAsync(NewHub hub);
+
+    /// <summary>
+    /// Updates the name of the given hub.
+    /// </summary>
+    /// <param name="id">The ID of the hub.</param>
+    /// <param name="name">The new name details.</param>
+    /// <returns>A task representing the asynchronous activity.</returns>
+    Task PostHubNameAsync(int id, HubName name);
 }

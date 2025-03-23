@@ -9,6 +9,32 @@ namespace SjaInNumbers.Client.Converters;
 
 public static class LabelConverters
 {
+    public static bool IsRegion(string label) => !IsTrust(label);
+
+    public static bool IsTrust(string label) => label switch
+    {
+        "EastMidlands" => false,
+        "EastOfEngland" => false,
+        "NorthEast" => false,
+        "NorthWest" => false,
+        "SouthEast" => false,
+        "SouthWest" => false,
+        "WestMidlands" => false,
+        "London" => false,
+        "NorthEastAmbulanceService" => true,
+        "NorthWestAmbulanceService" => true,
+        "WestMidlandsAmbulanceService" => true,
+        "EastMidlandsAmbulanceService" => true,
+        "EastOfEnglandAmbulanceService" => true,
+        "SouthWesternAmbulanceService" => true,
+        "SouthCentralAmbulanceService" => true,
+        "SouthEastCoastAmbulanceService" => true,
+        "LondonAmbulanceService" => true,
+        "YorkshireAmbulanceService" => true,
+        "IsleOfWightAmbulanceService" => true,
+        _ => true,
+    };
+
     public static string LabelToDisplay(Region region) => region switch
     {
         Region.EastMidlands => "East Midlands",
@@ -54,30 +80,4 @@ public static class LabelConverters
         "IsleOfWightAmbulanceService" => "Isle of Wight Ambulance Service",
         _ => label,
     };
-
-    public static bool IsTrust(string label) => label switch
-    {
-        "EastMidlands" => false,
-        "EastOfEngland" => false,
-        "NorthEast" => false,
-        "NorthWest" => false,
-        "SouthEast" => false,
-        "SouthWest" => false,
-        "WestMidlands" => false,
-        "London" => false,
-        "NorthEastAmbulanceService" => true,
-        "NorthWestAmbulanceService" => true,
-        "WestMidlandsAmbulanceService" => true,
-        "EastMidlandsAmbulanceService" => true,
-        "EastOfEnglandAmbulanceService" => true,
-        "SouthWesternAmbulanceService" => true,
-        "SouthCentralAmbulanceService" => true,
-        "SouthEastCoastAmbulanceService" => true,
-        "LondonAmbulanceService" => true,
-        "YorkshireAmbulanceService" => true,
-        "IsleOfWightAmbulanceService" => true,
-        _ => true,
-    };
-
-    public static bool IsRegion(string label) => !IsTrust(label);
 }

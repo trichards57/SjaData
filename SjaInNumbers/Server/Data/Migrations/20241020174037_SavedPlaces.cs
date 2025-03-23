@@ -13,6 +13,49 @@ namespace SjaData.Server.Migrations;
 public partial class SavedPlaces : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            name: "FK_Vehicles_Hubs_HubId",
+            table: "Vehicles");
+
+        migrationBuilder.DropTable(
+            name: "Hubs");
+
+        migrationBuilder.DropTable(
+            name: "Districts");
+
+        migrationBuilder.DropIndex(
+            name: "IX_Vehicles_HubId",
+            table: "Vehicles");
+
+        migrationBuilder.DropColumn(
+            name: "HubId",
+            table: "Vehicles");
+
+        migrationBuilder.AddColumn<string>(
+            name: "District",
+            table: "Vehicles",
+            type: "nvarchar(max)",
+            nullable: false,
+            defaultValue: string.Empty);
+
+        migrationBuilder.AddColumn<string>(
+            name: "Hub",
+            table: "Vehicles",
+            type: "nvarchar(max)",
+            nullable: false,
+            defaultValue: string.Empty);
+
+        migrationBuilder.AddColumn<byte>(
+            name: "Region",
+            table: "Vehicles",
+            type: "tinyint",
+            nullable: false,
+            defaultValue: (byte)0);
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropColumn(
@@ -84,48 +127,5 @@ public partial class SavedPlaces : Migration
             principalTable: "Hubs",
             principalColumn: "Id",
             onDelete: ReferentialAction.Restrict);
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropForeignKey(
-            name: "FK_Vehicles_Hubs_HubId",
-            table: "Vehicles");
-
-        migrationBuilder.DropTable(
-            name: "Hubs");
-
-        migrationBuilder.DropTable(
-            name: "Districts");
-
-        migrationBuilder.DropIndex(
-            name: "IX_Vehicles_HubId",
-            table: "Vehicles");
-
-        migrationBuilder.DropColumn(
-            name: "HubId",
-            table: "Vehicles");
-
-        migrationBuilder.AddColumn<string>(
-            name: "District",
-            table: "Vehicles",
-            type: "nvarchar(max)",
-            nullable: false,
-            defaultValue: string.Empty);
-
-        migrationBuilder.AddColumn<string>(
-            name: "Hub",
-            table: "Vehicles",
-            type: "nvarchar(max)",
-            nullable: false,
-            defaultValue: string.Empty);
-
-        migrationBuilder.AddColumn<byte>(
-            name: "Region",
-            table: "Vehicles",
-            type: "tinyint",
-            nullable: false,
-            defaultValue: (byte)0);
     }
 }

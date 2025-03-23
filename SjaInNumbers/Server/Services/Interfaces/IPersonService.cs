@@ -15,16 +15,6 @@ namespace SjaInNumbers.Server.Services.Interfaces;
 public interface IPersonService
 {
     /// <summary>
-    /// Gets the people activity reports for a specific end-date and region.
-    /// </summary>
-    /// <param name="date">The date of the last activity.</param>
-    /// <param name="region">The region to report on.</param>
-    /// <returns>
-    /// The people activity reports.
-    /// </returns>
-    IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region);
-
-    /// <summary>
     /// Adds a collection of people to the database.
     /// </summary>
     /// <param name="people">The people to add.</param>
@@ -43,6 +33,16 @@ public interface IPersonService
     /// last modified date.
     /// </returns>
     Task<DateTimeOffset> GetLastModifiedAsync();
+
+    /// <summary>
+    /// Gets the people activity reports for a specific end-date and region.
+    /// </summary>
+    /// <param name="date">The date of the last activity.</param>
+    /// <param name="region">The region to report on.</param>
+    /// <returns>
+    /// The people activity reports.
+    /// </returns>
+    IAsyncEnumerable<PersonReport> GetPeopleReportsAsync(DateOnly date, Region region);
 
     /// <summary>
     /// Gets the current Etag for the people data.

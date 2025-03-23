@@ -13,6 +13,40 @@ namespace SjaData.Server.Migrations;
 public partial class InitialModel : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "AspNetRoleClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserLogins");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserRoles");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserTokens");
+
+        migrationBuilder.DropTable(
+            name: "Hours");
+
+        migrationBuilder.DropTable(
+            name: "Patients");
+
+        migrationBuilder.DropTable(
+            name: "AspNetRoles");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUsers");
+
+        migrationBuilder.DropTable(
+            name: "People");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -269,39 +303,5 @@ public partial class InitialModel : Migration
             name: "IX_Hours_PersonId",
             table: "Hours",
             column: "PersonId");
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "AspNetRoleClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserLogins");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserRoles");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserTokens");
-
-        migrationBuilder.DropTable(
-            name: "Hours");
-
-        migrationBuilder.DropTable(
-            name: "Patients");
-
-        migrationBuilder.DropTable(
-            name: "AspNetRoles");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUsers");
-
-        migrationBuilder.DropTable(
-            name: "People");
     }
 }

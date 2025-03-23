@@ -14,19 +14,19 @@ public class VehicleService(HttpClient client) : IVehicleService
 {
     private readonly HttpClient client = client;
 
-    public IAsyncEnumerable<VehicleSettings> GetVehicleSettings()
-        => client.GetFromJsonAsAsyncEnumerable<VehicleSettings>("/api/vehicles");
-
     public async Task<NationalVehicleReport> GetNationalReportAsync()
         => await client.GetFromJsonAsync<NationalVehicleReport>("/api/vehicles/all");
 
-    public async Task<VehicleSettings> GetVehicleSettingsAsync(int id) => await client.GetFromJsonAsync<VehicleSettings>($"/api/vehicles/{id}");
+    public IAsyncEnumerable<VehicleTypeStatus> GetNationalStatus()
+        => client.GetFromJsonAsAsyncEnumerable<VehicleTypeStatus>("/api/vor/national");
 
-    public async Task PostVehicleSettingsAsync(UpdateVehicleSettings settings) => await client.PostAsJsonAsync($"/api/vehicles", settings);
+    public IAsyncEnumerable<VehicleSettings> GetVehicleSettings()
+                => client.GetFromJsonAsAsyncEnumerable<VehicleSettings>("/api/vehicles");
+
+    public async Task<VehicleSettings> GetVehicleSettingsAsync(int id) => await client.GetFromJsonAsync<VehicleSettings>($"/api/vehicles/{id}");
 
     public IAsyncEnumerable<VorStatus> GetVorStatus(Region region)
         => client.GetFromJsonAsAsyncEnumerable<VorStatus>($"/api/vor?region={region}");
 
-    public IAsyncEnumerable<VehicleTypeStatus> GetNationalStatus()
-        => client.GetFromJsonAsAsyncEnumerable<VehicleTypeStatus>("/api/vor/national");
+    public async Task PostVehicleSettingsAsync(UpdateVehicleSettings settings) => await client.PostAsJsonAsync($"/api/vehicles", settings);
 }

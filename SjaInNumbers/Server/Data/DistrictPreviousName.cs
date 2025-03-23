@@ -13,13 +13,6 @@ namespace SjaInNumbers.Server.Data;
 public class DistrictPreviousName
 {
     /// <summary>
-    /// Gets or sets the internal ID of the district.
-    /// </summary>
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    /// <summary>
     /// Gets or sets the district the hub sits in.
     /// </summary>
     [ForeignKey(nameof(DistrictId))]
@@ -31,6 +24,13 @@ public class DistrictPreviousName
     /// Gets or sets the ID of the district the hub sits in.
     /// </summary>
     public int DistrictId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the internal ID of the district.
+    /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the previous name.

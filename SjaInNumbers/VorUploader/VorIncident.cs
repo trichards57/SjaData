@@ -13,19 +13,29 @@ namespace VorUploader;
 public class VorIncident
 {
     /// <summary>
+    /// Gets the body type of the vehicle.
+    /// </summary>
+    public string BodyType { get; init; } = string.Empty;
+
+    /// <summary>
     /// Gets the vehicle's call-sign.
     /// </summary>
     public string CallSign { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the vehicle's registration.
+    /// Gets the comments associated with the incident.
     /// </summary>
-    public string Registration { get; init; } = string.Empty;
+    public string Comments { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the body type of the vehicle.
+    /// Gets the description of the incident.
     /// </summary>
-    public string BodyType { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the estimated date the vehicle will return to service.
+    /// </summary>
+    public DateOnly? EstimatedRepairDate { get; init; }
 
     /// <summary>
     /// Gets the make of the vehicle.
@@ -38,27 +48,17 @@ public class VorIncident
     public string Model { get; init; } = string.Empty;
 
     /// <summary>
+    /// Gets the vehicle's registration.
+    /// </summary>
+    public string Registration { get; init; } = string.Empty;
+
+    /// <summary>
     /// Gets the start date of the incident.
     /// </summary>
     public DateOnly StartDate { get; init; }
 
     /// <summary>
-    /// Gets the description of the incident.
-    /// </summary>
-    public string Description { get; init; } = string.Empty;
-
-    /// <summary>
     /// Gets the last update of the incident.
     /// </summary>
     public DateOnly UpdateDate { get; init; }
-
-    /// <summary>
-    /// Gets the comments associated with the incident.
-    /// </summary>
-    public string Comments { get; init; } = string.Empty;
-
-    /// <summary>
-    /// Gets the estimated date the vehicle will return to service.
-    /// </summary>
-    public DateOnly? EstimatedRepairDate { get; init; }
 }

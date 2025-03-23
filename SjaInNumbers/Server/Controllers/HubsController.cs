@@ -24,6 +24,38 @@ public class HubsController(IHubService hubService) : ControllerBase
     private readonly IHubService hubService = hubService;
 
     /// <summary>
+    /// Deletes a hub.
+    /// </summary>
+    /// <param name="id">The ID of the hub.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeleteHub(int id)
+    {
+        try
+        {
+            var result = await hubService.DeleteHubAsync(id);
+
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict();
+        }
+    }
+
+    /// <summary>
     /// Gets all of the hub summaries.
     /// </summary>
     /// <param name="etag">The Etag for the data currently held by the client.</param>
@@ -75,6 +107,22 @@ public class HubsController(IHubService hubService) : ControllerBase
     }
 
     /// <summary>
+    /// Creates a new hub.
+    /// </summary>
+    /// <param name="newHub">The details of the new hub.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType<HubSummary>(StatusCodes.Status201Created)]
+    public async Task<IActionResult> PostHub([FromBody] NewHub newHub)
+    {
+        var hub = await hubService.AddHubAsync(newHub);
+
+        return Created($"/api/hubs/{hub.Id}", hub);
+    }
+
+    /// <summary>
     /// Updates the name of a hub.
     /// </summary>
     /// <param name="id">The ID of the hub whose name is being updated.</param>
@@ -95,53 +143,5 @@ public class HubsController(IHubService hubService) : ControllerBase
         }
 
         return NoContent();
-    }
-
-    /// <summary>
-    /// Creates a new hub.
-    /// </summary>
-    /// <param name="newHub">The details of the new hub.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
-    /// </returns>
-    [HttpPost]
-    [ProducesResponseType<HubSummary>(StatusCodes.Status201Created)]
-    public async Task<IActionResult> PostHub([FromBody] NewHub newHub)
-    {
-        var hub = await hubService.AddHubAsync(newHub);
-
-        return Created($"/api/hubs/{hub.Id}", hub);
-    }
-
-    /// <summary>
-    /// Deletes a hub.
-    /// </summary>
-    /// <param name="id">The ID of the hub.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
-    /// </returns>
-    [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> DeleteHub(int id)
-    {
-        try
-        {
-            var result = await hubService.DeleteHubAsync(id);
-
-            if (result)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-        catch (DbUpdateException)
-        {
-            return Conflict();
-        }
     }
 }

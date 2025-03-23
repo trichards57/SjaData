@@ -13,119 +13,6 @@ namespace SjaData.Server.Migrations;
 public partial class LocalUser : Migration
 {
     /// <inheritdoc />
-    protected override void Up(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "AspNetRoleClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserLogins");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserRoles");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserTokens");
-
-        migrationBuilder.DropTable(
-            name: "AspNetRoles");
-
-        migrationBuilder.DropPrimaryKey(
-            name: "PK_AspNetUsers",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropIndex(
-            name: "EmailIndex",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropIndex(
-            name: "UserNameIndex",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "AccessFailedCount",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "ConcurrencyStamp",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "Email",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "EmailConfirmed",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "LockoutEnabled",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "LockoutEnd",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "NormalizedEmail",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "NormalizedUserName",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "PasswordHash",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "PhoneNumber",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "PhoneNumberConfirmed",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "SecurityStamp",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "TwoFactorEnabled",
-            table: "AspNetUsers");
-
-        migrationBuilder.DropColumn(
-            name: "UserName",
-            table: "AspNetUsers");
-
-        migrationBuilder.RenameTable(
-            name: "AspNetUsers",
-            newName: "Users");
-
-        migrationBuilder.AddColumn<string>(
-            name: "Name",
-            table: "Users",
-            type: "nvarchar(max)",
-            nullable: false,
-            defaultValue: string.Empty);
-
-        migrationBuilder.AddColumn<byte>(
-            name: "Role",
-            table: "Users",
-            type: "tinyint",
-            nullable: false,
-            defaultValue: (byte)0);
-
-        migrationBuilder.AddPrimaryKey(
-            name: "PK_Users",
-            table: "Users",
-            column: "Id");
-    }
-
-    /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropPrimaryKey(
@@ -400,5 +287,118 @@ public partial class LocalUser : Migration
             name: "IX_AspNetUserRoles_RoleId",
             table: "AspNetUserRoles",
             column: "RoleId");
+    }
+
+    /// <inheritdoc />
+    protected override void Up(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "AspNetRoleClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserLogins");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserRoles");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserTokens");
+
+        migrationBuilder.DropTable(
+            name: "AspNetRoles");
+
+        migrationBuilder.DropPrimaryKey(
+            name: "PK_AspNetUsers",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropIndex(
+            name: "EmailIndex",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropIndex(
+            name: "UserNameIndex",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "AccessFailedCount",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "ConcurrencyStamp",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "Email",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "EmailConfirmed",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "LockoutEnabled",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "LockoutEnd",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "NormalizedEmail",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "NormalizedUserName",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "PasswordHash",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "PhoneNumber",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "PhoneNumberConfirmed",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "SecurityStamp",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "TwoFactorEnabled",
+            table: "AspNetUsers");
+
+        migrationBuilder.DropColumn(
+            name: "UserName",
+            table: "AspNetUsers");
+
+        migrationBuilder.RenameTable(
+            name: "AspNetUsers",
+            newName: "Users");
+
+        migrationBuilder.AddColumn<string>(
+            name: "Name",
+            table: "Users",
+            type: "nvarchar(max)",
+            nullable: false,
+            defaultValue: string.Empty);
+
+        migrationBuilder.AddColumn<byte>(
+            name: "Role",
+            table: "Users",
+            type: "tinyint",
+            nullable: false,
+            defaultValue: (byte)0);
+
+        migrationBuilder.AddPrimaryKey(
+            name: "PK_Users",
+            table: "Users",
+            column: "Id");
     }
 }

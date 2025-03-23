@@ -18,8 +18,8 @@ namespace SjaInNumbers.Server.Services;
 /// <param name="options">The options for the worker.</param>
 public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorkerSettings> options) : IHostedService
 {
-    private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly OpenIdWorkerSettings options = options.Value;
+    private readonly IServiceProvider serviceProvider = serviceProvider;
 
     /// <inheritdoc/>
     public async Task StartAsync(CancellationToken cancellationToken)

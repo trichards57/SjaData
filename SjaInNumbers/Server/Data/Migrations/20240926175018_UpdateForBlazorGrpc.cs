@@ -13,6 +13,126 @@ namespace SjaData.Server.Migrations;
 public partial class UpdateForBlazorGrpc : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            name: "FK_Hours_AspNetUsers_UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.DropForeignKey(
+            name: "FK_People_AspNetUsers_UpdatedById",
+            table: "People");
+
+        migrationBuilder.DropTable(
+            name: "AspNetRoleClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserClaims");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserLogins");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserRoles");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUserTokens");
+
+        migrationBuilder.DropTable(
+            name: "AspNetRoles");
+
+        migrationBuilder.DropTable(
+            name: "AspNetUsers");
+
+        migrationBuilder.DropIndex(
+            name: "IX_People_UpdatedById",
+            table: "People");
+
+        migrationBuilder.DropIndex(
+            name: "IX_Hours_UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.DropColumn(
+            name: "UpdatedById",
+            table: "People");
+
+        migrationBuilder.DropColumn(
+            name: "UpdatedById",
+            table: "Hours");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "Role",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "LastName",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "FirstName",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "District",
+            table: "People",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(100)",
+            oldMaxLength: 100);
+
+        migrationBuilder.CreateTable(
+            name: "Patients",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                CallSign = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                Date = table.Column<DateOnly>(type: "date", nullable: false),
+                DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                EventType = table.Column<byte>(type: "tinyint", nullable: false),
+                FinalClinicalImpression = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                Outcome = table.Column<byte>(type: "tinyint", nullable: false),
+                PresentingComplaint = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                Region = table.Column<byte>(type: "tinyint", nullable: false),
+                Trust = table.Column<byte>(type: "tinyint", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Patients", x => x.Id);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Users",
+            columns: table => new
+            {
+                Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Role = table.Column<byte>(type: "tinyint", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Users", x => x.Id);
+            });
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(
@@ -280,125 +400,5 @@ public partial class UpdateForBlazorGrpc : Migration
             principalTable: "AspNetUsers",
             principalColumn: "Id",
             onDelete: ReferentialAction.Restrict);
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropForeignKey(
-            name: "FK_Hours_AspNetUsers_UpdatedById",
-            table: "Hours");
-
-        migrationBuilder.DropForeignKey(
-            name: "FK_People_AspNetUsers_UpdatedById",
-            table: "People");
-
-        migrationBuilder.DropTable(
-            name: "AspNetRoleClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserClaims");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserLogins");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserRoles");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUserTokens");
-
-        migrationBuilder.DropTable(
-            name: "AspNetRoles");
-
-        migrationBuilder.DropTable(
-            name: "AspNetUsers");
-
-        migrationBuilder.DropIndex(
-            name: "IX_People_UpdatedById",
-            table: "People");
-
-        migrationBuilder.DropIndex(
-            name: "IX_Hours_UpdatedById",
-            table: "Hours");
-
-        migrationBuilder.DropColumn(
-            name: "UpdatedById",
-            table: "People");
-
-        migrationBuilder.DropColumn(
-            name: "UpdatedById",
-            table: "Hours");
-
-        migrationBuilder.AlterColumn<string>(
-            name: "Role",
-            table: "People",
-            type: "nvarchar(max)",
-            nullable: false,
-            oldClrType: typeof(string),
-            oldType: "nvarchar(100)",
-            oldMaxLength: 100);
-
-        migrationBuilder.AlterColumn<string>(
-            name: "LastName",
-            table: "People",
-            type: "nvarchar(max)",
-            nullable: false,
-            oldClrType: typeof(string),
-            oldType: "nvarchar(100)",
-            oldMaxLength: 100);
-
-        migrationBuilder.AlterColumn<string>(
-            name: "FirstName",
-            table: "People",
-            type: "nvarchar(max)",
-            nullable: false,
-            oldClrType: typeof(string),
-            oldType: "nvarchar(100)",
-            oldMaxLength: 100);
-
-        migrationBuilder.AlterColumn<string>(
-            name: "District",
-            table: "People",
-            type: "nvarchar(max)",
-            nullable: false,
-            oldClrType: typeof(string),
-            oldType: "nvarchar(100)",
-            oldMaxLength: 100);
-
-        migrationBuilder.CreateTable(
-            name: "Patients",
-            columns: table => new
-            {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("SqlServer:Identity", "1, 1"),
-                CallSign = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                Date = table.Column<DateOnly>(type: "date", nullable: false),
-                DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                EventType = table.Column<byte>(type: "tinyint", nullable: false),
-                FinalClinicalImpression = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                Outcome = table.Column<byte>(type: "tinyint", nullable: false),
-                PresentingComplaint = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                Region = table.Column<byte>(type: "tinyint", nullable: false),
-                Trust = table.Column<byte>(type: "tinyint", nullable: false),
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Patients", x => x.Id);
-            });
-
-        migrationBuilder.CreateTable(
-            name: "Users",
-            columns: table => new
-            {
-                Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                Role = table.Column<byte>(type: "tinyint", nullable: false),
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Users", x => x.Id);
-            });
     }
 }

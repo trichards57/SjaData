@@ -28,36 +28,6 @@ public class PeopleController(IPersonService personService) : ControllerBase
     private readonly IPersonService personService = personService;
 
     /// <summary>
-    /// Accepts a CSV file of people data and adds it to the system.
-    /// </summary>
-    /// <param name="file">The uploaded data file.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
-    /// </returns>
-    [HttpPost]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
-    [Authorize(Policy = "Admin")]
-    public async Task<ActionResult<CountResponse>> ReceivePersonFile(IFormFile file)
-    {
-        using var reader = new StreamReader(file.OpenReadStream());
-        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
-        csv.Context.RegisterClassMap<PersonFileLineMap>();
-
-        try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Unable to get user details.");
-            var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>(), userId);
-
-            return Ok(new CountResponse { Count = updatedCount });
-        }
-        catch (CsvHelperException)
-        {
-            return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
-        }
-    }
-
-    /// <summary>
     /// Gets the people activity reports for a specific date and region.
     /// </summary>
     /// <param name="etag">The Etag for the data currently held by the client.</param>
@@ -94,5 +64,35 @@ public class PeopleController(IPersonService personService) : ControllerBase
         var res = personService.GetPeopleReportsAsync(date, region);
 
         return Ok(res);
+    }
+
+    /// <summary>
+    /// Accepts a CSV file of people data and adds it to the system.
+    /// </summary>
+    /// <param name="file">The uploaded data file.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the result of the action.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(CountResponse), StatusCodes.Status200OK)]
+    [Authorize(Policy = "Admin")]
+    public async Task<ActionResult<CountResponse>> ReceivePersonFile(IFormFile file)
+    {
+        using var reader = new StreamReader(file.OpenReadStream());
+        using var csv = new CsvReader(reader, CultureInfo.CurrentUICulture);
+        csv.Context.RegisterClassMap<PersonFileLineMap>();
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Unable to get user details.");
+            var updatedCount = await personService.AddPeopleAsync(csv.GetRecordsAsync<PersonFileLine>(), userId);
+
+            return Ok(new CountResponse { Count = updatedCount });
+        }
+        catch (CsvHelperException)
+        {
+            return Problem("The uploaded CSV data was invalid.", statusCode: StatusCodes.Status400BadRequest);
+        }
     }
 }

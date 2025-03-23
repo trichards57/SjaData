@@ -13,6 +13,16 @@ namespace SjaData.Server.Migrations;
 public partial class Vehicles : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "VehicleIncidents");
+
+        migrationBuilder.DropTable(
+            name: "Vehicles");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -91,15 +101,5 @@ public partial class Vehicles : Migration
             name: "IX_Vehicles_UpdatedById",
             table: "Vehicles",
             column: "UpdatedById");
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "VehicleIncidents");
-
-        migrationBuilder.DropTable(
-            name: "Vehicles");
     }
 }

@@ -46,6 +46,5 @@ export function preloadApiEndpoints(endpoints, delay = 500) {
 
             dotNetHelper.invokeMethodAsync('OnPreloadComplete');
         }, 1000); // A small delay to simulate idle time
-
     }
 }

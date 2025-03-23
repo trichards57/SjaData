@@ -32,6 +32,17 @@ public class Person
     public ICollection<HoursEntry> Hours { get; set; } = [];
 
     /// <summary>
+    /// Gets or sets the hub for the person.
+    /// </summary>
+    [ForeignKey(nameof(HubId))]
+    public Hub? Hub { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the hub the person is associated with.
+    /// </summary>
+    public int? HubId { get; set; }
+
+    /// <summary>
     /// Gets or sets the unique identifier for the person.
     /// </summary>
     [Key]
@@ -74,15 +85,4 @@ public class Person
     /// </summary>
     [Required]
     public string UpdatedById { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the hub for the person.
-    /// </summary>
-    [ForeignKey(nameof(HubId))]
-    public Hub? Hub { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ID of the hub the person is associated with.
-    /// </summary>
-    public int? HubId { get; set; }
 }

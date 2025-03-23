@@ -36,5 +36,3 @@ window.registerForUpdateAvailableNotification = (caller, methodName) => {
         }
     });
 };
-
-

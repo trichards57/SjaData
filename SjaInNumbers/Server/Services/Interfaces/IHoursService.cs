@@ -16,6 +16,17 @@ namespace SjaInNumbers.Server.Services.Interfaces;
 public interface IHoursService
 {
     /// <summary>
+    /// Adds hours data to the database.
+    /// </summary>
+    /// <param name="hours">The hours data to add.</param>
+    /// <param name="userId">The ID of the user adding the data.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the
+    /// number of entries added.
+    /// </returns>
+    Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId);
+
+    /// <summary>
     /// Counts the hours that match the given query.
     /// </summary>
     /// <param name="date">The date to filter by.</param>
@@ -25,24 +36,6 @@ public interface IHoursService
     /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the count.
     /// </returns>
     Task<HoursCount> CountAsync(DateOnly? date, DateType? dateType = DateType.Month, bool future = false);
-
-    /// <summary>
-    /// Gets the current NHSE target.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the target.
-    /// </returns>
-    Task<int> GetNhseTargetAsync();
-
-    /// <summary>
-    /// Gets the activity trends for a region.
-    /// </summary>
-    /// <param name="region">The region to query for.</param>
-    /// <param name="nhse">Indicates that only NSHE data should be returned.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the trends report.
-    /// </returns>
-    Task<Trends> GetTrendsAsync(Region region, bool nhse);
 
     /// <summary>
     /// Calculates the ETag associated with an hours count.
@@ -67,6 +60,14 @@ public interface IHoursService
     Task<DateTimeOffset> GetLastModifiedAsync();
 
     /// <summary>
+    /// Gets the current NHSE target.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the target.
+    /// </returns>
+    Task<int> GetNhseTargetAsync();
+
+    /// <summary>
     /// Gets the current Etag for the NHSE data.
     /// </summary>
     /// <returns>
@@ -83,15 +84,14 @@ public interface IHoursService
     Task<DateTimeOffset> GetNhseTargetLastModifiedAsync();
 
     /// <summary>
-    /// Adds hours data to the database.
+    /// Gets the activity trends for a region.
     /// </summary>
-    /// <param name="hours">The hours data to add.</param>
-    /// <param name="userId">The ID of the user adding the data.</param>
+    /// <param name="region">The region to query for.</param>
+    /// <param name="nhse">Indicates that only NSHE data should be returned.</param>
     /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the
-    /// number of entries added.
+    /// A <see cref="Task"/> representing the asynchronous operation. Resolves to the trends report.
     /// </returns>
-    Task<int> AddHours(IAsyncEnumerable<HoursFileLine> hours, string userId);
+    Task<Trends> GetTrendsAsync(Region region, bool nhse);
 
     /// <summary>
     /// Calculates the ETag associated with an activity report.

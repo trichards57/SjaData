@@ -13,6 +13,45 @@ namespace SjaData.Server.Migrations;
 public partial class AddHubToPerson : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.AddColumn<string>(
+            name: "District",
+            table: "People",
+            type: "nvarchar(100)",
+            maxLength: 100,
+            nullable: false,
+            defaultValue: string.Empty);
+
+        migrationBuilder.AddColumn<byte>(
+            name: "Region",
+            table: "People",
+            type: "tinyint",
+            nullable: false,
+            defaultValue: (byte)0);
+
+        migrationBuilder.Sql(@"
+                -- Reverse the data migration process by restoring the district and region
+                UPDATE People
+                SET District = (SELECT TOP 1 Name FROM District WHERE HubId = People.HubId),
+                    Region = (SELECT TOP 1 Region FROM District WHERE HubId = People.HubId)
+                WHERE People.HubId IS NOT NULL;
+            ");
+
+        migrationBuilder.DropForeignKey(
+            name: "FK_People_Hubs_HubId",
+            table: "People");
+
+        migrationBuilder.DropIndex(
+            name: "IX_People_HubId",
+            table: "People");
+
+        migrationBuilder.DropColumn(
+            name: "HubId",
+            table: "People");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<int>(
@@ -65,45 +104,5 @@ public partial class AddHubToPerson : Migration
             column: "HubId",
             principalTable: "Hubs",
             principalColumn: "Id");
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-
-        migrationBuilder.AddColumn<string>(
-            name: "District",
-            table: "People",
-            type: "nvarchar(100)",
-            maxLength: 100,
-            nullable: false,
-            defaultValue: string.Empty);
-
-        migrationBuilder.AddColumn<byte>(
-            name: "Region",
-            table: "People",
-            type: "tinyint",
-            nullable: false,
-            defaultValue: (byte)0);
-
-        migrationBuilder.Sql(@"
-                -- Reverse the data migration process by restoring the district and region
-                UPDATE People
-                SET District = (SELECT TOP 1 Name FROM District WHERE HubId = People.HubId),
-                    Region = (SELECT TOP 1 Region FROM District WHERE HubId = People.HubId)
-                WHERE People.HubId IS NOT NULL;
-            ");
-
-        migrationBuilder.DropForeignKey(
-            name: "FK_People_Hubs_HubId",
-            table: "People");
-
-        migrationBuilder.DropIndex(
-            name: "IX_People_HubId",
-            table: "People");
-
-        migrationBuilder.DropColumn(
-            name: "HubId",
-            table: "People");
     }
 }

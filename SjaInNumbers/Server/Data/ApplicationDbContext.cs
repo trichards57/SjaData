@@ -16,9 +16,9 @@ namespace SjaInNumbers.Server.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
 {
     /// <summary>
-    /// Gets or sets the hubs.
+    /// Gets or sets the recorded deployments.
     /// </summary>
-    public DbSet<Hub> Hubs { get; set; }
+    public DbSet<Deployment> Deployments { get; set; }
 
     /// <summary>
     /// Gets or sets the districts containing hubs.
@@ -31,14 +31,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<HoursEntry> Hours { get; set; }
 
     /// <summary>
-    /// Gets or sets the people.
+    /// Gets or sets the hubs.
     /// </summary>
-    public DbSet<Person> People { get; set; }
-
-    /// <summary>
-    /// Gets or sets the vehicles.
-    /// </summary>
-    public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<Hub> Hubs { get; set; }
 
     /// <summary>
     /// Gets or sets the key dates.
@@ -46,14 +41,19 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<KeyDates> KeyDates { get; set; }
 
     /// <summary>
+    /// Gets or sets the people.
+    /// </summary>
+    public DbSet<Person> People { get; set; }
+
+    /// <summary>
     /// Gets or sets the incidents associated with vehicles.
     /// </summary>
     public DbSet<VehicleIncident> VehicleIncidents { get; set; }
 
     /// <summary>
-    /// Gets or sets the recorded deployments.
+    /// Gets or sets the vehicles.
     /// </summary>
-    public DbSet<Deployment> Deployments { get; set; }
+    public DbSet<Vehicle> Vehicles { get; set; }
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)

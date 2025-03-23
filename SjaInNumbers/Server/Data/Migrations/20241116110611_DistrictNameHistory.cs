@@ -13,6 +13,17 @@ namespace SjaData.Server.Migrations;
 public partial class DistrictNameHistory : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "DistrictPreviousName");
+
+        migrationBuilder.DropColumn(
+            name: "LastModified",
+            table: "Districts");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<DateTimeOffset>(
@@ -46,16 +57,5 @@ public partial class DistrictNameHistory : Migration
             name: "IX_DistrictPreviousName_DistrictId",
             table: "DistrictPreviousName",
             column: "DistrictId");
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "DistrictPreviousName");
-
-        migrationBuilder.DropColumn(
-            name: "LastModified",
-            table: "Districts");
     }
 }

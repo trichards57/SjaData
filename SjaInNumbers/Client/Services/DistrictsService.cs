@@ -1,4 +1,9 @@
-﻿using SjaInNumbers.Client.Services.Interfaces;
+﻿// <copyright file="DistrictsService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using SjaInNumbers.Client.Services.Interfaces;
 using SjaInNumbers.Shared.Model.Districts;
 using System.Net.Http.Json;
 
@@ -8,18 +13,18 @@ public class DistrictsService(HttpClient httpClient) : IDistrictsService
 {
     private readonly HttpClient httpClient = httpClient;
 
-    public IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync()
-        => httpClient.GetFromJsonAsAsyncEnumerable<DistrictSummary>("/api/districts");
-
     public Task<DistrictSummary> GetDistrictAsync(int id)
         => httpClient.GetFromJsonAsync<DistrictSummary>($"/api/districts/{id}");
+
+    public IAsyncEnumerable<DistrictSummary> GetDistrictSummariesAsync()
+            => httpClient.GetFromJsonAsAsyncEnumerable<DistrictSummary>("/api/districts");
 
     public Task PostDistrictCode(int id, string code)
         => httpClient.PostAsJsonAsync($"/api/districts/{id}/code", code);
 
-    public Task PostDistrictName(int id, string name)
-        => httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
-
     public Task PostDistrictMerge(int sourceId, int destinationId)
         => httpClient.PostAsJsonAsync($"/api/districts/merge", new MergeDistrict { SourceDistrictId = sourceId, DestinationDistrictId = destinationId });
+
+    public Task PostDistrictName(int id, string name)
+            => httpClient.PostAsJsonAsync($"/api/districts/{id}/name", name);
 }

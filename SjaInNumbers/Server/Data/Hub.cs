@@ -16,13 +16,6 @@ namespace SjaInNumbers.Server.Data;
 public class Hub
 {
     /// <summary>
-    /// Gets or sets the internal ID of the hub.
-    /// </summary>
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    /// <summary>
     /// Gets or sets the district the hub sits in.
     /// </summary>
     [ForeignKey(nameof(DistrictId))]
@@ -36,11 +29,23 @@ public class Hub
     public int DistrictId { get; set; }
 
     /// <summary>
+    /// Gets or sets the internal ID of the hub.
+    /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    /// <summary>
     /// Gets or sets the name of the hub.
     /// </summary>
     [Required(AllowEmptyStrings = false)]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the people in the hub.
+    /// </summary>
+    public IList<Person> People { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the last time the hub information was updated.
@@ -51,9 +56,4 @@ public class Hub
     /// Gets or sets the vehicles in the hub.
     /// </summary>
     public IList<Vehicle> Vehicles { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the people in the hub.
-    /// </summary>
-    public IList<Person> People { get; set; } = [];
 }

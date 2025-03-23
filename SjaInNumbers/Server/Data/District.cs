@@ -15,6 +15,16 @@ namespace SjaInNumbers.Server.Data;
 public class District
 {
     /// <summary>
+    /// Gets or sets the districts code.
+    /// </summary>
+    public string Code { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the hubs in the district.
+    /// </summary>
+    public IList<Hub> Hubs { get; set; } = [];
+
+    /// <summary>
     /// Gets or sets the internal ID of the district.
     /// </summary>
     [Key]
@@ -22,9 +32,9 @@ public class District
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the region the district is in.
+    /// Gets or sets the last time the district information was updated.
     /// </summary>
-    public Region Region { get; set; } = Region.Undefined;
+    public DateTimeOffset LastModified { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the district.
@@ -34,22 +44,12 @@ public class District
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the hubs in the district.
-    /// </summary>
-    public IList<Hub> Hubs { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the districts code.
-    /// </summary>
-    public string Code { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the last time the district information was updated.
-    /// </summary>
-    public DateTimeOffset LastModified { get; set; }
-
-    /// <summary>
     /// Gets or sets the previous names of the district.
     /// </summary>
     public IList<DistrictPreviousName> PreviousNames { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the region the district is in.
+    /// </summary>
+    public Region Region { get; set; } = Region.Undefined;
 }

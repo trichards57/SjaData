@@ -24,6 +24,43 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
     private readonly IVehicleService vehicleService = vehicleService;
 
     /// <summary>
+    /// Gets the vehicle settings for a given vehicle.
+    /// </summary>
+    /// <param name="etag">The Etag for the data currently held by the client.</param>
+    /// <param name="id">The ID of the vehicle.</param>
+    /// <returns>The vehicle settings.</returns>
+    [HttpGet("{id}")]
+    [Authorize(Policy = "Lead")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [RevalidateCache]
+    public async Task<ActionResult<VehicleSettings>> GetVehicleAsync([FromHeader(Name = "If-None-Match")] string? etag, int id)
+    {
+        var actualEtagValue = await vehicleService.GetSettingsEtagAsync(id);
+        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
+        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
+        var lastUpdate = await vehicleService.GetLastModifiedAsync();
+
+        Response.GetTypedHeaders().ETag = actualEtag;
+        Response.GetTypedHeaders().LastModified = lastUpdate;
+
+        if (actualEtag.Compare(etagValue, false))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        var vehicle = await vehicleService.GetSettingsAsync(id);
+
+        if (vehicle == null)
+        {
+            return NotFound();
+        }
+
+        return vehicle;
+    }
+
+    /// <summary>
     /// A report on the national vehicle status.
     /// </summary>
     /// <param name="etag">The Etag for the data currently held by the client.</param>
@@ -78,43 +115,6 @@ public class VehicleController(IVehicleService vehicleService) : ControllerBase
         }
 
         return Ok(vehicleService.GetSettingsAsync(place));
-    }
-
-    /// <summary>
-    /// Gets the vehicle settings for a given vehicle.
-    /// </summary>
-    /// <param name="etag">The Etag for the data currently held by the client.</param>
-    /// <param name="id">The ID of the vehicle.</param>
-    /// <returns>The vehicle settings.</returns>
-    [HttpGet("{id}")]
-    [Authorize(Policy = "Lead")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status304NotModified)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [RevalidateCache]
-    public async Task<ActionResult<VehicleSettings>> GetVehicleAsync([FromHeader(Name = "If-None-Match")] string? etag, int id)
-    {
-        var actualEtagValue = await vehicleService.GetSettingsEtagAsync(id);
-        var actualEtag = new EntityTagHeaderValue(actualEtagValue, true);
-        var etagValue = string.IsNullOrWhiteSpace(etag) ? null : EntityTagHeaderValue.Parse(etag);
-        var lastUpdate = await vehicleService.GetLastModifiedAsync();
-
-        Response.GetTypedHeaders().ETag = actualEtag;
-        Response.GetTypedHeaders().LastModified = lastUpdate;
-
-        if (actualEtag.Compare(etagValue, false))
-        {
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        var vehicle = await vehicleService.GetSettingsAsync(id);
-
-        if (vehicle == null)
-        {
-            return NotFound();
-        }
-
-        return vehicle;
     }
 
     /// <summary>
