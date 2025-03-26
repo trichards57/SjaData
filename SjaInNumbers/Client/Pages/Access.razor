@@ -68,7 +68,7 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-        currentUserId = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException();
+        currentUserId = authState.User.Claims?.FirstOrDefault(c => c.Type == "sub")?.Value ?? "";
 
         users = await UserService.GetAll().ToListAsync();
     }

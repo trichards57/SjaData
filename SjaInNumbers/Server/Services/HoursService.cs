@@ -365,7 +365,7 @@ public partial class HoursService(TimeProvider timeProvider, IDbContextFactory<A
                 TwelveMonthAverage = h.Select(s => s.Hours).Sum() / 12,
                 SixMonthAverage = h.Where(i => i.Date >= startDate.AddMonths(-6)).Select(s => s.Hours).Sum() / 6,
                 ThreeMonthAverage = h.Where(i => i.Date >= startDate.AddMonths(-3)).Select(s => s.Hours).Sum(s => s) / 3,
-            }).FirstAsync();
+            }).FirstOrDefaultAsync();
     }
 
     private static async Task<double[]> GetOverTime(IQueryable<HoursEntry> hours, DateOnly startDate)
