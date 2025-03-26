@@ -13,6 +13,6 @@ public class ApiAuthorizationMessageHandler : AuthorizationMessageHandler
     public ApiAuthorizationMessageHandler(IAccessTokenProvider provider, NavigationManager navigationManager, IConfiguration configuration)
         : base(provider, navigationManager)
     {
-        ConfigureHandler(authorizedUrls: [configuration.GetValue("ApiBase", "https://localhost:7191/")]);
+        ConfigureHandler(authorizedUrls: [configuration.GetValue("ApiBase", "https://localhost:7035/")]);
     }
 }

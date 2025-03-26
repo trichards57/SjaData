@@ -29,7 +29,7 @@ builder.Services.AddAuthorizationCore(c =>
 
 builder.Services.AddTransient<ApiAuthorizationMessageHandler>();
 
-builder.Services.AddHttpClient("WebAPI", c => c.BaseAddress = new Uri(builder.Configuration.GetValue("ApiBase", "https://localhost:7191/")))
+builder.Services.AddHttpClient("WebAPI", c => c.BaseAddress = new Uri(builder.Configuration.GetValue("ApiBase", "https://localhost:7035/")))
     .AddHttpMessageHandler<ApiAuthorizationMessageHandler>();
 builder.Services.AddScoped(s => s.GetRequiredService<IHttpClientFactory>().CreateClient("WebAPI"));
 

@@ -92,9 +92,9 @@ builder.Services.AddAuthentication(LocalScheme)
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Approved", o => o.RequireClaim("Approved", "True"))
+    .AddPolicy("Admin", o => o.RequireRole("Admin").RequireClaim("Approved", "True"))
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").RequireClaim("Approved", "True"))
     .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
 
 builder.Services.AddOpenIddict()
