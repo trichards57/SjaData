@@ -115,22 +115,21 @@ public sealed partial class AccountController(SignInManager<ApplicationUser> sig
     /// <summary>
     /// Handles requests to sign in.  Redirects the user to the external authentication.
     /// </summary>
-    /// <param name="provider">The log in provider.</param>
     /// <param name="returnUrl">The URL to return to afterwards.</param>
     /// <returns>The result of the action.</returns>
     [HttpGet("login")]
     [NotCachedFilter]
-    public IActionResult Login(string provider, string returnUrl)
+    public IActionResult Login(string returnUrl)
     {
         IEnumerable<KeyValuePair<string, StringValues>> query = [new("ReturnUrl", returnUrl)];
 
         var redirectUrl = UriHelper.BuildRelative(HttpContext.Request.PathBase, "/api/account/externalLogin", QueryString.Create(query));
 
-        var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        var properties = signInManager.ConfigureExternalAuthenticationProperties("Microsoft", redirectUrl);
 
-        LogUserLoginRequested(provider, redirectUrl);
+        LogUserLoginRequested("Microsoft", redirectUrl);
 
-        return Challenge(properties, provider);
+        return Challenge(properties, "Microsoft");
     }
 
     /// <summary>

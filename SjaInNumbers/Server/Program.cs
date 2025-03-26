@@ -4,20 +4,28 @@
 // </copyright>
 
 using Asp.Versioning;
+using FluentValidation;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
+using Scalar.AspNetCore;
+using SjaInNumbers.Server;
 using SjaInNumbers.Server.Authorization;
 using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Helpers;
+using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Services;
 using SjaInNumbers.Server.Services.Interfaces;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,63 +38,7 @@ builder.Services.AddApplicationMetadata(x =>
     x.BuildVersion = typeof(Program).Assembly.GetName().Version?.ToString();
 });
 
-builder.Services.AddControllers();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-    .AddIdentityCookies();
-
-builder.Services.ConfigureApplicationCookie(o =>
-{
-    o.Events.OnRedirectToLogin = c =>
-    {
-        c.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
-    o.Events.OnRedirectToAccessDenied = c =>
-    {
-        c.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
-    };
-});
-
-builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
-{
-    var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? throw new InvalidOperationException("No Microsoft Tenant ID");
-    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? throw new InvalidOperationException("No Microsoft Client ID");
-    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? throw new InvalidOperationException("No Microsoft Client Secret");
-    microsoftOptions.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
-    microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
-});
-
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
-    .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
-
-builder.Services.AddScoped<IDeploymentService, DeploymentService>();
-builder.Services.AddScoped<IDistrictService, DistrictService>();
-builder.Services.AddScoped<IHoursService, HoursService>();
-builder.Services.AddScoped<IHubService, HubService>();
-builder.Services.AddScoped<IPersonService, PersonService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IVehicleService, VehicleService>();
-builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
-
-builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.OperationFilter<SwaggerDefaultValues>();
-    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Server.xml"));
-    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SjaInNumbers.Shared.xml"));
-});
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
@@ -99,6 +51,28 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+    .AddIdentityCookies();
+
+builder.Services.ConfigureApplicationCookie(c =>
+{
+    c.LoginPath = $"/api/account/login";
+    c.ReturnUrlParameter = "returnUrl";
+});
+
+builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
+{
+    var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? throw new InvalidOperationException("No Microsoft Tenant ID");
+    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? throw new InvalidOperationException("No Microsoft Client ID");
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? throw new InvalidOperationException("No Microsoft Client Secret");
+    microsoftOptions.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+    microsoftOptions.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+});
 
 const string LocalScheme = "LocalScheme";
 
@@ -117,6 +91,12 @@ builder.Services.AddAuthentication(LocalScheme)
         };
     });
 
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Approved", o => o.AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Admin", o => o.RequireRole("Admin").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Lead", o => o.RequireRole("Admin", "Lead").AddRequirements(new RequireApprovalRequirement()))
+    .AddPolicy("Uploader", o => o.RequireClaim("VorData", "Edit"));
+
 builder.Services.AddOpenIddict()
     .AddCore(o =>
     {
@@ -127,10 +107,14 @@ builder.Services.AddOpenIddict()
     {
         o.SetTokenEndpointUris("/connect/token");
         o.SetRevocationEndpointUris("/connect/revoke");
+        o.SetAuthorizationEndpointUris("/connect/authorize");
+        o.SetUserInfoEndpointUris("/connect/userinfo");
         o.AllowClientCredentialsFlow();
+        o.AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange();
         o.AddEphemeralEncryptionKey();
         o.AddEphemeralSigningKey();
-        o.UseAspNetCore().EnableTokenEndpointPassthrough();
+        o.UseAspNetCore().EnableTokenEndpointPassthrough().EnableAuthorizationEndpointPassthrough();
+        o.RegisterScopes(Scopes.Profile, Scopes.Email, Scopes.Roles);
     })
     .AddValidation(o =>
     {
@@ -138,14 +122,28 @@ builder.Services.AddOpenIddict()
         o.UseAspNetCore();
     });
 
-builder.Services.AddHostedService<OpenIdWorker>();
-builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+builder.Services.AddAntiforgery();
 
-builder.Services.AddQuartz(o =>
+builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(typeof(MapperProfile));
+
+builder.Services.AddHsts(o =>
 {
-    o.UseSimpleTypeLoader();
-    o.UseInMemoryStore();
-}).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
+    o.Preload = true;
+    o.IncludeSubDomains = true;
+    o.MaxAge = TimeSpan.FromHours(1);
+});
+
+builder.Services.AddScoped<IDeploymentService, DeploymentService>();
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<IHoursService, HoursService>();
+builder.Services.AddScoped<IHubService, HubService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
+builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
 
 builder.Services.AddApplicationInsightsTelemetry(o =>
 {
@@ -157,7 +155,25 @@ builder.Services.AddApplicationInsightsTelemetry(o =>
     o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
 });
 
-builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
+builder.Services.AddHostedService<OpenIdWorker>();
+builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+
+// TODO : Lock this down
+builder.Services.AddCors(o =>
+{
+    o.AddDefaultPolicy(p =>
+    {
+        p.AllowAnyHeader();
+        p.AllowAnyMethod();
+        p.AllowAnyOrigin();
+    });
+});
+
+builder.Services.AddQuartz(o =>
+{
+    o.UseSimpleTypeLoader();
+    o.UseInMemoryStore();
+}).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
 builder.Services.AddHealthChecks()
     .AddSqlServer(connectionString)
@@ -180,56 +196,68 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseWebAssemblyDebugging();
-    app.UseSwagger();
-    app.UseSwaggerUI(
-        options =>
-        {
-            foreach (var groupName in app.DescribeApiVersions().Select(d => d.GroupName))
-            {
-                options.SwaggerEndpoint($"/swagger/{groupName}/swagger.json", groupName);
-            }
-        });
+    app.UseMigrationsEndPoint();
 }
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseBlazorFrameworkFiles();
-
-if (app.Environment.IsProduction())
-{
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        OnPrepareResponse = ctx =>
-        {
-            if (ctx.File.Name.EndsWith(".svg"))
-            {
-                ctx.Context.Response.GetTypedHeaders()
-                .CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
-                {
-                    Public = true,
-                    MaxAge = TimeSpan.FromDays(365),
-                    Extensions = { new Microsoft.Net.Http.Headers.NameValueHeaderValue("immutable", string.Empty) },
-                };
-            }
-        },
-    });
-}
-else
-{
-    app.UseStaticFiles();
-}
+app.UseRouting();
+app.UseCors();
 
 app.MapHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.MapStaticAssets();
 app.MapControllers();
-app.MapFallbackToFile("index.html");
+
+app.UseExceptionHandler(o =>
+{
+    o.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        if (exceptionHandlerPathFeature?.Error is ValidationException validationException)
+        {
+            context.Response.StatusCode = 400;
+
+            var errors = new Dictionary<string, string[]>();
+
+            foreach (var error in validationException.Errors)
+            {
+                errors[error.PropertyName] = errors.TryGetValue(error.PropertyName, out var messages) ? [.. messages, error.ErrorMessage] : [error.ErrorMessage];
+            }
+
+            await context.Response.WriteAsJsonAsync(new ValidationProblemDetails(errors));
+        }
+        else if (exceptionHandlerPathFeature?.Error is ItemNotFoundException)
+        {
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Title = "Item not found",
+                Detail = "The requested item was not found.",
+            });
+        }
+        else
+        {
+            // Let the framework handle all other exceptions
+            throw exceptionHandlerPathFeature?.Error ?? new Exception("Unknown exception occurred.");
+        }
+    });
+});
 
 await app.RunAsync();

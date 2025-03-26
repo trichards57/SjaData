@@ -46,6 +46,34 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
                 },
                 cancellationToken);
         }
+
+        if (await manager.FindByClientIdAsync(options.WebUiClientId, cancellationToken) is null)
+        {
+            await manager.CreateAsync(
+                new OpenIddictApplicationDescriptor
+                {
+                    ClientId = "main-ui",
+                    ConsentType = ConsentTypes.Implicit,
+                    DisplayName = "Main WASM UI",
+                    ClientType = ClientTypes.Public,
+                    PostLogoutRedirectUris = { new Uri("https://localhost:7135/authentication/logout-callback") },
+                    RedirectUris = { new Uri("https://localhost:7135/authentication/login-callback") },
+                    Permissions = {
+                        Permissions.Endpoints.Authorization,
+                        Permissions.Endpoints.EndSession,
+                        Permissions.Endpoints.Token,
+                        Permissions.GrantTypes.AuthorizationCode,
+                        Permissions.GrantTypes.RefreshToken,
+                        Permissions.ResponseTypes.Code,
+                        Permissions.ResponseTypes.IdToken,
+                        Permissions.Scopes.Email,
+                        Permissions.Scopes.Profile,
+                        Permissions.Scopes.Roles,
+                    },
+                    Requirements = { Requirements.Features.ProofKeyForCodeExchange },
+                },
+                cancellationToken);
+        }
     }
 
     /// <inheritdoc/>

@@ -21,4 +21,9 @@ public class OpenIdWorkerSettings
     /// Gets or sets the VOR Uploader's secret.
     /// </summary>
     public required string VorUploaderClientSecret { get; set; }
+
+    /// <summary>
+    /// Gets or sets the main web UI's client ID.
+    /// </summary>
+    public string WebUiClientId { get; set; } = "main-ui";
 }
