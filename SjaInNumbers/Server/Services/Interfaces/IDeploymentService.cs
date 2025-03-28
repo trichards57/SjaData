@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 
+using SjaInNumbers.Server.Model;
 using SjaInNumbers.Shared.Model.Deployments;
 
 namespace SjaInNumbers.Server.Services.Interfaces;
@@ -13,35 +14,21 @@ namespace SjaInNumbers.Server.Services.Interfaces;
 public interface IDeploymentService
 {
     /// <summary>
-    /// Adds a deployment to the database.
+    /// Adds the provided deployments.
     /// </summary>
-    /// <param name="deployment">The deployment to add.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddDeploymentAsync(NewDeployment deployment);
-
-    /// <summary>
-    /// Gets all of the deployments between the given dates.
-    /// </summary>
-    /// <param name="startDate">The start date to search.</param>
-    /// <param name="endDate">The end date to search.</param>
-    /// <returns>
-    /// The list of deployments between the given dates.
-    /// </returns>
-    IAsyncEnumerable<DeploymentSummary> GetAllAsync(DateOnly startDate, DateOnly endDate);
+    /// <param name="deployments">The list of deployments to add.</param>
+    /// <returns>The number of added deployments.</returns>
+    Task<CountResponse> AddDeployments(IAsyncEnumerable<NewDeployment> deployments);
 
     /// <summary>
     /// Gets the national events summary.
     /// </summary>
-    /// <param name="startDate">The start date to search.</param>
-    /// <param name="endDate">The end date to search.</param>
     /// <returns>The national summary.</returns>
-    Task<NationalSummary> GetNationalSummaryAsync(DateOnly startDate, DateOnly endDate);
+    Task<NationalSummary> GetNationalSummaryAsync();
 
     /// <summary>
     /// Gets the list of peak loads for all districts.
     /// </summary>
-    /// <param name="startDate">The start date to search.</param>
-    /// <param name="endDate">The end date to search.</param>
     /// <returns>The list of peak loads.</returns>
-    IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync(DateOnly startDate, DateOnly endDate);
+    IAsyncEnumerable<PeakLoads> GetPeakLoadsAsync();
 }

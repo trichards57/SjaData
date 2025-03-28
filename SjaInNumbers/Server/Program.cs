@@ -7,24 +7,20 @@ using Asp.Versioning;
 using FluentValidation;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
 using Scalar.AspNetCore;
 using SjaInNumbers.Server;
-using SjaInNumbers.Server.Authorization;
 using SjaInNumbers.Server.Data;
-using SjaInNumbers.Server.Helpers;
+using SjaInNumbers.Server.Endpoints;
 using SjaInNumbers.Server.Model;
 using SjaInNumbers.Server.Services;
 using SjaInNumbers.Server.Services.Interfaces;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Net;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,6 +59,11 @@ builder.Services.ConfigureApplicationCookie(c =>
 {
     c.LoginPath = $"/api/account/login";
     c.ReturnUrlParameter = "returnUrl";
+    c.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
@@ -142,7 +143,6 @@ builder.Services.AddScoped<IHubService, HubService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
-builder.Services.AddScoped<IAuthorizationHandler, RequireApprovalHandler>();
 builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
 
 builder.Services.AddApplicationInsightsTelemetry(o =>
@@ -157,6 +157,17 @@ builder.Services.AddApplicationInsightsTelemetry(o =>
 
 builder.Services.AddHostedService<OpenIdWorker>();
 builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+
+builder.Services.AddOpenApi(o =>
+{
+    o.AddDocumentTransformer((document, context, token) =>
+    {
+        document.Info.Title = "SJA in Numbers API";
+        document.Info.Version = "v1";
+        document.Info.Description = "API for SJA Dashboard";
+        return Task.CompletedTask;
+    });
+});
 
 // TODO : Lock this down
 builder.Services.AddCors(o =>
@@ -180,12 +191,12 @@ builder.Services.AddHealthChecks()
     .AddApplicationStatus()
     .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
 
-builder.Services.AddApiVersioning(o =>
-{
-    o.ApiVersionReader = new MediaTypeApiVersionReader("api-v");
-    o.AssumeDefaultVersionWhenUnspecified = true;
-    o.DefaultApiVersion = new ApiVersion(1);
-}).AddApiExplorer();
+//builder.Services.AddApiVersioning(o =>
+//{
+//    o.ApiVersionReader = new MediaTypeApiVersionReader("api-v");
+//    o.AssumeDefaultVersionWhenUnspecified = true;
+//    o.DefaultApiVersion = new ApiVersion(1);
+//}).AddApiExplorer();
 
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
@@ -222,6 +233,10 @@ if (app.Environment.IsDevelopment())
 
 app.MapStaticAssets();
 app.MapControllers();
+
+app.MapGroup("api")
+   .MapAccountEndpoints()
+   .MapDeploymentEndpoints();
 
 app.UseExceptionHandler(o =>
 {

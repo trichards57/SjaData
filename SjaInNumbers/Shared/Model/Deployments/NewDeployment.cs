@@ -27,5 +27,5 @@ public readonly record struct NewDeployment
     [Range(0, 1000000)]
     public int DipsReference { get; init; }
 
-    public int DistrictId { get; init; }
+    public string DistrictCode { get; init; }
 }

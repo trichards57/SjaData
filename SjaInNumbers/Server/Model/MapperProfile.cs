@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SjaInNumbers.Server.Data;
 using SjaInNumbers.Server.Model.Deployments;
 using SjaInNumbers.Shared.Model.Deployments;
 
@@ -16,7 +17,9 @@ public class MapperProfile : Profile
     {
         CreateMap<DeploymentsFileLine, NewDeployment>()
             .ForMember(d => d.DipsReference, o => o.MapFrom(s => s.DipsNumber ?? 0))
-            .ForMember(d => d.DistrictId, o => o.MapFrom(s => s.District))
+            .ForMember(d => d.DistrictCode, o => o.MapFrom(s => s.District))
             .ForMember(d => d.FrontLineAmbulances, o => o.MapFrom(s => s.Ambulances));
+
+        CreateMap<NewDeployment, Deployment>();
     }
 }
