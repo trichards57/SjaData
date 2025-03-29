@@ -28,6 +28,7 @@ public static partial class DeploymentsEndpoints
     {
         var group = builder
             .MapGroup("deployments")
+            .WithTags("Deployments")
             .AllowAnonymous();
 
         group.MapGet("national", (IDeploymentService deploymentService) =>

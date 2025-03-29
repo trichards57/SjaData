@@ -26,6 +26,7 @@ public static partial class AccountEndpoints
     {
         var group = builder
             .MapGroup("account")
+            .WithTags("Account")
             .AllowAnonymous();
 
         group.MapGet("clear", (HttpContext context, ILoggerFactory loggerFactory) =>

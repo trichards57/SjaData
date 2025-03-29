@@ -23,6 +23,7 @@ public static partial class ConnectEndpoints
     {
         var group = builder
             .MapGroup("connect")
+            .WithTags("OpenID Connect")
             .AllowAnonymous();
 
         group.MapGet("authorize", async Task<Results<SignInHttpResult, ForbidHttpResult, ChallengeHttpResult>> (

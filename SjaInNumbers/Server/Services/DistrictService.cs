@@ -14,19 +14,16 @@ namespace SjaInNumbers.Server.Services;
 /// <summary>
 /// Service for managing districts.
 /// </summary>
-public class DistrictService(ApplicationDbContext context) : IDistrictService
+public partial class DistrictService(ApplicationDbContext context, ILogger<DistrictService> logger) : IDistrictService
 {
     private readonly ApplicationDbContext context = context;
-
-    /// <inheritdoc/>
-    public async Task<bool> CheckDistrictCodeAvailable(int id, string code)
-    {
-        return !await context.Districts.AnyAsync(d => d.Id != id && d.Code == code);
-    }
+    private readonly ILogger logger = logger;
 
     /// <inheritdoc/>
     public IAsyncEnumerable<DistrictSummary> GetAll()
     {
+        LogRetrievedAllDistrictSummaries();
+
         return context.Districts
             .Select(s => new DistrictSummary
             {
@@ -38,9 +35,9 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     }
 
     /// <inheritdoc/>
-    public Task<DistrictSummary?> GetDistrict(int id)
+    public async Task<DistrictSummary> GetDistrict(int id)
     {
-        return context.Districts
+        var district = await context.Districts
             .Where(d => d.Id == id)
             .Select(s => new DistrictSummary
             {
@@ -51,6 +48,17 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
             })
             .Cast<DistrictSummary?>()
             .FirstOrDefaultAsync();
+
+        if (district == null)
+        {
+            LogDistrictNotFound(id);
+            throw new ItemNotFoundException();
+        }
+        else
+        {
+            LogRetrievedDistrictSummary(id);
+            return district.Value;
+        }
     }
 
     /// <inheritdoc/>
@@ -77,14 +85,21 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
     }
 
     /// <inheritdoc/>
-    public async Task<bool> MergeDistrictsAsync(MergeDistrict mergeDistrict)
+    public async Task MergeDistrictsAsync(MergeDistrict mergeDistrict)
     {
         var sourceDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.SourceDistrictId);
         var destinationDistrict = await context.Districts.Include(d => d.Hubs).FirstOrDefaultAsync(d => d.Id == mergeDistrict.DestinationDistrictId);
 
-        if (sourceDistrict == null || destinationDistrict == null)
+        if (sourceDistrict == null)
         {
-            return false;
+            LogDistrictNotFound(mergeDistrict.SourceDistrictId);
+            throw new ItemNotFoundException();
+        }
+
+        if (destinationDistrict == null)
+        {
+            LogDistrictNotFound(mergeDistrict.DestinationDistrictId);
+            throw new ItemNotFoundException();
         }
 
         foreach (var hub in sourceDistrict.Hubs)
@@ -103,11 +118,11 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
 
         await context.SaveChangesAsync();
 
-        return true;
+        LogMergedDistricts(mergeDistrict.SourceDistrictId, mergeDistrict.DestinationDistrictId);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetDistrictCodeAsync(int id, string code)
+    public async Task SetDistrictCodeAsync(int id, string code)
     {
         var district = new District
         {
@@ -121,11 +136,17 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
 
         var count = await context.SaveChangesAsync();
 
-        return count == 1;
+        if (count == 0)
+        {
+            LogDistrictNotFound(id);
+            throw new ItemNotFoundException();
+        }
+
+        LogDistrictCodeUpdated(id, code);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetDistrictNameAsync(int id, string name)
+    public async Task SetDistrictNameAsync(int id, string name)
     {
         var district = await context.Districts.Include(d => d.PreviousNames).FirstOrDefaultAsync(d => d.Id == id);
 
@@ -133,12 +154,13 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
 
         if (district == null)
         {
-            return false;
+            LogDistrictNotFound(id);
+            throw new ItemNotFoundException();
         }
 
         if (district.Name.Equals(name))
         {
-            return true;
+            return;
         }
 
         var oldName = district.Name;
@@ -154,6 +176,24 @@ public class DistrictService(ApplicationDbContext context) : IDistrictService
 
         await context.SaveChangesAsync();
 
-        return true;
+        LogDistrictNameUpdated(id, name);
     }
+
+    [LoggerMessage(1003, LogLevel.Information, "District code for {districtId} updated.")]
+    private partial void LogDistrictCodeUpdated(int districtId, string newCode);
+
+    [LoggerMessage(1004, LogLevel.Information, "District name for {districtId} updated.")]
+    private partial void LogDistrictNameUpdated(int districtId, string name);
+
+    [LoggerMessage(2001, LogLevel.Warning, "Could not find a district with the ID {districtId}.")]
+    private partial void LogDistrictNotFound(int districtId);
+
+    [LoggerMessage(1002, LogLevel.Information, "Retrieved all the district summaries.")]
+    private partial void LogRetrievedAllDistrictSummaries();
+
+    [LoggerMessage(1001, LogLevel.Information, "Retrieved the summary for district {districtId}.")]
+    private partial void LogRetrievedDistrictSummary(int districtId);
+
+    [LoggerMessage(1005, LogLevel.Information, "Merged district with the ID {sourceDistrictId} into district with the ID {destinationDistrictId}.")]
+    private partial void LogMergedDistricts(int sourceDistrictId, int destinationDistrictId);
 }

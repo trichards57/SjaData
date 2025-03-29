@@ -236,7 +236,9 @@ app.MapControllers();
 
 app.MapGroup("api")
    .MapAccountEndpoints()
-   .MapDeploymentEndpoints();
+   .MapConnectEndpoints()
+   .MapDeploymentEndpoints()
+   .MapDistrictEndpoints();
 
 app.UseExceptionHandler(o =>
 {
