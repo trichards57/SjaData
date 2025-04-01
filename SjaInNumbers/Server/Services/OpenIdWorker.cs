@@ -58,7 +58,8 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
                     ClientType = ClientTypes.Public,
                     PostLogoutRedirectUris = { new Uri("https://localhost:7135/authentication/logout-callback") },
                     RedirectUris = { new Uri("https://localhost:7135/authentication/login-callback") },
-                    Permissions = {
+                    Permissions =
+                    {
                         Permissions.Endpoints.Authorization,
                         Permissions.Endpoints.EndSession,
                         Permissions.Endpoints.Token,

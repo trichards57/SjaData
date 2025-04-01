@@ -1,4 +1,9 @@
-﻿.update-alert {
+﻿/* 
+Copyright (c) Tony Richards. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*/
+
+.update-alert {
     position: fixed;
     top: 0;
     right: 0;

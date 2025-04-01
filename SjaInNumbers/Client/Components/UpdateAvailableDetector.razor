@@ -1,6 +1,11 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@* 
+Copyright (c) Tony Richards. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*@
 
-@if (_newVersionAvailable)
+@inject IJSRuntime JSRuntime
+
+@if (newVersionAvailable)
 {
     <div class="update-alert">
         <div class="update-alert-content">
@@ -8,31 +13,4 @@
             <button class="update-alert-button btn-small btn-primary" @onclick="@(() => JSRuntime.InvokeVoidAsync("location.reload"))">Refresh</button>
         </div>
     </div>
-}
-
-@code {
-    private bool _newVersionAvailable = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await RegisterForUpdateAvailableNotification();
-    }
-
-    private async Task RegisterForUpdateAvailableNotification()
-    {
-        await JSRuntime.InvokeAsync<object>(
-            identifier: "registerForUpdateAvailableNotification",
-            DotNetObjectReference.Create(this),
-            nameof(OnUpdateAvailable));
-    }
-
-    [JSInvokable(nameof(OnUpdateAvailable))]
-    public Task OnUpdateAvailable()
-    {
-        _newVersionAvailable = true;
-
-        StateHasChanged();
-
-        return Task.CompletedTask;
-    }
 }

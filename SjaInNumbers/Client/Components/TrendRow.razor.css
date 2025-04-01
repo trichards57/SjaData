@@ -1,4 +1,9 @@
-﻿.area-label {
+﻿/* 
+Copyright (c) Tony Richards. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*/
+
+.area-label {
     font-family: var(--sja-header-font);
     padding: 0 5px;
 }

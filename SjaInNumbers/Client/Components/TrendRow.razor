@@ -1,4 +1,9 @@
-﻿@using ApexCharts
+﻿@* 
+Copyright (c) Tony Richards. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*@
+
+@using ApexCharts
 @using SjaInNumbers.Shared.Model.Trends
 
 @if (Trends.TwelveMonthAverage != null)
@@ -37,56 +42,5 @@
 }
 
 @code {
-    [Parameter]
-    public Trends Trends { get; set; }
-
-    [Parameter]
-    public string KeyValue { get; set; } = "";
-
-    [Parameter]
-    public string Label { get; set; } = "";
-
-    private ChartItem[] HoursItems => Trends.Hours[KeyValue]?.Select((d, i) => new ChartItem { Hours = d, Index = i }).ToArray() ?? [];
-
-    private readonly ApexChartOptions<ChartItem> chartOptions = new()
-    {
-        Chart = new()
-        {
-            Sparkline = new()
-            {
-                Enabled = true,
-            },
-        },
-        Tooltip = new()
-        {
-            Enabled = false,
-        },
-        Xaxis = new()
-        {
-            Type = XAxisType.Numeric,
-        }
-    };
-
-    private readonly SeriesStroke seriesStroke = new()
-    {
-        Color = "black",
-        Width = 2,
-    };
-
-    private int Round(double value)
-    {
-        if (value == 0)
-        {
-            return 0;
-        }
-
-        double scale = Math.Pow(10, Math.Floor(Math.Log10(Math.Abs(value))) + 1);
-        return (int)(Math.Round(value / scale, 2) * scale);
-    }
-
-    private class ChartItem
-    {
-        public double Hours { get; set; }
-        public int Index { get; set; }
-    }
+    
 }

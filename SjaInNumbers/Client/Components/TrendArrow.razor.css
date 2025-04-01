@@ -1,4 +1,9 @@
-﻿.increase {
+﻿/* 
+Copyright (c) Tony Richards. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*/
+
+.increase {
     color: var(--sja-dark-green-text);
     background-color: var(--sja-dark-green);
 }
